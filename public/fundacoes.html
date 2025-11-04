@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WildGuardian Hub</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        accent: '#198754',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .hero-pattern {
+            background-image: radial-gradient(#1987541a 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <i data-feather="heart" class="text-accent-500 h-6 w-6"></i>
+                    <span class="ml-2 text-xl font-bold text-gray-800">WildGuardian</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#" class="text-accent-600 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="#" class="text-gray-600 hover:text-accent-600 px-3 py-2 rounded-md text-sm font-medium">About</a>
+                        <a href="#" class="text-gray-600 hover:text-accent-600 px-3 py-2 rounded-md text-sm font-medium">FAQ</a>
+                        <a href="#" class="text-gray-600 hover:text-accent-600 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-accent-500">
+                        <i data-feather="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-pattern">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-6">Protect Wildlife Together</h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+                Discover and support organizations dedicated to conserving our planet's precious wildlife. Every donation makes a difference.
+            </p>
+            <a href="#organizations" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-accent-600 hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500">
+                Explore Organizations
+                <i data-feather="arrow-right" class="ml-2 w-5 h-5"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Organizations Grid -->
+    <div id="organizations" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Featured Conservation Organizations</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Click on any organization to learn more and support their cause.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- WWF -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 card-hover">
+                <div class="h-48 bg-gradient-to-r from-green-400 to-accent-500 flex items-center justify-center">
+                    <img src="https://static.photos/nature/640x360/1" alt="WWF" class="h-full w-full object-cover">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">World Wildlife Fund</h3>
+                    <p class="text-gray-600 mb-4">Protecting the future of nature for 60 years.</p>
+                    <a href="https://www.worldwildlife.org/" target="_blank" class="inline-flex items-center text-accent-600 hover:text-accent-800 font-medium">
+                        Visit Website
+                        <i data-feather="external-link" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Wildlife Conservation Society -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 card-hover">
+                <div class="h-48 bg-gradient-to-r from-blue-400 to-accent-500 flex items-center justify-center">
+                    <img src="https://static.photos/nature/640x360/2" alt="WCS" class="h-full w-full object-cover">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Wildlife Conservation Society</h3>
+                    <p class="text-gray-600 mb-4">Saving wildlife and wild places worldwide.</p>
+                    <a href="https://www.wcs.org/" target="_blank" class="inline-flex items-center text-accent-600 hover:text-accent-800 font-medium">
+                        Visit Website
+                        <i data-feather="external-link" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- The Nature Conservancy -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 card-hover">
+                <div class="h-48 bg-gradient-to-r from-teal-400 to-accent-500 flex items-center justify-center">
+                    <img src="https://static.photos/nature/640x360/3" alt="Nature Conservancy" class="h-full w-full object-cover">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">The Nature Conservancy</h3>
+                    <p class="text-gray-600 mb-4">Protecting nature for future generations.</p>
+                    <a href="https://www.nature.org/" target="_blank" class="inline-flex items-center text-accent-600 hover:text-accent-800 font-medium">
+                        Visit Website
+                        <i data-feather="external-link" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Jane Goodall Institute -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 card-hover">
+                <div class="h-48 bg-gradient-to-r from-yellow-400 to-accent-500 flex items-center justify-center">
+                    <img src="https://static.photos/nature/640x360/4" alt="Jane Goodall" class="h-full w-full object-cover">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Jane Goodall Institute</h3>
+                    <p class="text-gray-600 mb-4">Protecting chimpanzees and inspiring action.</p>
+                    <a href="https://www.janegoodall.org/" target="_blank" class="inline-flex items-center text-accent-600 hover:text-accent-800 font-medium">
+                        Visit Website
+                        <i data-feather="external-link" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sea Shepherd -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 card-hover">
+                <div class="h-48 bg-gradient-to-r from-blue-500 to-accent-500 flex items-center justify-center">
+                    <img src="https://static.photos/nature/640x360/5" alt="Sea Shepherd" class="h-full w-full object-cover">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Sea Shepherd</h3>
+                    <p class="text-gray-600 mb-4">Defending marine wildlife worldwide.</p>
+                    <a href="https://www.seashepherd.org/" target="_blank" class="inline-flex items-center text-accent-600 hover:text-accent-800 font-medium">
+                        Visit Website
+                        <i data-feather="external-link" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Rainforest Alliance -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 card-hover">
+                <div class="h-48 bg-gradient-to-r from-green-500 to-accent-500 flex items-center justify-center">
+                    <img src="https://static.photos/nature/640x360/6" alt="Rainforest Alliance" class="h-full w-full object-cover">
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Rainforest Alliance</h3>
+                    <p class="text-gray-600 mb-4">Conserving biodiversity and sustainability.</p>
+                    <a href="https://www.rainforest-alliance.org/" target="_blank" class="inline-flex items-center text-accent-600 hover:text-accent-800 font-medium">
+                        Visit Website
+                        <i data-feather="external-link" class="ml-2 w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="bg-accent-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Ready to Make a Difference?</h2>
+            <p class="text-gray-600 max-w-3xl mx-auto mb-8">
+                Your support can help protect endangered species and preserve natural habitats for future generations.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-accent-600 hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500">
+                    Donate Now
+                    <i data-feather="heart" class="ml-2 w-5 h-5"></i>
+                </a>
+                <a href="#" class="inline-flex items-center justify-center px-6 py-3 border border-accent-500 text-base font-medium rounded-md text-accent-700 bg-white hover:bg-accent-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500">
+                    Learn More
+                    <i data-feather="info" class="ml-2 w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">WildGuardian</h3>
+                    <p class="text-gray-500">
+                        Connecting conservationists with supporters to protect wildlife worldwide.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-500 hover:text-accent-600">Home</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-accent-600">About Us</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-accent-600">Organizations</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-accent-600">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-500 hover:text-accent-600">How to Help</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-accent-600">Conservation Tips</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-accent-600">Wildlife News</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-accent-600">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-500 hover:text-accent-600">
+                            <i data-feather="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-accent-600">
+                            <i data-feather="twitter" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-accent-600">
+                            <i data-feather="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-accent-600">
+                            <i data-feather="youtube" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-gray-200 text-center">
+                <p class="text-gray-500 text-sm">
+                    &copy; 2023 WildGuardian Hub. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

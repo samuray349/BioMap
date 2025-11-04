@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,3 +55,61 @@
   <script src="script.js"></script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoMap Explorer</title>
+
+  <!-- Bootstrap CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Google Maps API -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMap">
+  </script>
+</head>
+<body>
+
+  <!-- Main layout container -->
+  <div class="main-container d-flex">
+
+    <!-- Left Fixed Sidebar -->
+    <div id="left-bar" class="d-flex flex-column align-items-center bg-success text-white">
+      <button id="toggle-menu" class="btn btn-success my-3" title="Menu">
+        <i class="bi bi-list fs-4"></i>
+      </button>
+      <button id="btn-saved" class="btn btn-success my-3" title="Saved">
+        <i class="bi bi-bookmark fs-4"></i>
+        <div class="small">Saved</div>
+      </button>
+      <button id="btn-recent" class="btn btn-success my-3" title="Recent">
+        <i class="bi bi-clock-history fs-4"></i>
+        <div class="small">Recent</div>
+      </button>
+    </div>
+
+    <!-- Collapsible Side Menu -->
+    <div id="sidebar" class="sidebar bg-white border-end shadow-sm">
+      <div class="p-3">
+        <h5 class="text-success">Location Info</h5>
+        <hr>
+        <div id="location-info" class="text-muted">Click a marker to see details.</div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div id="map-container">
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+>>>>>>> fc482c6 (Configuração inicial do Dockerfile para web hosting)

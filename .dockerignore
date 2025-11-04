@@ -1,0 +1,25 @@
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store
+.cache
+.git
+.gitignore
+Dockerfile*
+.dockerignore
+*.swp
+*.local
+*.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage and build artifacts
+coverage
+build
+/dist
+
+
