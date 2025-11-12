@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EcoMap Explorer</title>
+  <title>BioMap</title>
 
-  <!-- Bootstrap CSS & Icons -->
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <link rel="stylesheet" href="style.css">
 
@@ -18,36 +20,84 @@
 </head>
 <body>
 
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <!-- Logo -->
+      <div class="logo-section">
+        <i class="fas fa-paw logo-icon"></i>
+        <a href="index.html" class="logo-text">BioMap</a>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link current">Mapa</a>
+        <a href="#" class="nav-link">Animais</a>
+        <a href="#" class="nav-link">Sobre nós</a>
+        <a href="#" class="nav-link">Doar</a>
+      </nav>
+
+      <!-- User Icon -->
+      <div class="user-section">
+        <i class="fas fa-user user-icon" id="user-icon"></i>
+        <!-- Account Menu -->
+        <div id="account-menu" class="account-menu">
+          <div class="account-menu-item" id="menu-login">Iniciar Sessão</div>
+          <div class="account-menu-separator"></div>
+          <div class="account-menu-item" id="menu-create-account">Criar Conta</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
   <!-- Main layout container -->
   <div class="main-container d-flex">
+    <!-- Left Sidebar with Search and Filters -->
+    <div id="sidebar" class="sidebar">
+      <div class="sidebar-content">
+        <!-- Search Bar -->
+        <div class="search-section">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-input" class="search-input" placeholder="Pesquisar">
+          </div>
+        </div>
 
-    <!-- Left Fixed Sidebar -->
-    <div id="left-bar" class="d-flex flex-column align-items-center bg-success text-white">
-      <button id="toggle-menu" class="btn btn-success my-3" title="Menu">
-        <i class="bi bi-list fs-4"></i>
-      </button>
-      <button id="btn-saved" class="btn btn-success my-3" title="Saved">
-        <i class="bi bi-bookmark fs-4"></i>
-        <div class="small">Saved</div>
-      </button>
-      <button id="btn-recent" class="btn btn-success my-3" title="Recent">
-        <i class="bi bi-clock-history fs-4"></i>
-        <div class="small">Recent</div>
-      </button>
-    </div>
+        <!-- Filters Row: Side by Side -->
+        <div class="filters-row">
+          <!-- Filter: Select Family -->
+          <div class="filter-section">
+            <div class="tag-input-wrapper">
+              <div class="tag-container" id="family-tags"></div>
+              <input type="text" id="family-input" class="tag-input" placeholder="Selecionar família" autocomplete="off">
+              <i class="fas fa-chevron-down filter-arrow"></i>
+              <div class="dropdown-menu" id="family-dropdown"></div>
+            </div>
+          </div>
 
-    <!-- Collapsible Side Menu -->
-    <div id="sidebar" class="sidebar bg-white border-end shadow-sm">
-      <div class="p-3">
-        <h5 class="text-success">Location Info</h5>
-        <hr>
-        <div id="location-info" class="text-muted">Click a marker to see details.</div>
+          <!-- Filter: Select State -->
+          <div class="filter-section">
+            <div class="tag-input-wrapper">
+              <div class="tag-container" id="state-tags"></div>
+              <input type="text" id="state-input" class="tag-input" placeholder="Selecionar estado de..." autocomplete="off">
+              <i class="fas fa-chevron-down filter-arrow"></i>
+              <div class="dropdown-menu" id="state-dropdown"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Map -->
     <div id="map-container">
       <div id="map"></div>
+      
+      <!-- Context Menu -->
+      <div id="context-menu" class="context-menu">
+        <div class="context-menu-item" id="menu-alert">Alertar animal</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" id="menu-location">Obter localização</div>
+      </div>
     </div>
   </div>
 
