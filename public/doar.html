@@ -8,38 +8,12 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style_doar.css">
+    <link rel="stylesheet" href="css/style_header.css">
+
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 <body>
-     <!-- Header -->
-  <header class="header">
-    <div class="header-content">
-      <!-- Logo -->
-      <div class="logo-section">
-        <i class="fas fa-paw logo-icon"></i>
-        <a href="index.html" class="logo-text">BioMap</a>
-      </div>
-
-      <!-- Navigation Links -->
-      <nav class="nav-links">
-        <a href="index.html" class="nav-link">Mapa</a>
-        <a href="#" class="nav-link">Animais</a>
-        <a href="#" class="nav-link">Sobre nós</a>
-        <a href="doar.html" class="nav-link current">Doar</a>
-      </nav>
-
-      <!-- User Icon -->
-      <div class="user-section">
-        <i class="fas fa-user user-icon" id="user-icon"></i>
-        <!-- Account Menu -->
-        <div id="account-menu" class="account-menu">
-          <div class="account-menu-item" id="menu-login">Iniciar Sessão</div>
-          <div class="account-menu-separator"></div>
-          <div class="account-menu-item" id="menu-create-account">Criar Conta</div>
-        </div>
-      </div>
-    </div>
-  </header>
+    <div id="header-placeholder"></div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -151,7 +125,11 @@
             </div>
         </div>
     </section>
-    
+    <script src="js/script.js"></script>
+<script>
+  loadHeader();
+  highlightCurrentPage();
+</script>
 <script>
         feather.replace();
         

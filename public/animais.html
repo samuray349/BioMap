@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioMap - Biodiversity Mapping</title>
+    <link rel="stylesheet" href="css/style_animais.css">
+    <link rel="stylesheet" href="css/style_header.css">
+    <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- Divider -->
+    <div class="header-divider"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Search and Filters Section -->
+        <div class="search-filters">
+            <div class="search-box">
+                <input type="text" placeholder="Pesquisar" class="search-input">
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </div>
+
+            <div class="filter-group">
+                <label>Familia</label>
+                <select class="select-input">
+                    <option>Selecionar familia</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Estado de conservação</label>
+                <select class="select-input">
+                    <option>Selecionar estado de ...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Results Header -->
+        <div class="results-header">
+            <h2 class="results-title">Animais encontrados</h2>
+            <div class="sort-group">
+                <label>Ordenar por:</label>
+                <select class="select-input">
+                    <option>Mais visto</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Animal Cards Grid -->
+        <div class="cards-grid">
+            <!-- Card 1 -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Lince ibérico" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Lince ibérico</h3>
+                        <span class="badge vulnerable">Vulnerável</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Felídeos</span>
+                    </div>
+                    <p class="description">O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Jaguar" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Jaguar</h3>
+                        <span class="badge threatened">Quase ameaçada</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Felídeos</span>
+                    </div>
+                    <p class="description">Maior felino das Américas, possui pelagem amarelada com manchas pretas em formato...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Arara-azul-grande" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Arara-azul-grande</h3>
+                        <span class="badge vulnerable">Vulnerável</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Psittacidae</span>
+                    </div>
+                    <p class="description">Maior espécie de arara do mundo, de plumagem azul intensa e bico robusto...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Lobo-ibérico" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Lobo-ibérico</h3>
+                        <span class="badge endangered">Em perigo</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Canidae</span>
+                    </div>
+                    <p class="description">Subespécie ibérica do lobo-cinzento, possui pelagem acastanhada com manchas escura...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Águia-imperial-ibérica" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Águia-imperial-ibérica</h3>
+                        <span class="badge vulnerable">Vulnerável</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Accipitridae</span>
+                    </div>
+                    <p class="description">Grande ave de rapina endêmica da Península Ibérica, com plumagem escura e manchas...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Saiga" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Saiga</h3>
+                        <span class="badge critical">Perigo crítico</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Bovidae</span>
+                    </div>
+                    <p class="description">Antílope de aparência singular, com um nariz grande e flexível que filtra o ar e regula a...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Vison" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Vison</h3>
+                        <span class="badge critical">Perigo crítico</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Mustelidae</span>
+                    </div>
+                    <p class="description">O vison é um mamífero carnívoro semiaquático, de corpo alongado, pelagem densa e brilhante...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Lagarto-de-água" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Lagarto-de-água</h3>
+                        <span class="badge vulnerable">Vulnerável</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Lacertidae</span>
+                    </div>
+                    <p class="description">Lagarto de médio porte e coloração verde viva com reflexos azulados no pescoço...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="js/script.js"></script>
+<script>
+  loadHeader();
+  highlightCurrentPage();
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 let map;
 let familyTags = [];
 let stateTags = [];
+let rightClickPosition = null; // Store this globally to pass to the alert menu
 
 function initMap() {
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
@@ -54,13 +55,15 @@ function initMap() {
   ];
 
   initTagInputWithDropdown('family-input', 'family-tags', 'family-dropdown', familyTags, familyOptions);
-  initTagInputWithDropdown('state-input', 'state-tags', 'state-dropdown', stateTags, stateOptions);
+  initTagInputWithDropdown('state-input', 'state-tags', 'state-dropdown', stateTags, options = stateOptions);
 
   // Initialize context menu
   initContextMenu();
 
-  // Initialize account menu
-  initAccountMenu();
+  // Initialize the new alert animal menu logic
+  initAlertAnimalMenu();
+  
+  // Note: initAccountMenu() is now called by loadHeader()
 }
 
 // Tag input functionality with dropdown
@@ -71,7 +74,7 @@ function initTagInputWithDropdown(inputId, containerId, dropdownId, tagsArray, o
   const wrapper = input.closest('.tag-input-wrapper');
 
   function addTag(text) {
-    if (!text.trim() || tagsArray.includes(text.trim())) return;
+    if (!text || !text.trim() || tagsArray.includes(text.trim())) return;
     
     const tag = text.trim();
     tagsArray.push(tag);
@@ -184,7 +187,7 @@ function initTagInputWithDropdown(inputId, containerId, dropdownId, tagsArray, o
 
   // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
-    if (!wrapper.contains(e.target)) {
+    if (wrapper && !wrapper.contains(e.target)) {
       dropdown.classList.remove('show');
     }
   });
@@ -219,7 +222,6 @@ function initContextMenu() {
   const menuAlert = document.getElementById('menu-alert');
   const menuLocation = document.getElementById('menu-location');
   const mapContainer = document.getElementById('map-container');
-  let rightClickPosition = null;
   let mouseX = 0;
   let mouseY = 0;
 
@@ -232,7 +234,7 @@ function initContextMenu() {
 
   // Handle right-click using Google Maps event
   map.addListener('rightclick', (e) => {
-    rightClickPosition = e.latLng;
+    rightClickPosition = e.latLng; // Save the lat/lng position
     
     // Position menu at stored mouse position
     contextMenu.style.left = (mouseX + 10) + 'px';
@@ -257,9 +259,17 @@ function initContextMenu() {
 
   // Menu item handlers
   menuAlert.addEventListener('click', () => {
+    // Open the new alert menu
+    const alertMenu = document.getElementById('alert-animal-menu');
+    const locationInput = document.getElementById('alert-animal-location');
+    
     if (rightClickPosition) {
-      alert(`Alertar animal em:\nLat: ${rightClickPosition.lat().toFixed(6)}\nLng: ${rightClickPosition.lng().toFixed(6)}`);
+      const lat = rightClickPosition.lat().toFixed(6);
+      const lng = rightClickPosition.lng().toFixed(6);
+      locationInput.value = `${lat}, ${lng}`;
     }
+    
+    alertMenu.classList.add('show');
     contextMenu.classList.remove('show');
   });
 
@@ -282,16 +292,65 @@ function initContextMenu() {
 
   // Close menu when clicking outside
   document.addEventListener('click', (e) => {
-    if (!contextMenu.contains(e.target)) {
+    if (contextMenu && !contextMenu.contains(e.target)) {
       contextMenu.classList.remove('show');
     }
   });
 }
 
-// Account Menu functionality
+// --- NEW: Alert Animal Menu functionality ---
+function initAlertAnimalMenu() {
+  const alertMenu = document.getElementById('alert-animal-menu');
+  if (!alertMenu) return;
+
+  const submitButton = document.getElementById('submit-alert-animal');
+  const closeButtons = document.querySelectorAll('.close-alert-menu');
+
+  // Function to close the menu
+  function closeMenu() {
+    alertMenu.classList.remove('show');
+    // Clear form fields
+    document.getElementById('alert-animal-name').value = '';
+    document.getElementById('alert-animal-species').value = '';
+    document.getElementById('alert-animal-status').value = '';
+    document.getElementById('alert-animal-description').value = '';
+    document.getElementById('alert-animal-location').value = '';
+  }
+
+  // Add event listeners to all close buttons (X and "Cancelar")
+  closeButtons.forEach(button => {
+    button.addEventListener('click', closeMenu);
+  });
+
+  // Handle submit
+  submitButton.addEventListener('click', () => {
+    const animalName = document.getElementById('alert-animal-name').value;
+    const location = document.getElementById('alert-animal-location').value;
+
+    if (!animalName || !location) {
+      alert('Por favor, preencha pelo menos o nome do animal e a localização.');
+      return;
+    }
+    
+    alert(`Alerta submetido para:\nAnimal: ${animalName}\nLocalização: ${location}`);
+    
+    // Close menu after submit
+    closeMenu();
+  });
+}
+
+
+// --- FIXED: Account Menu functionality (Moved to Global Scope) ---
 function initAccountMenu() {
   const userIcon = document.getElementById('user-icon');
   const accountMenu = document.getElementById('account-menu');
+  
+  // Elements might not exist if header hasn't loaded, so check
+  if (!userIcon || !accountMenu) {
+    // console.warn('Account menu elements not found yet.');
+    return;
+  }
+  
   const menuLogin = document.getElementById('menu-login');
   const menuCreateAccount = document.getElementById('menu-create-account');
 
@@ -302,21 +361,79 @@ function initAccountMenu() {
   });
 
   // Menu item handlers
-  menuLogin.addEventListener('click', () => {
-    alert('Iniciar Sessão');
-    accountMenu.classList.remove('show');
-  });
+  if (menuLogin) {
+    menuLogin.addEventListener('click', () => {
+      alert('Iniciar Sessão');
+      accountMenu.classList.remove('show');
+    });
+  }
 
-  menuCreateAccount.addEventListener('click', () => {
-    alert('Criar Conta');
-    accountMenu.classList.remove('show');
-  });
+  if (menuCreateAccount) {
+    menuCreateAccount.addEventListener('click', () => {
+      alert('Criar Conta');
+      accountMenu.classList.remove('show');
+    });
+  }
 
   // Close menu when clicking outside
   document.addEventListener('click', (e) => {
-    if (!accountMenu.contains(e.target) && e.target !== userIcon) {
+    // Check if accountMenu exists and if the click is outside
+    if (accountMenu && !accountMenu.contains(e.target) && e.target !== userIcon) {
       accountMenu.classList.remove('show');
     }
   });
 }
 
+// --- FIXED: Dynamic header loader (Moved to Global Scope) ---
+const headerTemplate = `
+<header class="header">
+  <div class="header-content">
+    <div class="logo-section">
+      <img class="logo-icon" src="img/biomap-icon.png">
+      <a href="index.html" class="logo-text">BioMap</a>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link">Mapa</a>
+      <a href="animais.html" class="nav-link">Animais</a>
+      <a href="sobre.html" class="nav-link">Sobre nós</a>
+      <a href="doar.html" class="nav-link">Doar</a>
+    </nav>
+    <div class="user-section">
+      <i class="fas fa-user user-icon" id="user-icon"></i>
+      <div id="account-menu" class="account-menu">
+        <div class="account-menu-item" id="menu-login">Iniciar Sessão</div>
+        <div class="account-menu-separator"></div>
+        <div class="account-menu-item" id="menu-create-account">Criar Conta</div>
+      </div>
+    </div>
+  </div>
+</header>
+`;
+
+async function loadHeader(path = 'header.html') {
+    const placeholder = document.getElementById('header-placeholder');
+    if (!placeholder) {
+      console.warn('No #header-placeholder element found.');
+      return;
+    }
+  
+    try {
+      // Using inline template as a fallback or primary method
+      placeholder.innerHTML = headerTemplate;
+    } catch (err) {
+      console.warn('loadHeader: failed to set inline template. Reason:', err);
+    }
+  
+    // ✅ Reinitialize menu and nav highlight after header is in the DOM
+    if (typeof initAccountMenu === 'function') initAccountMenu();
+    if (typeof highlightCurrentPage === 'function') highlightCurrentPage();
+}
+  
+// Optional: convenience helper to mark the current nav link
+function highlightCurrentPage() {
+  const current = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0];
+  document.querySelectorAll('.nav-link').forEach(link => {
+    const linkHref = (link.getAttribute('href') || '').split('?')[0];
+    link.classList.toggle('current', linkHref === current);
+  });
+}

@@ -1,0 +1,151 @@
+/* Header Styles */
+.header {
+    height: 70px;
+    background-color: #ffffff;
+    border-bottom: 2px solid #198754;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 1000;
+    /* This line ensures all header text uses the Poppins font */
+    font-family: 'Poppins', sans-serif; 
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    max-width: 100%;
+    padding: 0 30px;
+  }
+  
+  /* Logo Section */
+  .logo-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .logo-icon {
+    width: 50px;
+    color: #198754;
+  }
+  
+  .logo-text {
+    font-size: 24px;
+    font-weight: 600;
+    color: #198754;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    cursor: pointer;
+  }
+  
+  
+  
+  /* Navigation Links */
+  .nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .nav-link {
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    /* Removed redundant font-weight: 600; */
+  }
+  
+  .nav-link.current {
+    color: #198754;
+    font-weight: 600; /* Make only the current link bold */
+  }
+  
+  .nav-link:hover {
+    color: #198754;
+  }
+  
+  /* User Section */
+  .user-section {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .user-icon {
+    font-size: 24px;
+    color: #f0f0f0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #198754;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .user-icon:hover {
+    background-color: #e0e0e0;
+    color: #198754;
+  }
+  
+  /* Account Menu */
+  
+  .account-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #198754;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 8px 0;
+    min-width: 180px;
+    z-index: 1001;
+    display: none;
+  }
+  
+  .account-menu.show {
+    display: block;
+  }
+  
+  .account-menu-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #333;
+    transition: background-color 0.2s ease;
+    user-select: none;
+    text-align: left;
+  }
+  
+  .account-menu-item:first-child {
+    font-weight: 600;
+    font-size: 16px;
+    color: #000;
+  }
+  
+  .account-menu-item:last-child {
+    font-size: 15px;
+    color: #333;
+  }
+  
+  .account-menu-item:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .account-menu-separator {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 4px 0;
+    width: 100%;
+  }
+
+/* Removed extra '}' bracket that was here */
