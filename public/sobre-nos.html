@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioMap - Sobre nós</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header Placeholder -->
+    <div id="header-placeholder"></div>
+    
+    <!-- Main Content -->
+    <main class="sobre-nos-content">
+        <!-- Logo Section -->
+        <div class="sobre-nos-logo-section">
+            <div class="koala-logo">
+                <img src="img/biomap-icon.png" alt="biomap" height="200" width="200">
+            </div>
+            <h1 class="sobre-nos-logo-text">BioMap</h1>
+        </div>
+        
+        <!-- Quem Somos Section -->
+        <div class="quem-somos-card">
+            <h2 class="quem-somos-title">Quem Somos?</h2>
+            <p class="quem-somos-text">
+                O BioMap é um website dedicado a mostrar os animais em perigo de extinção em Portugal, 
+                permitindo aos utilizadores visualizar, aprender e reportar espécies que estão em risco 
+                de desaparecer.
+            </p>
+        </div>
+        
+        <!-- Species Section -->
+        <h2 class="species-section-title">Conheça Algumas Espécies que Visamos Proteger</h2>
+        
+        <!-- Animal Cards Grid -->
+        <div class="sobre-nos-cards-grid">
+            <!-- Card 1 - Lince ibérico -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Lince ibérico" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Lince ibérico</h3>
+                        <span class="badge vulnerable">Vulnerável</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Felidae</span>
+                    </div>
+                    <p class="description">O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Card 2 - Águia-imperial-ibérica -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Águia-imperial-ibérica" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Águia-imperial-ibérica</h3>
+                        <span class="badge vulnerable">Vulnerável</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Accipitridae</span>
+                    </div>
+                    <p class="description">Grande ave de rapina endêmica da Península Ibérica, com plumagem escura e manchas...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Card 3 - Vison -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Vison" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Vison</h3>
+                        <span class="badge critical">Perigo crítico</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Mustelidae</span>
+                    </div>
+                    <p class="description">O vison é um mamífero carnívoro semiaquático, de corpo alongado, pelagem densa e brilhante...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Card 4 - Saiga -->
+            <div class="card">
+                <img src="/placeholder.svg?height=200&width=308" alt="Saiga" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Saiga</h3>
+                        <span class="badge critical">Perigo crítico</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon">🐾</span>
+                        <span>Bovidae</span>
+                    </div>
+                    <p class="description">Antílope de aparência singular, com um nariz grande e flexível que filtra o ar e regula a...</p>
+                    <button class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Message -->
+        <div class="sobre-nos-footer">
+            <p class="footer-message">
+                A mão humana causou um grande impacto negativo no reino animal, o que levou à extinção de muitas 
+                lindas espécies que residiam no nosso mundo. Eles precisam da nossa ajuda mais do que nunca. 
+                <strong class="footer-highlight">Juntos podemos fazer a diferença.</strong>
+            </p>
+        </div>
+    </main>
+    
+    <!-- Scripts -->
+    <script src="js/script.js"></script>
+    <script>
+        // Load header when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof loadHeader === 'function') {
+                loadHeader();
+            }
+            if (typeof highlightCurrentPage === 'function') {
+                highlightCurrentPage();
+            }
+        });
+    </script>
+</body>
+</html>
+
