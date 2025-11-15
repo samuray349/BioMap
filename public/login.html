@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
+    <div id="header-placeholder"></div>
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
@@ -42,17 +44,17 @@
                             Guardar Sessão
                         </span>
                     </label>
-                    <a href="#" class="forgot-password">Esqueceu-se da password?</a>
+                    <a href="esqueceu_password.html" class="forgot-password">Esqueceu-se da password?</a>
                 </div>
 
-                <button type="submit" class="login-btn">
+                <button type="submit" class="login-btn" action="index.html">
                     <span class="btn-text">Iniciar Sessão</span>
                     <span class="btn-loader"></span>
                 </button>
             </form>
 
             <div class="signup-link">
-                <p>Não tem conta? <a href="#">Criar Conta</a></p>
+                <p>Não tem conta? <a href="sign_up.html">Criar Conta</a></p>
             </div>
 
             <div class="success-message" id="successMessage">
@@ -62,8 +64,14 @@
             </div>
         </div>
     </div>
-
+    
     <script src="../../shared/js/form-utils.js"></script>
     <script src="js/script-login.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        if (typeof loadHeader === 'function') {
+            loadHeader();
+        }
+    </script>
 </body>
 </html>

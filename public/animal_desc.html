@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WildPedia - Animal Encyclopedia</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
         body {
@@ -50,27 +50,7 @@
     </style>
 </head>
 <body class="min-h-screen bg-white">
-    <header class="bg-white shadow-sm">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <i data-feather="globe" class="color-primary"></i>
-                    <h1 class="text-2xl font-bold text-gray-800">WildPedia</h1>
-                </div>
-                <nav>
-                    <ul class="flex space-x-6">
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 hover:underline">Home</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 hover:underline">Animals</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 hover:underline">Conservation</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 hover:underline">About</a></li>
-                    </ul>
-                </nav>
-                <button class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition">
-                    <i data-feather="search" class="inline mr-2"></i> Search
-                </button>
-            </div>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
 
     <main class="container mx-auto px-4 py-12">
         <div class="max-w-4xl mx-auto">
@@ -237,6 +217,12 @@
 
     <script>
         feather.replace();
+    </script>
+    <script src="js/script.js"></script>
+    <script>
+        if (typeof loadHeader === 'function') {
+            loadHeader();
+        }
     </script>
 </body>
 </html>

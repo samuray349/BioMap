@@ -360,20 +360,6 @@ function initAccountMenu() {
     accountMenu.classList.toggle('show');
   });
 
-  // Menu item handlers
-  if (menuLogin) {
-    menuLogin.addEventListener('click', () => {
-      alert('Iniciar Sessão');
-      accountMenu.classList.remove('show');
-    });
-  }
-
-  if (menuCreateAccount) {
-    menuCreateAccount.addEventListener('click', () => {
-      alert('Criar Conta');
-      accountMenu.classList.remove('show');
-    });
-  }
 
   // Close menu when clicking outside
   document.addEventListener('click', (e) => {
@@ -395,15 +381,15 @@ const headerTemplate = `
     <nav class="nav-links">
       <a href="index.html" class="nav-link">Mapa</a>
       <a href="animais.html" class="nav-link">Animais</a>
-      <a href="sobre.html" class="nav-link">Sobre nós</a>
+      <a href="sobre_nos.html" class="nav-link">Sobre nós</a>
       <a href="doar.html" class="nav-link">Doar</a>
     </nav>
     <div class="user-section">
       <i class="fas fa-user user-icon" id="user-icon"></i>
       <div id="account-menu" class="account-menu">
-        <div class="account-menu-item" id="menu-login">Iniciar Sessão</div>
+        <div class="account-menu-item" id="menu-login"><a style="text-decoration: none;color: #333;"href="login.html">Iniciar Sessão</a></div>
         <div class="account-menu-separator"></div>
-        <div class="account-menu-item" id="menu-create-account">Criar Conta</div>
+        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;"href="sign_up.html">Criar Conta</a></div>
       </div>
     </div>
   </div>

@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BioMap - Administração do registo animal</title>
+    <title>BioMap - Administração de Utilizadores</title>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,129 +23,122 @@
     <div class="header-divider"></div>
     
     <!-- Main Content -->
-    <main class="admin-animals-content">
+    <main class="admin-users-content">
         <!-- Page Title -->
-        <h1 class="admin-animals-title">Administração do registo animal</h1>
+        <h1 class="admin-users-title">Administração de Utilizadores</h1>
         
-        <!-- Search and Filters Section -->
-        <div class="admin-animals-filters">
+        <!-- Search Bar -->
+        <div class="admin-search-container">
             <div class="admin-search-box">
                 <i class="fas fa-search admin-search-icon"></i>
                 <input type="text" placeholder="Pesquisar" class="admin-search-input">
             </div>
-            
-            <div class="filter-group">
-                <label>Família</label>
-                <select class="select-input">
-                    <option>Selecionar família</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label>Estado de conservação</label>
-                <select class="select-input">
-                    <option>Selecionar estado de ...</option>
-                </select>
-            </div>
         </div>
         
-        <!-- Animals Table -->
+        <!-- Users Table -->
         <div class="admin-table-container">
-            <table class="admin-animals-table">
+            <table class="admin-users-table">
                 <thead>
                     <tr>
                         <th>
-                            Nome Animal
+                            Nome Utilizador
                             <i class="fas fa-sort sort-icon"></i>
                         </th>
                         <th>
-                            Família
+                            Email
                             <i class="fas fa-sort sort-icon"></i>
                         </th>
                         <th>
-                            Estado de cons
+                            Estado
                             <i class="fas fa-sort sort-icon"></i>
                         </th>
-                        <th>Atualizar</th>
-                        <th>Excluir</th>
+                        <th>
+                            Estatuto
+                            <i class="fas fa-sort sort-icon"></i>
+                        </th>
+                        <th>Suspender</th>
+                        <th>Banir</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Vison-europeu</td>
-                        <td>Mustelidae</td>
-                        <td><span class="status-badge status-critical">Perigo crítico</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>John Smith</td>
+                        <td>john.smith@gmail.com</td>
+                        <td><span class="status-badge status-normal">Normal</span></td>
+                        <td>Admin</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Águia-imperial-ibérica</td>
-                        <td>Accipitridae</td>
-                        <td><span class="status-badge status-endangered">Em perigo</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>Olivia Bennett</td>
+                        <td>ollyben@gmail.com</td>
+                        <td><span class="status-badge status-suspended">Suspenso</span></td>
+                        <td>User</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Sapo-parteiro-de-Majorca</td>
-                        <td>Alytidae</td>
-                        <td><span class="status-badge status-endangered">Em perigo</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>Michael Johnson</td>
+                        <td>michael.j@outlook.com</td>
+                        <td><span class="status-badge status-normal">Normal</span></td>
+                        <td>User</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Lince Ibérico</td>
-                        <td>Felidae</td>
-                        <td><span class="status-badge status-vulnerable">Vulnerável</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>Sarah Williams</td>
+                        <td>sarah.williams@yahoo.com</td>
+                        <td><span class="status-badge status-suspended">Suspenso</span></td>
+                        <td>User</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Esturjão-europeu</td>
-                        <td>Acipenseridae</td>
-                        <td><span class="status-badge status-endangered">Em perigo</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>David Brown</td>
+                        <td>david.brown@gmail.com</td>
+                        <td><span class="status-badge status-normal">Normal</span></td>
+                        <td>Admin</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Corvo-marinho-de-faces-branca</td>
-                        <td>Phalacrocoracidae</td>
-                        <td><span class="status-badge status-near-threatened">Quase ameaçada</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>Emma Davis</td>
+                        <td>emma.davis@hotmail.com</td>
+                        <td><span class="status-badge status-suspended">Suspenso</span></td>
+                        <td>User</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Tritão-alpino</td>
-                        <td>Salamandridae</td>
-                        <td><span class="status-badge status-near-threatened">Quase ameaçada</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>James Wilson</td>
+                        <td>james.wilson@gmail.com</td>
+                        <td><span class="status-badge status-normal">Normal</span></td>
+                        <td>User</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Lobo-ibérico</td>
-                        <td>Canidae</td>
-                        <td><span class="status-badge status-vulnerable">Vulnerável</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>Sophia Martinez</td>
+                        <td>sophia.m@outlook.com</td>
+                        <td><span class="status-badge status-suspended">Suspenso</span></td>
+                        <td>User</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Peixe-panda da Grécia</td>
-                        <td>Gasterosteidae</td>
-                        <td><span class="status-badge status-critical">Perigo crítico</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>Robert Taylor</td>
+                        <td>robert.taylor@gmail.com</td>
+                        <td><span class="status-badge status-normal">Normal</span></td>
+                        <td>Admin</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                     <tr>
-                        <td>Foca-monge-do-mediterrâneo</td>
-                        <td>Phocidae</td>
-                        <td><span class="status-badge status-vulnerable">Vulnerável</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Cegonha-negra</td>
-                        <td>Ciconiidae</td>
-                        <td><span class="status-badge status-near-threatened">Quase ameaçada</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
+                        <td>Isabella Anderson</td>
+                        <td>isabella.a@yahoo.com</td>
+                        <td><span class="status-badge status-suspended">Suspenso</span></td>
+                        <td>User</td>
+                        <td><i class="fas fa-clock suspend-icon"></i></td>
                         <td><i class="fas fa-ban ban-icon"></i></td>
                     </tr>
                 </tbody>
@@ -157,7 +148,7 @@
         <!-- Pagination -->
         <div class="admin-pagination-container">
             <div class="pagination-info">
-                <span>Linhas por paginas</span>
+                <span>Linhas por pagina</span>
                 <select class="pagination-select">
                     <option value="10">10</option>
                     <option value="20">20</option>
