@@ -31,16 +31,15 @@
     <div id="sidebar" class="sidebar">
       <div class="sidebar-content">
         <div class="search-section">
-          <div class="search-wrapper">
+          <div class="search-wrapper ">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="search-input" class="search-input" placeholder="Pesquisar">
+            <input type="text" id="search-input" class="search-input green-shadow" placeholder="Pesquisar">
           </div>
         </div>
 
         <div class="filters-row">
           <div class="filter-section">
-            <div class="tag-input-wrapper">
-              
+            <div class="tag-input-wrapper green-shadow">
               <input type="text" id="family-input" class="tag-input" placeholder="Selecionar família" autocomplete="off">
               <div class="tag-container" id="family-tags"></div>
               <i class="fas fa-chevron-down filter-arrow"></i>
@@ -49,8 +48,7 @@
           </div>
 
           <div class="filter-section">
-            <div class="tag-input-wrapper">
-              
+            <div class="tag-input-wrapper green-shadow">
               <input type="text" id="state-input" class="tag-input" placeholder="Selecionar estado de..." autocomplete="off">
               <div class="tag-container" id="state-tags"></div>
               <i class="fas fa-chevron-down filter-arrow"></i>
@@ -69,6 +67,70 @@
         <div class="context-menu-separator"></div>
         <div class="context-menu-item" id="menu-location">Obter localização</div>
       </div>
+
+      <aside id="species-panel" class="species-panel" aria-hidden="true">
+        <div class="species-panel__image">
+          <img id="species-panel-image" src="" alt="Animal em destaque">
+        </div>
+        <div class="species-panel__content">
+          <div class="species-panel__header">
+            <h2 id="species-panel-name">Nome do animal</h2>
+            <button id="species-panel-close" class="species-panel__close" aria-label="Fechar painel">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+
+          <div class="species-panel__info">
+            <div class="species-panel__info-row">
+              <i class="fas fa-info-circle"></i>
+              <div>
+                <p class="label">Nome científico:</p>
+                <p id="species-panel-scientific" class="value">—</p>
+              </div>
+            </div>
+
+            <div class="species-panel__info-row">
+              <i class="fas fa-users"></i>
+              <div>
+                <p class="label">Família:</p>
+                <p id="species-panel-family" class="value">—</p>
+              </div>
+            </div>
+
+            <div class="species-panel__info-row">
+              <i class="fas fa-venus-mars"></i>
+              <div>
+                <p class="label">Dieta:</p>
+                <p id="species-panel-diet" class="value">—</p>
+              </div>
+            </div>
+
+            <div class="species-panel__info-row species-panel__info-row--description">
+              <i class="fas fa-file-alt"></i>
+              <div>
+                <p class="label">Descrição:</p>
+                <p id="species-panel-description" class="value">—</p>
+              </div>
+            </div>
+
+            <div class="species-panel__info-row">
+              <i class="far fa-clock"></i>
+              <div>
+                <p class="label">Data do alerta:</p>
+                <p id="species-panel-alert-date" class="value">—</p>
+              </div>
+            </div>
+
+            <div class="species-panel__info-row">
+              <i class="fas fa-map-marker-alt"></i>
+              <div>
+                <p class="label">Localização:</p>
+                <p id="species-panel-location" class="value">—</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
 
       <div id="alert-animal-menu" class="alert-animal-menu">
         <div class="alert-animal-header">

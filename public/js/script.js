@@ -3,8 +3,73 @@ let familyTags = [];
 let stateTags = [];
 let rightClickPosition = null; // Store this globally to pass to the alert menu
 
+const speciesPanelElements = {
+  container: null,
+  image: null,
+  name: null,
+  scientificName: null,
+  family: null,
+  diet: null,
+  description: null,
+  alertDate: null,
+  location: null,
+  closeButton: null,
+  mainContainer: null
+};
+
+
 function initMap() {
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
+
+  const pawIconSVG = `
+<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo do marcador com borda branca -->
+  <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
+        fill="#1A8F4A" stroke="white" stroke-width="3"/>
+
+  <!-- Grupo da Pata: Vazado (fill="none") com contorno (stroke="white") -->
+  <!-- Aumentei rx/ry para tornar os dedos mais espessos -->
+  <g fill="none" stroke="white" stroke-width="3" transform="translate(0, -2)">
+    <!-- Dedo 1 (Esquerda Externa) -->
+    <ellipse cx="14" cy="28" rx="4.5" ry="5.5" transform="rotate(-40 14 28)" />
+    
+    <!-- Dedo 2 (Esquerda Interna) -->
+    <ellipse cx="24" cy="20" rx="4.5" ry="5.5" transform="rotate(-15 24 20)" />
+    
+    <!-- Dedo 3 (Direita Interna) -->
+    <ellipse cx="36" cy="20" rx="4.5" ry="5.5" transform="rotate(15 36 20)" />
+    
+    <!-- Dedo 4 (Direita Externa) -->
+    <ellipse cx="46" cy="28" rx="4.5" ry="5.5" transform="rotate(40 46 28)" />
+    
+    <!-- Palma (Formato arredondado clássico) -->
+    <path d="M 30 33 
+             C 38 33, 44 39, 44 45 
+             C 44 51, 38 55, 30 55 
+             C 22 55, 16 51, 16 45 
+             C 16 39, 22 33, 30 33 Z" />
+  </g>
+</svg>
+`;
+const institutionIconSVG = `
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="80" viewBox="0 0 60 80">
+  <!-- Fundo do marcador em forma de "gota" com borda branca --><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
+        fill="#8B5B3E" stroke="white" stroke-width="3"/>
+
+  <!-- Ícone de Árvore Vazada (Hollow Tree Icon) --><!-- Usamos um grupo <g> para o posicionamento e o estilo do contorno --><g transform="translate(15, 18)" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Tronco da árvore --><path d="M 20 45 L 20 30" />
+    <!-- Base do tronco (chão) --><path d="M 10 45 L 30 45" />
+    <!-- Folhagem da árvore (forma orgânica) --><path d="M 20 5 L 10 25 C 5 30, 10 35, 15 35 C 20 35, 25 30, 30 25 C 35 20, 30 15, 20 5 Z" />
+  </g>
+</svg>
+`;
+
+const pawMarkerIcon = {
+  url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(pawIconSVG),
+  scaledSize: new google.maps.Size(45, 60),
+  anchor: new google.maps.Point(22.5, 60) // bottom center
+};
+
 
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: 12,
@@ -15,55 +80,109 @@ function initMap() {
   });
 
   const locations = [
-    { position: { lat: 39.098569723610105,  lng: -9.21834924308909 }, title: "Fundação dos animais" },
-    { position: { lat: 39.13471130131973, lng: -9.299138410129158 }, title: "Lince Ibérico" },
-    { position: { lat: 39.16084345764295, lng: -9.237634072626696 }, title: "Javali" }
+    { 
+      position: { lat: 39.098569723610105,  lng: -9.21834924308909 }, 
+      title: "Fundação dos Animais",
+      type:"intituicao",
+      details: {
+        name: "Fundação dos Animais",
+        institutionType: "Centro de Reabilitação",
+        
+        description: "Base de operações da equipa BioMap responsável por monitorizar espécies ameaçadas na região e acolher animais em recuperação.",
+        alertDate: "15-10-2025 10:05",
+        coordinates: { lat: 39.098569723610105, lng: -9.21834924308909 },
+        image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=700&q=80"
+      }
+    },
+    { 
+      position: { lat: 39.13471130131973, lng: -9.299138410129158 }, 
+      title: "Lince Ibérico",
+      type:"animal",
+      details: {
+        name: "Lince ibérico",
+        scientificName: "Lynx pardinus",
+        family: "Felídeos",
+        diet: "Carnívoro",
+        description: "O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica, facilmente identificável pela sua pelagem castanho-amarelada com manchas escuras, tufos de pêlo nas orelhas em forma de pincel e cauda curta com ponta negra. É um predador solitário e territorial que vive em matagais mediterrânicos.",
+        alertDate: "17-10-2025 19:23",
+        coordinates: { lat: 39.13471130131973, lng: -9.299138410129158 },
+        image: "img/lince-login.jpeg"
+      }
+    },
+    { 
+      position: { lat: 39.16084345764295, lng: -9.237634072626696 }, 
+      title: "Javali",
+      type:"animal",
+
+      details: {
+        name: "Javali europeu",
+        scientificName: "Sus scrofa",
+        family: "Suídeos",
+        diet: "Omnívoro",
+        description: "Registo de javali adulto observado próximo de zonas agrícolas. Espécie oportunista com atividade crepuscular, pode causar danos em culturas se não for monitorizada.",
+        alertDate: "12-10-2025 06:41",
+        coordinates: { lat: 39.16084345764295, lng: -9.237634072626696 },
+        image: "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=700&q=80"
+      }
+    }
   ];
 
-  // Create labeled markers
   locations.forEach(loc => {
+
+    const isGreenPaw = loc.title === "Fundação dos Animais";
+  
     const marker = new google.maps.Marker({
       position: loc.position,
       map,
-      title: loc.title,
+      icon: pawMarkerIcon,
       label: {
         text: loc.title,
         className: "marker-label"
       },
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 8,
-        fillColor: "#198754",
-        fillOpacity: 1,
-        strokeColor: "white",
-        strokeWeight: 2
-      }
+      
+      title: loc.title
+    });
+    
+  
+    marker.addListener("click", () => {
+      openSpeciesPanel(loc.details || createFallbackDetails(loc));
     });
   });
+  
 
-  // Initialize tag inputs with predefined options
+
   const familyOptions = [
-    'Felidae', 'Canidae', 'Ursidae', 'Mustelidae', 
-    'Cervidae', 'Suidae', 'Leporidae', 'Sciuridae',
-    'Rodentia', 'Chiroptera', 'Carnivora', 'Artiodactyla'
+    "Felidae", "Canidae", "Ursidae", "Mustelidae", 
+    "Cervidae", "Suidae", "Leporidae", "Sciuridae",
+    "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla"
   ];
   
   const stateOptions = [
-    'Em Perigo', 'Vulnerável', 'Quase Ameaçado',
-    'Pouco Preocupante', 'Dados Insuficientes',
-    'Extinto na Natureza', 'Extinto'
+    "Em Perigo", "Vulnerável", "Quase Ameaçado",
+    "Pouco Preocupante", "Dados Insuficientes",
+    "Extinto na Natureza", "Extinto"
   ];
 
-  initTagInputWithDropdown('family-input', 'family-tags', 'family-dropdown', familyTags, familyOptions);
-  initTagInputWithDropdown('state-input', 'state-tags', 'state-dropdown', stateTags, options = stateOptions);
+  initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", familyTags, familyOptions);
+  initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, options = stateOptions);
 
-  // Initialize context menu
   initContextMenu();
-
-  // Initialize the new alert animal menu logic
   initAlertAnimalMenu();
-  
-  // Note: initAccountMenu() is now called by loadHeader()
+  initSpeciesPanel();
+}
+
+
+function createFallbackDetails(location) {
+  return {
+    name: location.title,
+    scientificName: "—",
+    family: "—",
+    diet: "—",
+    description: "Informação detalhada indisponível para este ponto.",
+    alertDate: new Date().toLocaleString('pt-PT'),
+    coordinates: location.position,
+    image: "https://images.unsplash.com/photo-1465101162946-4377e57745c3?auto=format&fit=crop&w=700&q=80"
+  };
 }
 
 // Tag input functionality with dropdown
@@ -337,6 +456,81 @@ function initAlertAnimalMenu() {
     // Close menu after submit
     closeMenu();
   });
+}
+
+function initSpeciesPanel() {
+  if (speciesPanelElements.container) return;
+
+  speciesPanelElements.container = document.getElementById('species-panel');
+  if (!speciesPanelElements.container) return;
+
+  speciesPanelElements.image = document.getElementById('species-panel-image');
+  speciesPanelElements.name = document.getElementById('species-panel-name');
+  speciesPanelElements.scientificName = document.getElementById('species-panel-scientific');
+  speciesPanelElements.family = document.getElementById('species-panel-family');
+  speciesPanelElements.diet = document.getElementById('species-panel-diet');
+  speciesPanelElements.description = document.getElementById('species-panel-description');
+  speciesPanelElements.alertDate = document.getElementById('species-panel-alert-date');
+  speciesPanelElements.location = document.getElementById('species-panel-location');
+  speciesPanelElements.closeButton = document.getElementById('species-panel-close');
+  speciesPanelElements.mainContainer = document.querySelector('.main-container');
+
+  if (speciesPanelElements.closeButton) {
+    speciesPanelElements.closeButton.addEventListener('click', () => {
+      closeSpeciesPanel();
+    });
+  }
+
+  document.addEventListener('keyup', (event) => {
+    if (event.key === 'Escape') {
+      closeSpeciesPanel();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!speciesPanelElements.container.classList.contains('show')) return;
+    if (speciesPanelElements.container.contains(event.target)) return;
+    if (event.target.closest('.marker-label')) return;
+    if (event.target.closest('.sidebar')) return;
+    closeSpeciesPanel();
+  });
+}
+
+function openSpeciesPanel(details) {
+  if (!speciesPanelElements.container) {
+    initSpeciesPanel();
+  }
+  if (!speciesPanelElements.container) return;
+
+  speciesPanelElements.image.src = details.image || speciesPanelElements.image.src;
+  speciesPanelElements.image.alt = details.name || 'Animal';
+  speciesPanelElements.name.textContent = details.name || 'Animal sem nome';
+  speciesPanelElements.scientificName.textContent = details.scientificName || '—';
+  speciesPanelElements.family.textContent = details.family || '—';
+  speciesPanelElements.diet.textContent = details.diet || '—';
+  speciesPanelElements.description.textContent = details.description || '';
+  speciesPanelElements.alertDate.textContent = details.alertDate || '—';
+  const coords = details.coordinates || {};
+  if (typeof coords.lat === 'number' && typeof coords.lng === 'number') {
+    speciesPanelElements.location.textContent = `${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`;
+  } else {
+    speciesPanelElements.location.textContent = '—';
+  }
+
+  speciesPanelElements.container.classList.add('show');
+  speciesPanelElements.container.setAttribute('aria-hidden', 'false');
+  if (speciesPanelElements.mainContainer) {
+    speciesPanelElements.mainContainer.classList.add('detail-panel-open');
+  }
+}
+
+function closeSpeciesPanel() {
+  if (!speciesPanelElements.container) return;
+  speciesPanelElements.container.classList.remove('show');
+  speciesPanelElements.container.setAttribute('aria-hidden', 'true');
+  if (speciesPanelElements.mainContainer) {
+    speciesPanelElements.mainContainer.classList.remove('detail-panel-open');
+  }
 }
 
 

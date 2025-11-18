@@ -21,29 +21,36 @@
     <!-- Main Content -->
     <main class="main-content">
         <!-- Search and Filters Section -->
-        <div class="search-filters">
-            <div class="search-box">
-                <input type="text" placeholder="Pesquisar" class="search-input">
-                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
+        <div class="sidebar-content" style="flex-direction: row;">
+            <div class="search-section">
+              <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" class="search-input" placeholder="Pesquisar">
+              </div>
             </div>
-
-            <div class="filter-group">
-                <label>Familia</label>
-                <select class="select-input">
-                    <option>Selecionar familia</option>
-                </select>
+    
+            <div class="filters-row">
+              <div class="filter-section">
+                <div class="tag-input-wrapper">
+                  
+                  <input type="text" id="family-input" class="tag-input" placeholder="Selecionar família" autocomplete="off">
+                  <div class="tag-container" id="family-tags"></div>
+                  <i class="fas fa-chevron-down filter-arrow"></i>
+                  <div class="dropdown-menu" id="family-dropdown"></div>
+                </div>
+              </div>
+    
+              <div class="filter-section">
+                <div class="tag-input-wrapper">
+                  
+                  <input type="text" id="state-input" class="tag-input" placeholder="Selecionar estado de..." autocomplete="off">
+                  <div class="tag-container" id="state-tags"></div>
+                  <i class="fas fa-chevron-down filter-arrow"></i>
+                  <div class="dropdown-menu" id="state-dropdown"></div>
+                </div>
+              </div>
             </div>
-
-            <div class="filter-group">
-                <label>Estado de conservação</label>
-                <select class="select-input">
-                    <option>Selecionar estado de ...</option>
-                </select>
-            </div>
-        </div>
+          </div>
 
         <!-- Results Header -->
         <div class="results-header">

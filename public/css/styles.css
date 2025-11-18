@@ -382,7 +382,6 @@ p {
     transition: all 0.2s ease;
     background-color: #ffffff;
     color: #888;
-    box-shadow: 0 2px 8px #198754;
     height: 50px;
 }
 
@@ -422,7 +421,6 @@ p {
     border-radius: 8px;
     padding: 8px 40px 8px 12px;
     background-color: #ffffff;
-    box-shadow: 0 2px 8px #198754;
     cursor: text;
 }
 
@@ -527,6 +525,134 @@ p {
     width: 100%;
     height: 100%;
     position: relative;
+}
+
+.species-panel {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    width: 360px;
+    max-width: calc(100% - 60px);
+    background-color: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    transform: translateX(-420px);
+    transition: transform 0.35s ease, opacity 0.35s ease;
+    opacity: 0;
+    z-index: 120;
+}
+
+.species-panel.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.species-panel__image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.species-panel__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.species-panel__content {
+    padding: 24px 26px 28px;
+    color: #2d3a2b;
+}
+
+.species-panel__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.species-panel__header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #276432;
+}
+
+.species-panel__close {
+    border: none;
+    background: none;
+    color: #1f7a42;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.species-panel__close:hover {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.species-panel__info {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.species-panel__info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 15px;
+    color: #4b4b4b;
+}
+
+.species-panel__info-row i {
+    color: #198754;
+    font-size: 18px;
+    margin-top: 2px;
+}
+
+.species-panel__info-row .label {
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: #2f4f2f;
+}
+
+.species-panel__info-row .value {
+    color: #374151;
+    line-height: 1.4;
+}
+
+.species-panel__info-row--description .value {
+    font-size: 14px;
+    color: #555;
+}
+
+.main-container {
+    transition: transform 0.35s ease;
+}
+
+.main-container.detail-panel-open .sidebar {
+    transform: translateX(380px);
+}
+
+.sidebar {
+    transition: transform 0.35s ease;
+}
+
+@media (max-width: 900px) {
+    .species-panel {
+        width: calc(100% - 40px);
+        left: 20px;
+        top: 20px;
+    }
+
+    .main-container.detail-panel-open .sidebar {
+        transform: translateX(0);
+    }
 }
 
 #map {
@@ -3694,4 +3820,20 @@ body:has(.reset-password-container) .login-container {
 
 .inline {
     display: inline;
+}
+
+.marker-label {
+    background: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    border: 2px solid #ddd;
+    white-space: nowrap;
+    transform: translateY(-6px);
+    margin-top: -60px;
+  }
+  
+.green-shadow{
+    box-shadow: 0 2px 8px #198754;
 }
