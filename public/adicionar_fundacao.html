@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Instituição • BioMap</title>
+    <title>Adicionar Instituição</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -174,136 +174,7 @@
         loadHeader();
         highlightCurrentPage();
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', initTimePicker);
-
-        function initTimePicker() {
-            const ITEM_HEIGHT = 48;
-            const overlay = document.getElementById('timePickerOverlay');
-            const hourWheelEl = document.getElementById('hourWheel');
-            const minuteWheelEl = document.getElementById('minuteWheel');
-            const hourValue = document.getElementById('hourValue');
-            const minuteValue = document.getElementById('minuteValue');
-            const closeBtn = overlay.querySelector('.close-picker');
-            const cancelBtn = document.getElementById('cancelTimePicker');
-            const confirmBtn = document.getElementById('confirmTimePicker');
-            let activeInput = null;
-
-            const hourWheel = createWheel(hourWheelEl, 23, 1, (value) => {
-                hourValue.textContent = value;
-            });
-            const minuteWheel = createWheel(minuteWheelEl, 59, 1, (value) => {
-                minuteValue.textContent = value;
-            });
-
-            const openPicker = (inputId) => {
-                activeInput = document.getElementById(inputId);
-                const time = (activeInput.value || '00:00').split(':');
-                hourWheel.setValue(time[0] || '00');
-                minuteWheel.setValue(time[1] || '00');
-                overlay.classList.add('show');
-                overlay.setAttribute('aria-hidden', 'false');
-            };
-
-            const closePicker = () => {
-                overlay.classList.remove('show');
-                overlay.setAttribute('aria-hidden', 'true');
-                activeInput = null;
-            };
-
-            document.querySelectorAll('.time-display').forEach(btn => {
-                btn.addEventListener('click', () => openPicker(btn.dataset.target));
-            });
-
-            cancelBtn.addEventListener('click', closePicker);
-            closeBtn.addEventListener('click', closePicker);
-            overlay.addEventListener('click', (event) => {
-                if (event.target === overlay) {
-                    closePicker();
-                }
-            });
-
-            confirmBtn.addEventListener('click', () => {
-                if (!activeInput) return;
-                const formattedTime = `${hourWheel.getValue()}:${minuteWheel.getValue()}`;
-                activeInput.value = formattedTime;
-                const displayBtn = document.querySelector(`.time-display[data-target="${activeInput.id}"]`);
-                if (displayBtn) {
-                    displayBtn.textContent = formattedTime;
-                }
-                closePicker();
-            });
-
-            function createWheel(element, max, step, onChange) {
-                const values = [];
-                const list = document.createElement('ul');
-                list.classList.add('wheel-list');
-
-                for (let i = 0; i <= max; i += step) {
-                    const value = String(i).padStart(2, '0');
-                    const item = document.createElement('li');
-                    item.textContent = value;
-                    item.dataset.value = value;
-                    list.appendChild(item);
-                    values.push(value);
-                }
-
-                element.innerHTML = '';
-                element.appendChild(list);
-
-                const updateActive = (value) => {
-                    list.querySelectorAll('li').forEach(li => {
-                        li.classList.toggle('active', li.dataset.value === value);
-                    });
-                    if (onChange) onChange(value);
-                };
-
-                const snapToIndex = (index, behavior = 'smooth') => {
-                    const clamped = Math.max(0, Math.min(values.length - 1, index));
-                    element.scrollTo({ top: clamped * ITEM_HEIGHT, behavior });
-                    updateActive(values[clamped]);
-                };
-
-                let scrollTimeout;
-                const scheduleSnap = () => {
-                    clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(() => {
-                        const index = Math.round(element.scrollTop / ITEM_HEIGHT);
-                        snapToIndex(index);
-                    }, 80);
-                };
-
-                element.addEventListener('scroll', scheduleSnap);
-                element.addEventListener('wheel', (event) => {
-                    event.preventDefault();
-                    element.scrollTop += Math.sign(event.deltaY) * ITEM_HEIGHT;
-                }, { passive: false });
-                element.addEventListener('touchend', scheduleSnap);
-
-                list.addEventListener('click', (event) => {
-                    const item = event.target.closest('li[data-value]');
-                    if (!item) return;
-                    const index = values.indexOf(item.dataset.value);
-                    snapToIndex(index);
-                });
-
-                return {
-                    setValue(value) {
-                        const target = String(value).padStart(2, '0');
-                        const index = values.indexOf(target);
-                        if (index !== -1) {
-                            snapToIndex(index, 'auto');
-                        }
-                    },
-                    getValue() {
-                        const index = Math.round(element.scrollTop / ITEM_HEIGHT);
-                        const clamped = Math.max(0, Math.min(values.length - 1, index));
-                        return values[clamped] || values[0];
-                    }
-                };
-            }
-        }
-    </script>
+    
 </body>
 </html>
 

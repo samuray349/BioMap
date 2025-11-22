@@ -3,18 +3,191 @@ let familyTags = [];
 let stateTags = [];
 let rightClickPosition = null; // Store this globally to pass to the alert menu
 
-const speciesPanelElements = {
-  container: null,
-  image: null,
-  name: null,
-  scientificName: null,
-  family: null,
-  diet: null,
-  description: null,
-  alertDate: null,
-  location: null,
-  closeButton: null,
-  mainContainer: null
+// Species Panel Manager
+const SpeciesPanel = {
+  isInitialized: false,
+  isOpen: false,
+  
+  elements: {
+    container: null,
+    image: null,
+    name: null,
+    scientificName: null,
+    family: null,
+    diet: null,
+    description: null,
+    alertDate: null,
+    location: null,
+    closeButton: null,
+    mainContainer: null
+  },
+
+  init() {
+    if (this.isInitialized) {
+      console.log('Panel already initialized');
+      return;
+    }
+    
+    console.log('Initializing SpeciesPanel...');
+    // Get all panel elements
+    this.elements.container = document.getElementById('species-panel');
+    if (!this.elements.container) {
+      console.error('Species panel element not found in DOM');
+      return;
+    }
+    console.log('Species panel element found:', this.elements.container);
+
+    this.elements.image = document.getElementById('species-panel-image');
+    this.elements.name = document.getElementById('species-panel-name');
+    this.elements.scientificName = document.getElementById('species-panel-scientific');
+    this.elements.family = document.getElementById('species-panel-family');
+    this.elements.diet = document.getElementById('species-panel-diet');
+    this.elements.description = document.getElementById('species-panel-description');
+    this.elements.alertDate = document.getElementById('species-panel-alert-date');
+    this.elements.location = document.getElementById('species-panel-location');
+    this.elements.closeButton = document.getElementById('species-panel-close');
+    this.elements.mainContainer = document.querySelector('.main-container');
+
+    // Setup event listeners
+    this.setupEventListeners();
+    
+    this.isInitialized = true;
+  },
+
+  setupEventListeners() {
+    // Close button
+    if (this.elements.closeButton) {
+      this.elements.closeButton.addEventListener('click', () => this.close());
+    }
+
+    // ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.close();
+      }
+    });
+
+    // Click outside to close
+    document.addEventListener('click', (e) => {
+      if (!this.isOpen) return;
+      if (this.elements.container.contains(e.target)) return;
+      if (e.target.closest('.marker-label')) return;
+      if (e.target.closest('.sidebar')) return;
+      this.close();
+    });
+  },
+
+  open(details) {
+    console.log('SpeciesPanel.open called with:', details);
+    
+    if (!this.isInitialized) {
+      console.log('Panel not initialized, initializing...');
+      this.init();
+    }
+    
+    if (!this.elements.container) {
+      console.error('Cannot open panel: container not found');
+      return;
+    }
+    
+    console.log('Panel container found:', this.elements.container);
+
+    // Populate panel with data
+    this.populateData(details);
+
+    // Show panel
+    console.log('Adding show class and setting styles...');
+    this.elements.container.classList.add('show');
+    this.elements.container.setAttribute('aria-hidden', 'false');
+    
+    // Force styles directly via JavaScript since CSS isn't applying
+    this.elements.container.style.transform = 'translateX(0)';
+    this.elements.container.style.opacity = '1';
+    this.elements.container.style.visibility = 'visible';
+    this.elements.container.style.pointerEvents = 'auto';
+    this.elements.container.style.zIndex = '10000';
+    this.elements.container.style.display = 'block';
+    this.elements.container.style.position = 'absolute';
+    
+    // Debug position
+    const rect = this.elements.container.getBoundingClientRect();
+    console.log('Panel position:', {
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+      zIndex: window.getComputedStyle(this.elements.container).zIndex
+    });
+    console.log('Styles set. Transform:', this.elements.container.style.transform);
+    console.log('Opacity:', this.elements.container.style.opacity);
+    console.log('Visibility:', this.elements.container.style.visibility);
+    
+    if (this.elements.mainContainer) {
+      this.elements.mainContainer.classList.add('detail-panel-open');
+    }
+
+    this.isOpen = true;
+    console.log('Panel should now be visible. isOpen:', this.isOpen);
+  },
+
+  populateData(details) {
+    if (!details) return;
+
+    // Image
+    if (this.elements.image && details.image) {
+      this.elements.image.src = details.image;
+      this.elements.image.alt = details.name || 'Animal';
+    }
+
+    // Text content
+    if (this.elements.name) {
+      this.elements.name.textContent = details.name || 'Animal sem nome';
+    }
+    if (this.elements.scientificName) {
+      this.elements.scientificName.textContent = details.scientificName || '—';
+    }
+    if (this.elements.family) {
+      this.elements.family.textContent = details.family || '—';
+    }
+    if (this.elements.diet) {
+      this.elements.diet.textContent = details.diet || '—';
+    }
+    if (this.elements.description) {
+      this.elements.description.textContent = details.description || '';
+    }
+    if (this.elements.alertDate) {
+      this.elements.alertDate.textContent = details.alertDate || '—';
+    }
+
+    // Location
+    if (this.elements.location) {
+      const coords = details.coordinates || {};
+      if (typeof coords.lat === 'number' && typeof coords.lng === 'number') {
+        this.elements.location.textContent = `${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`;
+      } else {
+        this.elements.location.textContent = '—';
+      }
+    }
+  },
+
+  close() {
+    if (!this.isOpen || !this.elements.container) return;
+
+    this.elements.container.classList.remove('show');
+    this.elements.container.setAttribute('aria-hidden', 'true');
+    
+    // Remove inline styles to allow CSS transitions to work on close
+    this.elements.container.style.transform = '';
+    this.elements.container.style.opacity = '';
+    this.elements.container.style.visibility = '';
+    this.elements.container.style.pointerEvents = '';
+    
+    if (this.elements.mainContainer) {
+      this.elements.mainContainer.classList.remove('detail-panel-open');
+    }
+
+    this.isOpen = false;
+  }
 };
 
 
@@ -145,7 +318,14 @@ const pawMarkerIcon = {
     
   
     marker.addListener("click", () => {
-      openSpeciesPanel(loc.details || createFallbackDetails(loc));
+      console.log('Marker clicked:', loc.title);
+      console.log('Details:', loc.details);
+      try {
+        SpeciesPanel.open(loc.details || createFallbackDetails(loc));
+        console.log('SpeciesPanel.open called successfully');
+      } catch (error) {
+        console.error('Error opening panel:', error);
+      }
     });
   });
   
@@ -168,7 +348,7 @@ const pawMarkerIcon = {
 
   initContextMenu();
   initAlertAnimalMenu();
-  initSpeciesPanel();
+  SpeciesPanel.init();
 }
 
 
@@ -458,79 +638,17 @@ function initAlertAnimalMenu() {
   });
 }
 
+// Legacy function names for backward compatibility
 function initSpeciesPanel() {
-  if (speciesPanelElements.container) return;
-
-  speciesPanelElements.container = document.getElementById('species-panel');
-  if (!speciesPanelElements.container) return;
-
-  speciesPanelElements.image = document.getElementById('species-panel-image');
-  speciesPanelElements.name = document.getElementById('species-panel-name');
-  speciesPanelElements.scientificName = document.getElementById('species-panel-scientific');
-  speciesPanelElements.family = document.getElementById('species-panel-family');
-  speciesPanelElements.diet = document.getElementById('species-panel-diet');
-  speciesPanelElements.description = document.getElementById('species-panel-description');
-  speciesPanelElements.alertDate = document.getElementById('species-panel-alert-date');
-  speciesPanelElements.location = document.getElementById('species-panel-location');
-  speciesPanelElements.closeButton = document.getElementById('species-panel-close');
-  speciesPanelElements.mainContainer = document.querySelector('.main-container');
-
-  if (speciesPanelElements.closeButton) {
-    speciesPanelElements.closeButton.addEventListener('click', () => {
-      closeSpeciesPanel();
-    });
-  }
-
-  document.addEventListener('keyup', (event) => {
-    if (event.key === 'Escape') {
-      closeSpeciesPanel();
-    }
-  });
-
-  document.addEventListener('click', (event) => {
-    if (!speciesPanelElements.container.classList.contains('show')) return;
-    if (speciesPanelElements.container.contains(event.target)) return;
-    if (event.target.closest('.marker-label')) return;
-    if (event.target.closest('.sidebar')) return;
-    closeSpeciesPanel();
-  });
+  SpeciesPanel.init();
 }
 
 function openSpeciesPanel(details) {
-  if (!speciesPanelElements.container) {
-    initSpeciesPanel();
-  }
-  if (!speciesPanelElements.container) return;
-
-  speciesPanelElements.image.src = details.image || speciesPanelElements.image.src;
-  speciesPanelElements.image.alt = details.name || 'Animal';
-  speciesPanelElements.name.textContent = details.name || 'Animal sem nome';
-  speciesPanelElements.scientificName.textContent = details.scientificName || '—';
-  speciesPanelElements.family.textContent = details.family || '—';
-  speciesPanelElements.diet.textContent = details.diet || '—';
-  speciesPanelElements.description.textContent = details.description || '';
-  speciesPanelElements.alertDate.textContent = details.alertDate || '—';
-  const coords = details.coordinates || {};
-  if (typeof coords.lat === 'number' && typeof coords.lng === 'number') {
-    speciesPanelElements.location.textContent = `${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`;
-  } else {
-    speciesPanelElements.location.textContent = '—';
-  }
-
-  speciesPanelElements.container.classList.add('show');
-  speciesPanelElements.container.setAttribute('aria-hidden', 'false');
-  if (speciesPanelElements.mainContainer) {
-    speciesPanelElements.mainContainer.classList.add('detail-panel-open');
-  }
+  SpeciesPanel.open(details);
 }
 
 function closeSpeciesPanel() {
-  if (!speciesPanelElements.container) return;
-  speciesPanelElements.container.classList.remove('show');
-  speciesPanelElements.container.setAttribute('aria-hidden', 'true');
-  if (speciesPanelElements.mainContainer) {
-    speciesPanelElements.mainContainer.classList.remove('detail-panel-open');
-  }
+  SpeciesPanel.close();
 }
 
 

@@ -422,6 +422,7 @@ p {
     padding: 8px 40px 8px 12px;
     background-color: #ffffff;
     cursor: text;
+    padding: 0px 40px 0px 12px;
 }
 
 .tag-container {
@@ -458,6 +459,8 @@ p {
     background: transparent;
     color: #333;
     box-shadow: none;
+    height: 50px;
+    font-size: 20px;
 }
 
 .tag-input::placeholder {
@@ -527,9 +530,14 @@ p {
     position: relative;
 }
 
-.species-panel {
-    position: absolute;
-    top: 30px;
+#map-container {
+    position: relative;
+    overflow: visible;
+}
+
+#species-panel.species-panel {
+    position: fixed;
+    top: 100px;
     left: 30px;
     width: 360px;
     max-width: calc(100% - 60px);
@@ -538,14 +546,21 @@ p {
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
     overflow: hidden;
     transform: translateX(-420px);
-    transition: transform 0.35s ease, opacity 0.35s ease;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.35s;
     opacity: 0;
-    z-index: 120;
+    z-index: 10000;
+    pointer-events: none;
+    visibility: hidden;
+    display: block;
 }
 
-.species-panel.show {
-    transform: translateX(0);
-    opacity: 1;
+#species-panel.species-panel.show {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
 }
 
 .species-panel__image {
@@ -577,7 +592,9 @@ p {
 .species-panel__header h2 {
     font-size: 28px;
     font-weight: 600;
-    color: #276432;
+    color: #198754;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .species-panel__close {
@@ -607,28 +624,34 @@ p {
     gap: 12px;
     font-size: 15px;
     color: #4b4b4b;
+    margin-bottom: 4px;
 }
 
 .species-panel__info-row i {
     color: #198754;
     font-size: 18px;
     margin-top: 2px;
+    flex-shrink: 0;
+    width: 20px;
 }
 
 .species-panel__info-row .label {
     font-weight: 600;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
     color: #2f4f2f;
+    font-size: 15px;
 }
 
 .species-panel__info-row .value {
     color: #374151;
-    line-height: 1.4;
+    line-height: 1.5;
+    font-size: 15px;
 }
 
 .species-panel__info-row--description .value {
     font-size: 14px;
     color: #555;
+    line-height: 1.6;
 }
 
 .main-container {
@@ -1938,7 +1961,6 @@ p {
     background-color: #fff;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
@@ -1946,7 +1968,6 @@ p {
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .card-image {
@@ -2040,6 +2061,7 @@ p {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    text-decoration: none;
 }
 
 .btn-details:hover {
@@ -4188,7 +4210,7 @@ body:has(.reset-password-container) .login-container {
 }
 
 .text-primary {
-    color: #198754;
+    color: var(--accent-color);
 }
 
 .text-red-500 {
@@ -4572,5 +4594,12 @@ body:has(.reset-password-container) .login-container {
   }
   
 .green-shadow{
-    box-shadow: 0 2px 8px #198754;
+    box-shadow: 0 8px 10px #1987543a;
 }
+.green-shadow:hover{
+    box-shadow: 0 15px 25px #1987543a;
+}
+.flex-reverse{
+    flex-direction: row-reverse;
+}
+

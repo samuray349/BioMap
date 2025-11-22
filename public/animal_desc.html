@@ -6,214 +6,266 @@
     <title>WildPedia - Animal Encyclopedia</title>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f9fafb;
         }
-        .scientific-name {
-            font-style: italic;
-        }
-        .color-primary {
-            color: #198754;
-        }
-        .bg-primary {
-            background-color: #198754;
-        }
-        .border-primary {
-            border-color: #198754;
-        }
+
+        /* --- Animal Card Styles --- */
         .animal-card {
+            background-color: #ffffff;
+            border-radius: 12px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px #1987548c;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row; 
+            margin-bottom: 3rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            /* REMOVED fixed min-height to prevent it from being artificially tall */
+            align-items: stretch; /* Ensures text background stretches to match image height */
         }
+        .animal-card.main {
+    max-width: 1400px; /* or 1500px */
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
         .animal-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 13px #1987548c;
         }
-        .threat-item {
+
+        /* --- Image Styling --- */
+        .card-image-section {
+            /* CHANGED: Increased to 65% to make the image "longer" horizontally */
+            width: 65%; 
             position: relative;
-            padding-left: 1.5rem;
         }
-        .threat-item:before {
+
+        .card-image-section img {
+            width: 100%;
+            height: 100%;
+            /* CHANGED: Re-enforce 16:9 so height is calculated strictly by width */
+            aspect-ratio: 16 / 9; 
+            object-fit: cover; 
+            object-position: center;
+            display: block;
+        }
+
+        /* --- Content Styling --- */
+        .card-content-section {
+            /* CHANGED: Reduced to 35% to give space to the image */
+            width: 35%;
+            padding: 2.5rem 2rem; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centers content vertically */
+            position: relative;
+        }
+
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap; /* Allows wrapping on smaller screens */
+            gap: 10px;
+        }
+
+        .animal-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent-color, #198754);
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .scientific-name {
+            font-style: italic;
+            color: #6b7280;
+            font-size: 1rem;
+            margin-top: 0.25rem;
+        }
+
+        .status-badge {
+            background-color: #ffc107; 
+            color: #ffffff;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
+            white-space: nowrap;
+            align-self: flex-start;
+        }
+
+        .section-title {
+            color: var(--accent-color, #198754);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            margin-top: 0;
+            text-align: left;
+        }
+
+        .facts-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Single column fits better in the narrower 35% space */
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* If screen is huge, we can go back to 2 cols */
+        @media (min-width: 1400px) {
+            .facts-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .fact-label {
+            color: var(--accent-color, #198754);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .fact-value {
+            color: #1f2937;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .description-text {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Threat items utility */
+        .threat-item { position: relative; padding-left: 1.5rem; color: #4b5563; }
+        /* Custom Green Dot Marker */
+        .threat-item::before {
             content: "";
             position: absolute;
             left: 0;
-            top: 0.6rem;
-            width: 0.5rem;
-            height: 0.5rem;
+            top: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background-color: #198754;
+        }
+
+
+        /* Responsive behavior */
+        @media (max-width: 900px) {
+            .animal-card { flex-direction: column; }
+            .card-image-section, .card-content-section { width: 100%; }
+            .card-image-section img { aspect-ratio: 16/9; } /* Keep wide aspect on mobile too */
+            .card-content-section { padding: 2rem; }
+            .facts-grid { grid-template-columns: 1fr 1fr; } /* Restore grid on mobile */
         }
     </style>
 </head>
 <body class="min-h-screen bg-white">
     <div id="header-placeholder"></div>
 
-    <main class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold text-gray-800">Animal Spotlight</h2>
-                <div class="flex space-x-2">
-                    <button class="px-3 py-1 border border-gray-300 rounded-full text-sm">Share</button>
-                    <button class="px-3 py-1 border border-gray-300 rounded-full text-sm">Save</button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl animal-card overflow-hidden shadow-lg mb-12">
-                <div class="md:flex">
-                    <div class="md:w-1/2">
-                        <img src="http://static.photos/nature/1024x576/42" alt="Snow Leopard" class="w-full h-full object-cover">
-                    </div>
-                    <div class="md:w-1/2 p-8">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h1 class="text-3xl font-bold text-gray-800 mb-1">Snow Leopard</h1>
-                                <p class="scientific-name text-gray-600 mb-4">Panthera uncia</p>
-                            </div>
-                            <span class="bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-full text-sm">Vulnerable</span>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Quick Facts</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p class="text-gray-500 text-sm">Family:</p>
-                                    <p class="font-medium">Felidae</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500 text-sm">Diet:</p>
-                                    <p class="font-medium">Carnivore</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500 text-sm">Habitat:</p>
-                                    <p class="font-medium">Mountain ranges</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500 text-sm">Lifespan:</p>
-                                    <p class="font-medium">15-18 years</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Description</h3>
-                            <p class="text-gray-700">The snow leopard is a large cat native to the mountain ranges of Central and South Asia. Known for its beautiful, thick fur and elusive nature, it's perfectly adapted to cold, rugged environments. Its white-gray coat with black spots provides camouflage in rocky terrain.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="bg-white p-6 rounded-xl shadow">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">5 Major Threats</h3>
-                    <ul class="space-y-3">
-                        <li class="threat-item">Poaching for fur and bones (used in traditional medicine)</li>
-                        <li class="threat-item">Habitat loss due to expanding human settlements</li>
-                        <li class="threat-item">Climate change affecting mountain ecosystems</li>
-                        <li class="threat-item">Decline in prey populations (wild sheep and goats)</li>
-                        <li class="threat-item">Human-wildlife conflict (retaliation killing by herders)</li>
-                    </ul>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Conservation Status</h3>
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4">
-                            <i data-feather="alert-triangle" class="color-primary"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-sm">IUCN Red List</p>
-                            <p class="font-medium">Vulnerable</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4">Estimated population: 4,000-6,500 mature individuals remaining in the wild.</p>
-                    <button class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition w-full">
-                        <i data-feather="heart" class="inline mr-2"></i> Support Conservation
+    <main class="container mx-auto px-4 py-12" style="max-width: 1500px;">
+        <div class="mx-auto" style="max-width: 1500px;">
+            <div class="mx-auto mb-8" style="max-width: 1400px;">
+                <div class="flex justify-end">
+                    <button class="px-3 py-1 border border-gray-300 rounded-full text-sm bg-white hover:bg-gray-50 transition">
+                        Partilhar
                     </button>
                 </div>
             </div>
+            
 
-            <div class="bg-white p-6 rounded-xl shadow mb-12">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Did You Know?</h3>
-                <div class="flex items-start">
-                    <div class="w-12 h-12 rounded-full bg-primary bg-opacity-10 flex items-center justify-center mr-4 flex-shrink-0">
-                        <i data-feather="info" class="color-primary"></i>
+            <div class="animal-card main">
+                <div class="card-image-section">
+                    <img src="./img/lince.jpg" alt="Lince Ibérico">
+                </div>
+                
+                <div class="card-content-section">
+                    <div class="card-header-row">
+                        <div>
+                            <h1 class="animal-title">Lince Ibérico</h1>
+                            <p class="scientific-name">Lynx pardinus</p>
+                        </div>
+                        <span class="status-badge">Vulnerável</span>
                     </div>
+
+                    <div class="mb-6">
+                        <h3 class="section-title">Factos</h3>
+                        <div class="facts-grid">
+                            <div>
+                                <span class="fact-label">Família:</span>
+                                <span class="fact-value">Felidae</span>
+                            </div>
+                            <div>
+                                <span class="fact-label">Dieta:</span>
+                                <span class="fact-value">Carnívoro</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
-                        <p class="text-gray-700">Snow leopards can't roar! Unlike other big cats, they have different vocal cords and make sounds more similar to domestic cats. They can jump up to 50 feet (15 meters) in a single leap, which helps them navigate their rocky habitats with ease.</p>
+                        <h3 class="section-title">Descrição</h3>
+                        <p class="description-text">O lince-ibérico é um felino de médio porte endêmico da Península Ibérica, considerado o felino mais ameaçado do mundo até recentemente. Reconhecido pelas suas orelhas pontiagudas com tufos pretos, patas longas, cauda curta e o característico “barbicho” facial, o lince-ibérico é um predador ágil e solitário, perfeitamente adaptado aos ecossistemas mediterrânicos.</p>
                     </div>
                 </div>
             </div>
-
-            <div class="text-center">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Explore More Animals</h3>
-                <div class="grid md:grid-cols-3 gap-6">
-                    <a href="#" class="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
-                        <img src="http://static.photos/nature/320x240/11" alt="Amur Leopard" class="w-full h-40 object-cover rounded mb-3">
-                        <h4 class="font-medium">Amur Leopard</h4>
-                        <p class="text-gray-500 text-sm">Critically Endangered</p>
-                    </a>
-                    <a href="#" class="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
-                        <img src="http://static.photos/nature/320x240/22" alt="Red Panda" class="w-full h-40 object-cover rounded mb-3">
-                        <h4 class="font-medium">Red Panda</h4>
-                        <p class="text-gray-500 text-sm">Endangered</p>
-                    </a>
-                    <a href="#" class="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
-                        <img src="http://static.photos/nature/320x240/33" alt="African Elephant" class="w-full h-40 object-cover rounded mb-3">
-                        <h4 class="font-medium">African Elephant</h4>
-                        <p class="text-gray-500 text-sm">Vulnerable</p>
+            <div style="max-width: 1200px;margin-right: auto;margin-left: auto;">
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: block; height: auto;">
+                    <h3 class="text-xl font-semibold mb-4" style="color: var(--accent-color, #198754);">5 Principais Ameaças</h3>
+                    <ul class="space-y-3" style="list-style-type: none;">
+                        <li class="threat-item">Perda e fragmentação do habitat devido à urbanização e agricultura intensiva</li>
+                        <li class="threat-item">Redução das populações das suas principais presas por doenças </li>
+                        <li class="threat-item">Atropelamentos em estradas</li>
+                        <li class="threat-item">Caça ilegal e armadilhas destinadas a outros animais</li>
+                        <li class="threat-item">Mudanças climáticas que afetam a disponibilidade de presas e habitat adequado</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: block; height: auto;">
+                    <h3 class="text-xl font-semibold mb-4" style="color: var(--accent-color, #198754);">Estado de Conservação</h3>
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4" style="background-color: #FFCC00; color: black;">
+                            <i data-feather="alert-triangle"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm" style="margin-bottom: 0;">Lista Vermelha IUCN</p>
+                            <p class="font-medium">Vulnerável</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">População estimada: 4.000-6.500 indivíduos maduros restantes na natureza.</p>
+                    <a href="doar.html" class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition w-full flex items-center justify-center" style="background-color: var(--accent-color);text-decoration: none;">
+                        <i data-feather="heart" class="inline mr-2"></i> Doar
                     </a>
                 </div>
             </div>
+
+            <div class="bg-white p-6 rounded-xl shadow mb-12 animal-card" style="flex-direction: row; align-items: flex-start; height: auto;">
+                <div class="w-12 h-12 rounded-full  flex items-center justify-center mr-4 flex-shrink-0" style="background-color: var(--accent-color); color: white;">
+                    <i data-feather="info"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Facto interessante</h3>
+                    <p class="text-gray-700">Nos anos 2000, restavam menos de 100 indivíduos — à beira da extinção. Graças a programas de reprodução em cativeiro, reintrodução e proteção de habitat, hoje existem mais de 2.000 linces ibéricos em liberdade na Península Ibérica.</p>
+                </div>
+            </div>
+        </div>
         </div>
     </main>
-
-    <footer class="bg-gray-50 border-t border-gray-200 py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">WildPedia</h4>
-                    <p class="text-gray-600 mb-4">Your trusted source for wildlife information and conservation efforts worldwide.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-500 hover:text-primary"><i data-feather="facebook"></i></a>
-                        <a href="#" class="text-gray-500 hover:text-primary"><i data-feather="twitter"></i></a>
-                        <a href="#" class="text-gray-500 hover:text-primary"><i data-feather="instagram"></i></a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Explore</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-600 hover:text-primary">Animals A-Z</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary">Habitats</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary">Endangered Species</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary">Conservation Status</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Get Involved</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-600 hover:text-primary">Donate</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary">Volunteer</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary">Adoption Programs</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary">Education</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Newsletter</h4>
-                    <p class="text-gray-600 mb-4">Subscribe to receive updates on wildlife conservation efforts.</p>
-                    <div class="flex">
-                        <input type="email" placeholder="Your email" class="px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:border-primary w-full">
-                        <button class="bg-primary text-white px-4 py-2 rounded-r-lg hover:bg-opacity-90">Subscribe</button>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500">
-                <p>© 2023 WildPedia. All rights reserved. Made with <i data-feather="heart" class="inline text-red-500 w-4 h-4"></i> for wildlife.</p>
-            </div>
-        </div>
-    </footer>
 
     <script>
         feather.replace();
