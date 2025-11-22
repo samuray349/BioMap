@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Animal • BioMap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <div class="header-divider"></div>
+
+    <main class="add-animal-page">
+        <section class="add-animal-card">
+            <div class="add-animal-header">
+                <div>
+                    <p class="breadcrumb">Mapa &gt; Animais &gt; Adicionar</p>
+                    <h1>Adicionar Animal</h1>
+                    <p class="subtitle">Preencha todos os campos para publicar um novo animal na plataforma.</p>
+                </div>
+                <button class="ghost-btn" type="button">
+                    <i class="fa-solid fa-rotate"></i>
+                    Limpar formulário
+                </button>
+            </div>
+
+            <form class="add-animal-form">
+                <div class="form-grid two-columns">
+                    <div class="input-field">
+                        <label for="animal-name">Nome Animal</label>
+                        <input id="animal-name" type="text" placeholder="Ex: Lince Ibérico">
+                    </div>
+                    <div class="input-field">
+                        <label for="scientific-name">Nome Científico</label>
+                        <input id="scientific-name" type="text" placeholder="Ex: Lynx pardinus">
+                    </div>
+                </div>
+
+                <section class="add-section taxonomy-section">
+                    <div class="section-heading">
+                        <h2>Família</h2>
+                        <p>Selecione as famílias e ordens relacionadas com o animal registado.</p>
+                    </div>
+
+                    <div class="taxonomy-group">
+                        <span class="taxonomy-label">Mamíferos</span>
+                        <select id="familia-mamiferos" name="familia-mamiferos" class="chip-select" aria-label="Família Mamíferos">
+                            <option value="">Selecione uma família</option>
+                            <option value="Antilocapridae">Antilocapridae</option>
+                            <option value="Bovidae">Bovidae</option>
+                            <option value="Canidae">Canidae</option>
+                            <option value="Camelidae">Camelidae</option>
+                            <option value="Cervidae">Cervidae</option>
+                            <option value="Dasipodidae">Dasipodidae</option>
+                            <option value="Didelphidae">Didelphidae</option>
+                            <option value="Felidae">Felidae</option>
+                            <option value="Herpestidae">Herpestidae</option>
+                            <option value="Hominidae">Hominidae</option>
+                            <option value="Leporidae">Leporidae</option>
+                            <option value="Megadermatidae">Megadermatidae</option>
+                            <option value="Mustelidae">Mustelidae</option>
+                            <option value="Otariidae">Otariidae</option>
+                            <option value="Phocidae">Phocidae</option>
+                            <option value="Procyonidae">Procyonidae</option>
+                            <option value="Rodentia">Rodentia</option>
+                            <option value="Sciuridae">Sciuridae</option>
+                            <option value="Suidae">Suidae</option>
+                            <option value="Tapiridae">Tapiridae</option>
+                            <option value="Ursidae">Ursidae</option>
+                            <option value="Viverridae">Viverridae</option>
+                            <option value="Xenarthra">Xenarthra</option>
+                        </select>
+                    </div>
+
+                    <div class="taxonomy-group">
+                        <span class="taxonomy-label">Aves</span>
+                        <select id="familia-aves" name="familia-aves" class="chip-select" aria-label="Família Aves">
+                            <option value="">Selecione uma família</option>
+                            <option value="Accipitridae">Accipitridae</option>
+                            <option value="Ardeidae">Ardeidae</option>
+                            <option value="Cathartidae">Cathartidae</option>
+                            <option value="Columbidae">Columbidae</option>
+                            <option value="Falconidae">Falconidae</option>
+                            <option value="Phasianidae">Phasianidae</option>
+                            <option value="Psittacidae">Psittacidae</option>
+                            <option value="Strigidae">Strigidae</option>
+                            <option value="Trochilidae">Trochilidae</option>
+                            <option value="Tytonidae">Tytonidae</option>
+                        </select>
+                    </div>
+
+                    <div class="taxonomy-group">
+                        <span class="taxonomy-label">Répteis e Anfíbios</span>
+                        <select id="familia-repteis" name="familia-repteis" class="chip-select" aria-label="Família Répteis e Anfíbios">
+                            <option value="">Selecione uma família</option>
+                            <option value="Boidae">Boidae</option>
+                            <option value="Cheloniidae">Cheloniidae</option>
+                            <option value="Crocodylidae">Crocodylidae</option>
+                            <option value="Elapidae">Elapidae</option>
+                            <option value="Iguanidae">Iguanidae</option>
+                            <option value="Viperidae">Viperidae</option>
+                            <option value="Bufonidae">Bufonidae</option>
+                            <option value="Hylidae">Hylidae</option>
+                            <option value="Ranidae">Ranidae</option>
+                            <option value="Testudinidae">Testudinidae</option>
+                        </select>
+                    </div>
+
+                    <div class="taxonomy-group">
+                        <span class="taxonomy-label">Peixes</span>
+                        <select id="familia-peixes" name="familia-peixes" class="chip-select" aria-label="Família Peixes">
+                            <option value="">Selecione uma família</option>
+                            <option value="Cyprinidae">Cyprinidae</option>
+                            <option value="Characidae">Characidae</option>
+                            <option value="Cichlidae">Cichlidae</option>
+                            <option value="Serranidae">Serranidae</option>
+                            <option value="Siluridae">Siluridae</option>
+                        </select>
+                    </div>
+                </section>
+
+                <section class="add-section diet-section">
+                    <div class="section-heading">
+                        <h2>Dietas</h2>
+                        <p>Identifique a dieta predominante do animal.</p>
+                    </div>
+                    <select id="diet-type" name="diet-type" class="chip-select" aria-label="Dieta">
+                        <option value="">Selecione a dieta</option>
+                        <option value="Carnívoro">Carnívoro</option>
+                        <option value="Herbívoro">Herbívoro</option>
+                        <option value="Omnívoro">Omnívoro</option>
+                    </select>
+                </section>
+
+                <section class="add-section threats-section">
+                    <div class="section-heading">
+                        <h2>Ameaças</h2>
+                        <p>Registe até cinco ameaças principais e o estado de conservação atual.</p>
+                    </div>
+                    <div class="form-grid two-columns">
+                        <div class="input-field">
+                            <label for="threat-1">Ameaça 1</label>
+                            <input id="threat-1" type="text" placeholder="Desflorestação, caça ilegal...">
+                        </div>
+                        <div class="input-field">
+                            <label for="threat-2">Ameaça 2</label>
+                            <input id="threat-2" type="text">
+                        </div>
+                        <div class="input-field">
+                            <label for="threat-3">Ameaça 3</label>
+                            <input id="threat-3" type="text">
+                        </div>
+                        <div class="input-field">
+                            <label for="threat-4">Ameaça 4</label>
+                            <input id="threat-4" type="text">
+                        </div>
+                        <div class="input-field">
+                            <label for="threat-5">Ameaça 5</label>
+                            <input id="threat-5" type="text">
+                        </div>
+                    </div>
+                    <select id="conservation-status" name="conservation-status" class="chip-select conservation-row" aria-label="Estado de conservação"
+                        onchange="updateConservationBgColor(this)">
+                        <option value="">Selecione o estado de conservação</option>
+                        <option value="Quase ameaçada">Quase ameaçada</option>
+                        <option value="Vulnerável">Vulnerável</option>
+                        <option value="Em perigo">Em perigo</option>
+                        <option value="Perigo crítico">Perigo crítico</option>
+                        <option value="Extinto na Natureza">Extinto na Natureza</option>
+                    </select>
+                    <script>
+                        function updateConservationBgColor(select) {
+                            const colorMap = {
+                                "": "#d9dee7",
+                                "Quase ameaçada": "#e0faac",
+                                "Vulnerável": "#ffd7a0",
+                                "Em perigo": "#faa973",
+                                "Perigo crítico": "#fa7878",
+                                "Extinto na Natureza": "#828282"
+                            };
+                            const accentColorMap = {
+                                "": "#6e7a85", // fallback gray
+                                "Quase ameaçada": "#598d13",
+                                "Vulnerável": "#ff9100",
+                                "Em perigo": "#df540a",
+                                "Perigo crítico": "#c60a0a",
+                                "Extinto na Natureza": "#222326"
+                            };
+                            // Set background color
+                            select.style.backgroundColor = colorMap[select.value] || "#d9dee7";
+                            // Set accent color for modern browsers (will affect the dropdown highlight, focus ring, etc.)
+                            select.style.setProperty('accent-color', accentColorMap[select.value] || "#6e7a85");
+                            // For extra visual hint, also update border color if desired:
+                            select.style.borderColor = accentColorMap[select.value] || "#6e7a85";
+                            // Optionally set color for font if dark background
+                            if(select.value === "Perigo crítico" || select.value === "Extinto na Natureza") {
+                                select.style.color = "#fff";
+                            } else {
+                                select.style.color = "#222326";
+                            }
+                        }
+                        // Initialize background and accent color on DOM load for pre-selected values (editing scenarios)
+                        document.addEventListener("DOMContentLoaded", function() {
+                            var select = document.getElementById('conservation-status');
+                            updateConservationBgColor(select);
+                        });
+                    </script>
+                </section>
+
+                <section class="add-section quick-stats">
+                    <div class="form-grid two-columns">
+                        <div class="input-field">
+                            <label for="population">População Estimada</label>
+                            <input id="population" type="text" placeholder="Ex: 1 200 indivíduos">
+                        </div>
+                        <div class="input-field">
+                            <label for="fact">Facto</label>
+                            <input id="fact" type="text" placeholder="Curiosidade ou facto relevante">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="add-section description-section">
+                    <div class="section-heading">
+                        <h2>Descrição detalhada</h2>
+                        <p>Conte a história, comportamento e habitat do animal.</p>
+                    </div>
+                    <div class="description-editor">
+                        <div class="editor-toolbar">
+                            <button type="button" aria-label="Undo"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button type="button" aria-label="Redo"><i class="fa-solid fa-rotate-right"></i></button>
+                            <span class="divider"></span>
+                            <button type="button"><i class="fa-solid fa-bold"></i></button>
+                            <button type="button"><i class="fa-solid fa-italic"></i></button>
+                            <button type="button"><i class="fa-solid fa-underline"></i></button>
+                            <button type="button"><i class="fa-solid fa-list-ul"></i></button>
+                            <button type="button"><i class="fa-solid fa-list-ol"></i></button>
+                            <button type="button"><i class="fa-solid fa-link"></i></button>
+                            <button type="button"><i class="fa-solid fa-quote-right"></i></button>
+                            <button type="button"><i class="fa-solid fa-image"></i></button>
+                        </div>
+                        <label for="description">Descrição</label>
+                        <textarea id="description" rows="8" placeholder="Conte a história do animal, habitat, comportamento e outros detalhes importantes..."></textarea>
+                    </div>
+                </section>
+
+                <section class="add-section image-upload-section">
+                    <div class="section-heading">
+                        <h2>Adicionar imagem</h2>
+                        <p>Utilize fotografias horizontais com boa resolução (1200px x 800px recomendado).</p>
+                    </div>
+                    <div class="image-upload">
+                        <div class="image-upload-body">
+                            <label class="upload-box" for="image-input">
+                                <div class="upload-instructions">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p>Arraste e solte a imagem aqui ou <span>clique para fazer upload</span></p>
+                                    <small>Formatos aceites: JPG ou PNG até 5MB</small>
+                                </div>
+                                <input type="file" id="image-input" accept="image/*">
+                            </label>
+                            <figure class="image-preview">
+                                <img src="img/lince-login.jpeg" alt="Pré-visualização do animal">
+                                <figcaption>Lince Ibérico a patrulhar a savana mediterrânea.</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions add-section">
+                    <button type="submit" class="primary-btn">
+                        <i class="fa-solid fa-paw"></i>
+                        Adicionar Animal
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="js/script.js"></script>
+    <script>
+        loadHeader();
+        highlightCurrentPage();
+    </script>
+</body>
+</html>
+
