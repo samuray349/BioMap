@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Instituição • BioMap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <div class="header-divider"></div>
+
+    <main class="add-institution-page">
+        <section class="add-institution-card">
+            <div class="add-animal-header">
+                <div>
+                    <p class="breadcrumb">Mapa &gt; Instituições &gt; Adicionar</p>
+                    <h1>Adicionar Instituição</h1>
+                    <p class="subtitle">Preencha os detalhes para publicar uma nova instituição parceira na plataforma.</p>
+                </div>
+                <button class="ghost-btn" type="button">
+                    <i class="fa-solid fa-rotate"></i>
+                    Limpar formulário
+                </button>
+            </div>
+
+            <form class="add-animal-form add-institution-form">
+                <div class="form-grid">
+                    <div class="input-field">
+                        <label for="institution-name">Nome da Instituição</label>
+                        <input id="institution-name" type="text" placeholder="Ex: Centro de Conservação do Lince Ibérico">
+                    </div>
+                    <div class="input-field">
+                        <label for="institution-contact">Contacto</label>
+                        <input id="institution-contact" type="text" placeholder="Email, telefone ou website oficial">
+                    </div>
+                </div>
+
+                <section class="add-section schedule-section">
+                    <div class="section-heading">
+                        <h2>Horário</h2>
+                        <p>Defina os dias de funcionamento e os respetivos horários.</p>
+                    </div>
+                    <div class="schedule-grid">
+                        <div class="input-field">
+                            <label for="schedule-days">Dias</label>
+                            <select id="schedule-days" name="schedule-days" class="chip-select multi-select" multiple aria-describedby="schedule-days-hint">
+                                <option value="Segunda">Segunda</option>
+                                <option value="Terça">Terça</option>
+                                <option value="Quarta">Quarta</option>
+                                <option value="Quinta">Quinta</option>
+                                <option value="Sexta">Sexta</option>
+                                <option value="Sábado">Sábado</option>
+                                <option value="Domingo">Domingo</option>
+                            </select>
+                            <small id="schedule-days-hint" class="field-hint">Use Ctrl (Windows) ou ⌘ (Mac) para selecionar vários dias.</small>
+                        </div>
+                        <div class="schedule-times">
+                            <div class="input-field time-field">
+                                <label for="opening-time">Hora abertura</label>
+                                <button type="button" class="time-display" data-target="opening-time">09:00</button>
+                                <input id="opening-time" type="hidden" value="09:00">
+                            </div>
+                            <div class="input-field time-field">
+                                <label for="closing-time">Hora fecho</label>
+                                <button type="button" class="time-display" data-target="closing-time">17:00</button>
+                                <input id="closing-time" type="hidden" value="17:00">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="add-section description-section">
+                    <div class="section-heading">
+                        <h2>Descrição</h2>
+                        <p>Apresente a história, missão e iniciativas da instituição.</p>
+                    </div>
+                    <div class="description-editor">
+                        <div class="editor-toolbar">
+                            <button type="button" aria-label="Desfazer"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button type="button" aria-label="Refazer"><i class="fa-solid fa-rotate-right"></i></button>
+                            <span class="divider"></span>
+                            <button type="button"><i class="fa-solid fa-bold"></i></button>
+                            <button type="button"><i class="fa-solid fa-italic"></i></button>
+                            <button type="button"><i class="fa-solid fa-underline"></i></button>
+                            <button type="button"><i class="fa-solid fa-list-ul"></i></button>
+                            <button type="button"><i class="fa-solid fa-list-ol"></i></button>
+                            <button type="button"><i class="fa-solid fa-link"></i></button>
+                            <button type="button"><i class="fa-solid fa-quote-right"></i></button>
+                            <button type="button"><i class="fa-solid fa-image"></i></button>
+                        </div>
+                        <label for="institution-description">Descrição</label>
+                        <textarea id="institution-description" rows="8" placeholder="Conte como a instituição atua, projetos desenvolvidos e impacto gerado..."></textarea>
+                    </div>
+                </section>
+
+                <section class="add-section location-section">
+                    <div class="section-heading">
+                        <h2>Localização</h2>
+                        <p>Indique a localização principal ou zona de atuação.</p>
+                    </div>
+                    <div class="location-search input-field">
+                        <label class="visually-hidden" for="location-search">Pesquisar localização</label>
+                        <div class="location-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input id="location-search" type="text" placeholder="Pesquisar">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="add-section image-upload-section">
+                    <div class="section-heading">
+                        <h2>Adicionar Imagem</h2>
+                        <p>Carregue uma imagem destaque da instituição ou das suas atividades.</p>
+                    </div>
+                    <div class="image-upload">
+                        <div class="image-upload-body">
+                            <label class="upload-box" for="institution-image">
+                                <div class="upload-instructions">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p>Upload Imagem...</p>
+                                    <small>Formatos aceites: JPG ou PNG até 5MB</small>
+                                </div>
+                                <input type="file" id="institution-image" accept="image/*">
+                            </label>
+                            <figure class="image-preview">
+                                <img src="img/wwf_logo.png" alt="Pré-visualização da instituição">
+                                <figcaption>Equipa de voluntários a alimentar animais resgatados.</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions add-section">
+                    <button type="submit" class="primary-btn">
+                        <i class="fa-solid fa-building"></i>
+                        Adicionar Instituição
+                    </button>
+                </div>
+            </form>
+        </section>
+        <div class="time-picker-overlay" id="timePickerOverlay" aria-hidden="true" role="dialog" aria-modal="true">
+            <div class="time-picker-modal">
+                <div class="time-picker-header">
+                    <h3>Escolher tempo</h3>
+                    <button type="button" class="close-picker" aria-label="Fechar seletor">&times;</button>
+                </div>
+                <div class="time-picker-body wheel-mode">
+                    <div class="time-wheel-column">
+                        <span class="wheel-label">Hora</span>
+                        <span id="hourValue" class="wheel-current" aria-live="polite">09</span>
+                        <div class="time-wheel" id="hourWheel" tabindex="0" role="listbox" aria-label="Selecionar hora"></div>
+                    </div>
+                    <div class="time-wheel-column">
+                        <span class="wheel-label">Minuto</span>
+                        <span id="minuteValue" class="wheel-current" aria-live="polite">00</span>
+                        <div class="time-wheel" id="minuteWheel" tabindex="0" role="listbox" aria-label="Selecionar minuto"></div>
+                    </div>
+                </div>
+                <div class="time-picker-actions">
+                    <button type="button" class="ghost-btn small" id="cancelTimePicker">Cancelar</button>
+                    <button type="button" class="primary-btn small" id="confirmTimePicker">Escolher</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+    <script>
+        loadHeader();
+        highlightCurrentPage();
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initTimePicker);
+
+        function initTimePicker() {
+            const ITEM_HEIGHT = 48;
+            const overlay = document.getElementById('timePickerOverlay');
+            const hourWheelEl = document.getElementById('hourWheel');
+            const minuteWheelEl = document.getElementById('minuteWheel');
+            const hourValue = document.getElementById('hourValue');
+            const minuteValue = document.getElementById('minuteValue');
+            const closeBtn = overlay.querySelector('.close-picker');
+            const cancelBtn = document.getElementById('cancelTimePicker');
+            const confirmBtn = document.getElementById('confirmTimePicker');
+            let activeInput = null;
+
+            const hourWheel = createWheel(hourWheelEl, 23, 1, (value) => {
+                hourValue.textContent = value;
+            });
+            const minuteWheel = createWheel(minuteWheelEl, 59, 1, (value) => {
+                minuteValue.textContent = value;
+            });
+
+            const openPicker = (inputId) => {
+                activeInput = document.getElementById(inputId);
+                const time = (activeInput.value || '00:00').split(':');
+                hourWheel.setValue(time[0] || '00');
+                minuteWheel.setValue(time[1] || '00');
+                overlay.classList.add('show');
+                overlay.setAttribute('aria-hidden', 'false');
+            };
+
+            const closePicker = () => {
+                overlay.classList.remove('show');
+                overlay.setAttribute('aria-hidden', 'true');
+                activeInput = null;
+            };
+
+            document.querySelectorAll('.time-display').forEach(btn => {
+                btn.addEventListener('click', () => openPicker(btn.dataset.target));
+            });
+
+            cancelBtn.addEventListener('click', closePicker);
+            closeBtn.addEventListener('click', closePicker);
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay) {
+                    closePicker();
+                }
+            });
+
+            confirmBtn.addEventListener('click', () => {
+                if (!activeInput) return;
+                const formattedTime = `${hourWheel.getValue()}:${minuteWheel.getValue()}`;
+                activeInput.value = formattedTime;
+                const displayBtn = document.querySelector(`.time-display[data-target="${activeInput.id}"]`);
+                if (displayBtn) {
+                    displayBtn.textContent = formattedTime;
+                }
+                closePicker();
+            });
+
+            function createWheel(element, max, step, onChange) {
+                const values = [];
+                const list = document.createElement('ul');
+                list.classList.add('wheel-list');
+
+                for (let i = 0; i <= max; i += step) {
+                    const value = String(i).padStart(2, '0');
+                    const item = document.createElement('li');
+                    item.textContent = value;
+                    item.dataset.value = value;
+                    list.appendChild(item);
+                    values.push(value);
+                }
+
+                element.innerHTML = '';
+                element.appendChild(list);
+
+                const updateActive = (value) => {
+                    list.querySelectorAll('li').forEach(li => {
+                        li.classList.toggle('active', li.dataset.value === value);
+                    });
+                    if (onChange) onChange(value);
+                };
+
+                const snapToIndex = (index, behavior = 'smooth') => {
+                    const clamped = Math.max(0, Math.min(values.length - 1, index));
+                    element.scrollTo({ top: clamped * ITEM_HEIGHT, behavior });
+                    updateActive(values[clamped]);
+                };
+
+                let scrollTimeout;
+                const scheduleSnap = () => {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        const index = Math.round(element.scrollTop / ITEM_HEIGHT);
+                        snapToIndex(index);
+                    }, 80);
+                };
+
+                element.addEventListener('scroll', scheduleSnap);
+                element.addEventListener('wheel', (event) => {
+                    event.preventDefault();
+                    element.scrollTop += Math.sign(event.deltaY) * ITEM_HEIGHT;
+                }, { passive: false });
+                element.addEventListener('touchend', scheduleSnap);
+
+                list.addEventListener('click', (event) => {
+                    const item = event.target.closest('li[data-value]');
+                    if (!item) return;
+                    const index = values.indexOf(item.dataset.value);
+                    snapToIndex(index);
+                });
+
+                return {
+                    setValue(value) {
+                        const target = String(value).padStart(2, '0');
+                        const index = values.indexOf(target);
+                        if (index !== -1) {
+                            snapToIndex(index, 'auto');
+                        }
+                    },
+                    getValue() {
+                        const index = Math.round(element.scrollTop / ITEM_HEIGHT);
+                        const clamped = Math.max(0, Math.min(values.length - 1, index));
+                        return values[clamped] || values[0];
+                    }
+                };
+            }
+        }
+    </script>
+</body>
+</html>
+
