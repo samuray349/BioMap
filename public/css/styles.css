@@ -340,7 +340,7 @@ p {
     height: auto;
     max-height: calc(100vh - 70px); /* Ensures it fits exactly under header */
     background-color: transparent;
-    overflow-y: auto; /* CHANGED: was 'visible' */
+    overflow-y: visible; /* CHANGED: was 'visible' */
     z-index: 100;
     border-radius: 0 12px 12px 0;
 }
@@ -1981,6 +1981,7 @@ p {
     padding: 16px;
     display: flex;
     flex-direction: column;
+    flex: 1; /* NEW: Forces content to fill the card height */
 }
 
 .card-header {
@@ -2048,25 +2049,28 @@ p {
 }
 
 .btn-details {
-    width: 100%;
-    padding: 10px;
-    background-color: #1a7854;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    text-decoration: none;
+	width: 100%;
+	padding: 10px;
+	background-color: white;
+	color: var(--accent-color);
+	border: 2px solid var(--accent-color);
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	text-decoration: none;
 }
 
 .btn-details:hover {
-    background-color: #145c42;
+    background-color: var(--accent-hover);
+    color: white;
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
 }
 
 /* ==================== DOAR PAGE STYLES ==================== */
@@ -5009,7 +5013,9 @@ body:has(.reset-password-container) .login-container {
 }
 
 .card.selected .btn-details {
-    background-color: #14532d; /* Darker green */
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
 }
 
 /* Footer Bar */
@@ -5095,4 +5101,19 @@ body:has(.reset-password-container) .login-container {
     height: 50px; /* Force height to match tags */
     border-radius: 8px;
     padding-left: 45px; /* Space for icon */
+}
+
+/* ... existing styles ... */
+
+/* Specific Grid for Sobre Nós (2 per line) */
+.sobre-nos-content .cards-grid {
+    grid-template-columns: repeat(2, 1fr); /* Forces 2 columns */
+    gap: 30px; /* Optional: Slightly larger gap for bigger cards */
+}
+
+/* Responsive: Stack to 1 column on smaller screens */
+@media (max-width: 768px) {
+    .sobre-nos-content .cards-grid {
+        grid-template-columns: 1fr;
+    }
 }

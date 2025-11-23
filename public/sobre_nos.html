@@ -5,23 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioMap - Sobre nós</title>
     
-    
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
 </head>
 <body>
-    <!-- Header Placeholder -->
     <div id="header-placeholder"></div>
     
-    <!-- Main Content -->
     <main class="sobre-nos-content">
-        <!-- Logo Section -->
         <div class="sobre-nos-logo-section">
             <div class="koala-logo">
                 <img src="img/biomap-icon.png" alt="biomap" height="200" width="200">
@@ -29,7 +23,6 @@
             <h1 class="sobre-nos-logo-text">BioMap</h1>
         </div>
         
-        <!-- Quem Somos Section -->
         <div class="quem-somos-card">
             <h2 class="quem-somos-title">Quem Somos?</h2>
             <p class="quem-somos-text">
@@ -39,90 +32,85 @@
             </p>
         </div>
         
-        <!-- Species Section -->
         <h2 class="species-section-title">Conheça Algumas Espécies que Visamos Proteger</h2>
         
-        <!-- Animal Cards Grid -->
-        <div class="sobre-nos-cards-grid">
-            <!-- Card 1 - Lince ibérico -->
-            <div class="card">
-                <img src="/placeholder.svg?height=200&width=308" alt="Lince ibérico" class="card-image">
+        <div class="cards-grid">
+            
+            <div class="card green-shadow">
+                <img src="https://t4.ftcdn.net/jpg/10/64/99/85/360_F_1064998553_4RvqeSWINhkKJEyVLzidd8bUKtOV7hIc.jpg" alt="Lince ibérico" class="card-image">
                 <div class="card-content">
                     <div class="card-header">
                         <h3>Lince ibérico</h3>
                         <span class="badge vulnerable">Vulnerável</span>
                     </div>
                     <div class="family">
-                        <span class="family-icon">🐾</span>
-                        <span>Felidae</span>
+                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
+                        <span>Felídeos</span>
                     </div>
                     <p class="description">O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...</p>
-                    <button class="btn-details">
+                    <a href="animal_desc.html" class="btn-details">
                         <span>👁</span> Ver detalhes
-                    </button>
+                    </a>
                 </div>
             </div>
-            
-            <!-- Card 2 - Águia-imperial-ibérica -->
-            <div class="card">
-                <img src="/placeholder.svg?height=200&width=308" alt="Águia-imperial-ibérica" class="card-image">
+
+            <div class="card green-shadow">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Standing_jaguar.jpg" alt="Jaguar" class="card-image">
                 <div class="card-content">
                     <div class="card-header">
-                        <h3>Águia-imperial-ibérica</h3>
+                        <h3>Jaguar</h3>
+                        <span class="badge threatened">Quase ameaçada</span>
+                    </div>
+                    <div class="family">
+                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
+                        <span>Felídeos</span>
+                    </div>
+                    <p class="description">Maior felino das Américas, possui pelagem amarelada com manchas pretas em formato...</p>
+                    <a href="animal_desc.html" class="btn-details">
+                        <span>👁</span> Ver detalhes
+                    </a>
+                </div>
+            </div>
+
+            <div class="card green-shadow">
+                <img src="https://i0.wp.com/revistaamazonia.com.br/wp-content/uploads/2025/05/7-fatos-incriveis-sobre-a-arara-azul-que-vao-alem-das-penas-coloridas.webp?fit=768%2C512&amp;ssl=1" alt="Arara-azul-grande" class="card-image">
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3>Arara-azul-grande</h3>
                         <span class="badge vulnerable">Vulnerável</span>
                     </div>
                     <div class="family">
-                        <span class="family-icon">🐾</span>
-                        <span>Accipitridae</span>
+                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
+                        <span>Psittacidae</span>
                     </div>
-                    <p class="description">Grande ave de rapina endêmica da Península Ibérica, com plumagem escura e manchas...</p>
-                    <button class="btn-details">
+                    <p class="description">Maior espécie de arara do mundo, de plumagem azul intensa e bico robusto...</p>
+                    <a href="animal_desc.html" class="btn-details">
                         <span>👁</span> Ver detalhes
-                    </button>
+                    </a>
                 </div>
             </div>
-            
-            <!-- Card 3 - Vison -->
-            <div class="card">
-                <img src="/placeholder.svg?height=200&width=308" alt="Vison" class="card-image">
+
+            <div class="card green-shadow">
+                <img src="https://wildsideholidays.co.uk/wp-content/uploads/2020/07/The-European-wolf-Canis-Lupus.jpg" alt="Lobo-ibérico" class="card-image">
                 <div class="card-content">
                     <div class="card-header">
-                        <h3>Vison</h3>
-                        <span class="badge critical">Perigo crítico</span>
+                        <h3>Lobo-ibérico</h3>
+                        <span class="badge endangered">Em perigo</span>
                     </div>
                     <div class="family">
-                        <span class="family-icon">🐾</span>
-                        <span>Mustelidae</span>
+                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
+                        <span>Canidae</span>
                     </div>
-                    <p class="description">O vison é um mamífero carnívoro semiaquático, de corpo alongado, pelagem densa e brilhante...</p>
-                    <button class="btn-details">
+                    <p class="description">Subespécie ibérica do lobo-cinzento, possui pelagem acastanhada com manchas escura...</p>
+                    <a href="animal_desc.html" class="btn-details">
                         <span>👁</span> Ver detalhes
-                    </button>
+                    </a>
                 </div>
             </div>
+
             
-            <!-- Card 4 - Saiga -->
-            <div class="card">
-                <img src="/placeholder.svg?height=200&width=308" alt="Saiga" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Saiga</h3>
-                        <span class="badge critical">Perigo crítico</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon">🐾</span>
-                        <span>Bovidae</span>
-                    </div>
-                    <p class="description">Antílope de aparência singular, com um nariz grande e flexível que filtra o ar e regula a...</p>
-                    <button class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Footer Message -->
-        <div class="sobre-nos-footer">
+
+        </div> <div class="sobre-nos-footer">
             <p class="footer-message">
                 A mão humana causou um grande impacto negativo no reino animal, o que levou à extinção de muitas 
                 lindas espécies que residiam no nosso mundo. Eles precisam da nossa ajuda mais do que nunca. 
@@ -131,7 +119,6 @@
         </div>
     </main>
     
-    <!-- Scripts -->
     <script src="js/script.js"></script>
     <script>
         // Load header when page loads
@@ -146,4 +133,3 @@
     </script>
 </body>
 </html>
-
