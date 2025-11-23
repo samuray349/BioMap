@@ -338,9 +338,9 @@ p {
     width: 600px;
     min-width: 600px;
     height: auto;
-    max-height: calc(100vh - 70px);
+    max-height: calc(100vh - 70px); /* Ensures it fits exactly under header */
     background-color: transparent;
-    overflow-y: visible;
+    overflow-y: auto; /* CHANGED: was 'visible' */
     z-index: 100;
     border-radius: 0 12px 12px 0;
 }
@@ -554,6 +554,7 @@ p {
     pointer-events: none;
     visibility: hidden;
     display: block;
+    border: 2px solid var(--accent-color);
 }
 
 #species-panel.species-panel.show {
@@ -779,7 +780,7 @@ p {
 /* Alert Animal Menu */
 .alert-animal-menu {
     position: fixed;
-    top: 50%;
+    top: 52%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
     background-color: #ffffff;
@@ -4603,3 +4604,495 @@ body:has(.reset-password-container) .login-container {
     flex-direction: row-reverse;
 }
 
+/* ==================== MINI ANIMAL MENU (POPUP) STYLES ==================== */
+
+/* Expand the modal width to fit the grid */
+.alert-animal-menu {
+    width: 90%;
+    max-width: 80%; /* Wider to fit cards */
+    height: 85vh; /* Fixed height for scrolling */
+    background-color: #f8f9fa; /* Light background for contrast with white cards */
+    display: flex;
+    flex-direction: column;
+}
+
+.alert-animal-header {
+    flex-shrink: 0; /* Keep header fixed */
+    background-color: #fff;
+    z-index: 10;
+}
+
+.alert-animal-body {
+    padding: 24px;
+    overflow-y: auto; /* Scrollable content */
+    display: block; /* Override flex */
+}
+
+/* Mini Filters Section */
+.mini-filters-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.mini-search-wrapper {
+    flex: 2;
+    min-width: 250px;
+    position: relative;
+}
+
+.mini-filter-wrapper {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-filter-wrapper label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #4a4a4a;
+    margin-bottom: 5px;
+}
+
+/* Input Styling mimicking animais.html */
+.mini-input-style {
+    width: 100%;
+    height: 45px;
+    padding: 0 15px 0 40px; /* Space for icon */
+    border: 1px solid #198754;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 14px;
+    outline: none;
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.15); /* Green shadow */
+}
+
+.mini-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%; /* Center vertically in wrapper, ignoring label */
+    transform: translateY(-50%);
+    color: #666;
+    z-index: 2;
+}
+/* Adjust icon if inside a labeled wrapper */
+.mini-filter-wrapper .mini-search-icon {
+    top: 38px; /* Push down to account for label */
+}
+
+/* Results Header */
+.mini-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.mini-results-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #198754;
+    margin: 0;
+}
+
+/* Mini Grid Layout */
+.mini-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Slightly smaller cards */
+    gap: 20px;
+    padding-bottom: 20px;
+}
+
+/* Mini Card Styling (Compact version of main cards) */
+.mini-card {
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    cursor: pointer;
+    position: relative;
+}
+
+.mini-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(25, 135, 84, 0.2);
+    border-color: #198754;
+}
+
+/* Selected state for card */
+.mini-card.selected {
+    border: 2px solid #198754;
+    background-color: #f0fdf4;
+}
+
+.mini-card.selected::after {
+    content: '\f00c'; /* FontAwesome check */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #198754;
+    color: white;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    z-index: 10;
+}
+
+.mini-card-image {
+    width: 100%;
+    height: 140px; /* Reduced height */
+    object-fit: cover;
+}
+
+.mini-card-content {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.mini-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    gap: 5px;
+}
+
+.mini-card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.mini-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.mini-family {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.mini-family i {
+    color: #198754;
+}
+
+.mini-description {
+    font-size: 0.8rem;
+    color: #777;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.btn-mini-select {
+    margin-top: auto;
+    width: 100%;
+    padding: 8px;
+    background-color: white;
+    border: 1px solid #198754;
+    color: #198754;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mini-card:hover .btn-mini-select, 
+.mini-card.selected .btn-mini-select {
+    background-color: #198754;
+    color: white;
+}
+
+/* Footer info bar */
+.mini-footer-bar {
+    margin-top: auto;
+    padding: 15px 24px;
+    background-color: #fff;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 12px 12px;
+}
+
+.location-display {
+    display: flex;
+    flex-direction: column;
+}
+
+.location-display label {
+    font-size: 0.75rem;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.location-display span {
+    font-family: monospace;
+    font-size: 1rem;
+    color: #333;
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .alert-animal-menu {
+        width: 95%;
+        height: 90vh;
+    }
+    .mini-cards-grid {
+        grid-template-columns: 1fr; /* Single column on mobile */
+    }
+}
+/* Update this specific section in styles.css */
+
+.mini-filters-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    align-items: flex-end; /* Align inputs to the bottom so labels don't offset alignment */
+}
+
+/* Adjust widths for 3 columns */
+.mini-search-wrapper {
+    flex: 2;
+    min-width: 200px;
+    position: relative;
+    /* Remove padding/margin hacks from previous turn if they exist */
+}
+
+.mini-filter-wrapper {
+    flex: 1;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure icons align correctly in the search box vs filter boxes */
+.mini-search-wrapper .mini-search-icon {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mini-filter-wrapper .mini-search-icon {
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+}
+/* ==================== MINI TAG FILTER STYLES ==================== */
+
+/* Ensure the wrapper fits the flex layout */
+.mini-filters-row .tag-input-wrapper {
+    width: 100%;
+    min-height: 45px; /* Match height of search input */
+    background-color: #fff;
+    padding: 2px 30px 2px 8px; /* Compact padding */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Match other inputs */
+}
+
+/* Adjust tag size for the popup */
+.mini-filters-row .tag {
+    font-size: 12px;
+    padding: 2px 8px;
+    margin: 2px;
+}
+
+.mini-filters-row .tag-input {
+    height: 38px; /* Fit inside wrapper */
+    font-size: 14px;
+    min-width: 80px; 
+}
+
+/* Ensure the dropdown appears ABOVE other modal content */
+.mini-filters-row .dropdown-menu {
+    z-index: 10000; /* Higher than modal content */
+    max-height: 150px;
+}
+
+/* Align the arrow icon correctly in the tag wrapper */
+.mini-filters-row .filter-arrow {
+    right: 10px;
+    font-size: 14px;
+}
+
+/* ==================== ALERT POPUP (ANIMAIS STYLE) ==================== */
+
+/* Modal Container adjustments */
+.alert-animal-menu {
+    width: 100%;
+    max-width: 80%; /* Wide enough for the grid */
+    height: 85vh;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    padding: 0; /* Let children handle padding */
+}
+
+/* Scrollable Area */
+.alert-animal-body {
+    padding: 30px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+}
+
+/* Reusing .filters-row context for the popup */
+.popup-filters {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.popup-filters .search-wrapper {
+    flex: 2;
+    min-width: 300px;
+}
+
+.popup-filters .filter-section {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* Adjust Grid for Modal */
+.alert-animal-menu .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+    padding-bottom: 20px;
+}
+
+/* Card Selection State */
+.card {
+    cursor: pointer; /* Indicate interaction */
+    border: 2px solid transparent; /* Prevent layout shift on select */
+}
+
+.card.selected {
+    border-color: #198754;
+    background-color: #f0fdf4;
+    transform: translateY(-6px); /* Keep hover state */
+    box-shadow: 0 15px 25px #1987543a;
+}
+
+.card.selected .btn-details {
+    background-color: #14532d; /* Darker green */
+}
+
+/* Footer Bar */
+.mini-footer-bar {
+    padding: 15px 30px;
+    background-color: white;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 12px 12px;
+    z-index: 20;
+}
+
+.location-display label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.location-display span {
+    font-family: monospace;
+    font-size: 15px;
+    color: #333;
+}
+/* ==================== ALERT POPUP UPDATES ==================== */
+
+/* 1. Change Title Color */
+.alert-animal-header h3 {
+    color: var(--accent-color) !important;
+    font-weight: 700;
+}
+
+/* 2. Sticky Filter System */
+
+/* Remove padding from the main scroll container so the filters hit the top edge */
+.alert-animal-body {
+    padding: 0 !important;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* Make the filters sticky */
+.popup-filters {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #f8f9fa;
+    padding: 30px 30px 20px 30px;
+    margin-bottom: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -4px rgba(0,0,0,0.05);
+    
+    /* ALIGNMENT FIX */
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: flex-start; /* Aligns contents to the top */
+}
+
+/* Adjust alignment for content below the sticky filters */
+.alert-animal-menu .results-header {
+    padding: 0 30px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+.alert-animal-menu .cards-grid {
+    padding: 0 30px 30px 30px; /* Add padding to sides and bottom */
+}
+.popup-filters .filter-label {
+    font-size: 1rem;
+    font-weight: 700; /* Bolder as per animais.html */
+    color: #4a4a4a;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* Fix search input height/padding to match tags exactly */
+.popup-filters .search-input {
+    height: 50px; /* Force height to match tags */
+    border-radius: 8px;
+    padding-left: 45px; /* Space for icon */
+}

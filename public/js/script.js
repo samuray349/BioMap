@@ -90,13 +90,10 @@ const SpeciesPanel = {
       return;
     }
     
-    console.log('Panel container found:', this.elements.container);
-
     // Populate panel with data
     this.populateData(details);
 
     // Show panel
-    console.log('Adding show class and setting styles...');
     this.elements.container.classList.add('show');
     this.elements.container.setAttribute('aria-hidden', 'false');
     
@@ -107,27 +104,19 @@ const SpeciesPanel = {
     this.elements.container.style.pointerEvents = 'auto';
     this.elements.container.style.zIndex = '10000';
     this.elements.container.style.display = 'block';
-    this.elements.container.style.position = 'absolute';
-    
-    // Debug position
-    const rect = this.elements.container.getBoundingClientRect();
-    console.log('Panel position:', {
-      top: rect.top,
-      left: rect.left,
-      width: rect.width,
-      height: rect.height,
-      zIndex: window.getComputedStyle(this.elements.container).zIndex
-    });
-    console.log('Styles set. Transform:', this.elements.container.style.transform);
-    console.log('Opacity:', this.elements.container.style.opacity);
-    console.log('Visibility:', this.elements.container.style.visibility);
     
     if (this.elements.mainContainer) {
       this.elements.mainContainer.classList.add('detail-panel-open');
     }
 
-    this.isOpen = true;
-    console.log('Panel should now be visible. isOpen:', this.isOpen);
+    // UPDATED CODE: Add a slight delay to prevent the document click listener 
+    // from closing the panel immediately in the same event loop.
+    setTimeout(() => {
+      this.isOpen = true;
+      console.log('Panel visible. isOpen set to true.');
+    }, 100);
+    
+    // REMOVED: The synchronous "this.isOpen = true" lines that were here causing the bug
   },
 
   populateData(details) {
@@ -176,7 +165,7 @@ const SpeciesPanel = {
     this.elements.container.classList.remove('show');
     this.elements.container.setAttribute('aria-hidden', 'true');
     
-    // Remove inline styles to allow CSS transitions to work on close
+    // Reset styles
     this.elements.container.style.transform = '';
     this.elements.container.style.opacity = '';
     this.elements.container.style.visibility = '';
@@ -196,43 +185,14 @@ function initMap() {
 
   const pawIconSVG = `
 <svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
-  <!-- Fundo do marcador com borda branca -->
   <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
         fill="#1A8F4A" stroke="white" stroke-width="3"/>
-
-  <!-- Grupo da Pata: Vazado (fill="none") com contorno (stroke="white") -->
-  <!-- Aumentei rx/ry para tornar os dedos mais espessos -->
   <g fill="none" stroke="white" stroke-width="3" transform="translate(0, -2)">
-    <!-- Dedo 1 (Esquerda Externa) -->
     <ellipse cx="14" cy="28" rx="4.5" ry="5.5" transform="rotate(-40 14 28)" />
-    
-    <!-- Dedo 2 (Esquerda Interna) -->
     <ellipse cx="24" cy="20" rx="4.5" ry="5.5" transform="rotate(-15 24 20)" />
-    
-    <!-- Dedo 3 (Direita Interna) -->
     <ellipse cx="36" cy="20" rx="4.5" ry="5.5" transform="rotate(15 36 20)" />
-    
-    <!-- Dedo 4 (Direita Externa) -->
     <ellipse cx="46" cy="28" rx="4.5" ry="5.5" transform="rotate(40 46 28)" />
-    
-    <!-- Palma (Formato arredondado clássico) -->
-    <path d="M 30 33 
-             C 38 33, 44 39, 44 45 
-             C 44 51, 38 55, 30 55 
-             C 22 55, 16 51, 16 45 
-             C 16 39, 22 33, 30 33 Z" />
-  </g>
-</svg>
-`;
-const institutionIconSVG = `
-<svg xmlns="http://www.w3.org/2000/svg" width="60" height="80" viewBox="0 0 60 80">
-  <!-- Fundo do marcador em forma de "gota" com borda branca --><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
-        fill="#8B5B3E" stroke="white" stroke-width="3"/>
-
-  <!-- Ícone de Árvore Vazada (Hollow Tree Icon) --><!-- Usamos um grupo <g> para o posicionamento e o estilo do contorno --><g transform="translate(15, 18)" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Tronco da árvore --><path d="M 20 45 L 20 30" />
-    <!-- Base do tronco (chão) --><path d="M 10 45 L 30 45" />
-    <!-- Folhagem da árvore (forma orgânica) --><path d="M 20 5 L 10 25 C 5 30, 10 35, 15 35 C 20 35, 25 30, 30 25 C 35 20, 30 15, 20 5 Z" />
+    <path d="M 30 33 C 38 33, 44 39, 44 45 C 44 51, 38 55, 30 55 C 22 55, 16 51, 16 45 C 16 39, 22 33, 30 33 Z" />
   </g>
 </svg>
 `;
@@ -240,7 +200,7 @@ const institutionIconSVG = `
 const pawMarkerIcon = {
   url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(pawIconSVG),
   scaledSize: new google.maps.Size(45, 60),
-  anchor: new google.maps.Point(22.5, 60) // bottom center
+  anchor: new google.maps.Point(22.5, 60)
 };
 
 
@@ -260,7 +220,6 @@ const pawMarkerIcon = {
       details: {
         name: "Fundação dos Animais",
         institutionType: "Centro de Reabilitação",
-        
         description: "Base de operações da equipa BioMap responsável por monitorizar espécies ameaçadas na região e acolher animais em recuperação.",
         alertDate: "15-10-2025 10:05",
         coordinates: { lat: 39.098569723610105, lng: -9.21834924308909 },
@@ -286,7 +245,6 @@ const pawMarkerIcon = {
       position: { lat: 39.16084345764295, lng: -9.237634072626696 }, 
       title: "Javali",
       type:"animal",
-
       details: {
         name: "Javali europeu",
         scientificName: "Sus scrofa",
@@ -301,9 +259,6 @@ const pawMarkerIcon = {
   ];
 
   locations.forEach(loc => {
-
-    const isGreenPaw = loc.title === "Fundação dos Animais";
-  
     const marker = new google.maps.Marker({
       position: loc.position,
       map,
@@ -312,24 +267,17 @@ const pawMarkerIcon = {
         text: loc.title,
         className: "marker-label"
       },
-      
       title: loc.title
     });
     
-  
     marker.addListener("click", () => {
-      console.log('Marker clicked:', loc.title);
-      console.log('Details:', loc.details);
       try {
         SpeciesPanel.open(loc.details || createFallbackDetails(loc));
-        console.log('SpeciesPanel.open called successfully');
       } catch (error) {
         console.error('Error opening panel:', error);
       }
     });
   });
-  
-
 
   const familyOptions = [
     "Felidae", "Canidae", "Ursidae", "Mustelidae", 
@@ -344,13 +292,12 @@ const pawMarkerIcon = {
   ];
 
   initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", familyTags, familyOptions);
-  initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, options = stateOptions);
+  initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, stateOptions);
 
   initContextMenu();
   initAlertAnimalMenu();
   SpeciesPanel.init();
 }
-
 
 function createFallbackDetails(location) {
   return {
@@ -370,6 +317,8 @@ function initTagInputWithDropdown(inputId, containerId, dropdownId, tagsArray, o
   const input = document.getElementById(inputId);
   const container = document.getElementById(containerId);
   const dropdown = document.getElementById(dropdownId);
+  if (!input || !container || !dropdown) return; // Guard clause
+  
   const wrapper = input.closest('.tag-input-wrapper');
 
   function addTag(text) {
@@ -403,7 +352,6 @@ function initTagInputWithDropdown(inputId, containerId, dropdownId, tagsArray, o
       container.appendChild(tagElement);
     });
 
-    // Add event listeners to remove buttons
     container.querySelectorAll('.tag-remove').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -443,7 +391,6 @@ function initTagInputWithDropdown(inputId, containerId, dropdownId, tagsArray, o
       });
       dropdown.classList.add('show');
     } else if (searchTerm === '') {
-      // Show all available options when input is empty
       const availableOptions = options.filter(opt => !tagsArray.includes(opt));
       if (availableOptions.length > 0) {
         availableOptions.forEach(option => {
@@ -466,52 +413,39 @@ function initTagInputWithDropdown(inputId, containerId, dropdownId, tagsArray, o
     }
   }
 
-  // Handle input changes
-  input.addEventListener('input', () => {
-    renderDropdown();
-  });
+  input.addEventListener('input', () => { renderDropdown(); });
+  input.addEventListener('focus', () => { renderDropdown(); });
 
-  // Handle focus
-  input.addEventListener('focus', () => {
-    renderDropdown();
-  });
+  if (wrapper) {
+    wrapper.addEventListener('click', (e) => {
+      if (e.target !== input && !e.target.closest('.tag') && !e.target.closest('.tag-container')) {
+        input.focus();
+        renderDropdown();
+      }
+    });
+  }
 
-  // Handle click on wrapper
-  wrapper.addEventListener('click', (e) => {
-    if (e.target !== input && !e.target.closest('.tag') && !e.target.closest('.tag-container')) {
-      input.focus();
-      renderDropdown();
-    }
-  });
-
-  // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     if (wrapper && !wrapper.contains(e.target)) {
       dropdown.classList.remove('show');
     }
   });
 
-  // Handle arrow key navigation
   input.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown' && dropdown.classList.contains('show')) {
       e.preventDefault();
       const firstItem = dropdown.querySelector('.dropdown-item:not([style*="cursor: default"])');
-      if (firstItem) {
-        firstItem.focus();
-      }
+      if (firstItem) firstItem.focus();
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const firstItem = dropdown.querySelector('.dropdown-item:not([style*="cursor: default"])');
-      if (firstItem) {
-        firstItem.click();
-      }
+      if (firstItem) firstItem.click();
     } else if (e.key === 'Escape') {
       dropdown.classList.remove('show');
       input.blur();
     }
   });
 
-  // Initial render
   renderTags();
 }
 
@@ -524,72 +458,65 @@ function initContextMenu() {
   let mouseX = 0;
   let mouseY = 0;
 
-  // Store mouse position
+  if (!contextMenu || !mapContainer) return;
+
   mapContainer.addEventListener('mousemove', (e) => {
     const rect = mapContainer.getBoundingClientRect();
     mouseX = e.clientX - rect.left;
     mouseY = e.clientY - rect.top;
   });
 
-  // Handle right-click using Google Maps event
   map.addListener('rightclick', (e) => {
-    rightClickPosition = e.latLng; // Save the lat/lng position
-    
-    // Position menu at stored mouse position
+    rightClickPosition = e.latLng; 
     contextMenu.style.left = (mouseX + 10) + 'px';
     contextMenu.style.top = (mouseY + 10) + 'px';
     contextMenu.classList.add('show');
   });
 
-  // Also handle native contextmenu to prevent default
   mapContainer.addEventListener('contextmenu', (e) => {
     e.preventDefault();
   });
 
-  // Close menu on map click
   map.addListener('click', () => {
     contextMenu.classList.remove('show');
   });
 
-  // Close menu on scroll
   map.addListener('dragstart', () => {
     contextMenu.classList.remove('show');
   });
 
-  // Menu item handlers
-  menuAlert.addEventListener('click', () => {
-    // Open the new alert menu
-    const alertMenu = document.getElementById('alert-animal-menu');
-    const locationInput = document.getElementById('alert-animal-location');
-    
-    if (rightClickPosition) {
-      const lat = rightClickPosition.lat().toFixed(6);
-      const lng = rightClickPosition.lng().toFixed(6);
-      locationInput.value = `${lat}, ${lng}`;
-    }
-    
-    alertMenu.classList.add('show');
-    contextMenu.classList.remove('show');
-  });
-
-  menuLocation.addEventListener('click', () => {
-    // Get location of where right-click happened
-    if (rightClickPosition) {
-      const lat = rightClickPosition.lat().toFixed(6);
-      const lng = rightClickPosition.lng().toFixed(6);
+  if (menuAlert) {
+    menuAlert.addEventListener('click', () => {
+      const alertMenu = document.getElementById('alert-animal-menu');
+      const locationInput = document.getElementById('alert-animal-location');
       
-      // Copy to clipboard
-      navigator.clipboard.writeText(`${lat}, ${lng}`).then(() => {
-        alert(`Localização copiada:\nLat: ${lat}\nLng: ${lng}`);
-      }).catch(() => {
-        // Fallback if clipboard API fails
-        prompt('Localização:', `${lat}, ${lng}`);
-      });
-    }
-    contextMenu.classList.remove('show');
-  });
+      if (rightClickPosition && locationInput) {
+        const lat = rightClickPosition.lat().toFixed(6);
+        const lng = rightClickPosition.lng().toFixed(6);
+        locationInput.value = `${lat}, ${lng}`;
+      }
+      
+      if (alertMenu) alertMenu.classList.add('show');
+      contextMenu.classList.remove('show');
+    });
+  }
 
-  // Close menu when clicking outside
+  if (menuLocation) {
+    menuLocation.addEventListener('click', () => {
+      if (rightClickPosition) {
+        const lat = rightClickPosition.lat().toFixed(6);
+        const lng = rightClickPosition.lng().toFixed(6);
+        
+        navigator.clipboard.writeText(`${lat}, ${lng}`).then(() => {
+          alert(`Localização copiada:\nLat: ${lat}\nLng: ${lng}`);
+        }).catch(() => {
+          prompt('Localização:', `${lat}, ${lng}`);
+        });
+      }
+      contextMenu.classList.remove('show');
+    });
+  }
+
   document.addEventListener('click', (e) => {
     if (contextMenu && !contextMenu.contains(e.target)) {
       contextMenu.classList.remove('show');
@@ -598,91 +525,193 @@ function initContextMenu() {
 }
 
 // --- NEW: Alert Animal Menu functionality ---
+// Replace the initAlertAnimalMenu function in script.js
+
 function initAlertAnimalMenu() {
   const alertMenu = document.getElementById('alert-animal-menu');
   if (!alertMenu) return;
 
   const submitButton = document.getElementById('submit-alert-animal');
   const closeButtons = document.querySelectorAll('.close-alert-menu');
+  const locationInput = document.getElementById('alert-animal-location');
+  const displayLocation = document.getElementById('display-location-text');
+  
+  // Elements for filtering
+  const cards = alertMenu.querySelectorAll('.card'); // Note: We use .card class now
+  const searchInput = document.getElementById('popup-search-input');
+  
+  // Unique Tag Arrays for the popup to avoid conflict with sidebar
+  let popupFamilyTags = [];
+  let popupStateTags = [];
 
-  // Function to close the menu
-  function closeMenu() {
-    alertMenu.classList.remove('show');
-    // Clear form fields
-    document.getElementById('alert-animal-name').value = '';
-    document.getElementById('alert-animal-species').value = '';
-    document.getElementById('alert-animal-status').value = '';
-    document.getElementById('alert-animal-description').value = '';
-    document.getElementById('alert-animal-location').value = '';
+  // Options (Same as animais.html)
+  const familyOptions = [
+    "Felídeos", "Canidae", "Ursidae", "Mustelidae", 
+    "Cervidae", "Suidae", "Leporidae", "Sciuridae",
+    "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla",
+    "Psittacidae", "Accipitridae", "Bovidae", "Lacertidae"
+  ];
+  
+  const stateOptions = [
+    "Em Perigo", "Vulnerável", "Quase Ameaçado",
+    "Pouco Preocupante", "Dados Insuficientes",
+    "Extinto na Natureza", "Extinto", "Perigo crítico"
+  ];
+
+  // Initialize Tags using existing helper function
+  initTagInputWithDropdown("popup-family-input", "popup-family-tags", "popup-family-dropdown", popupFamilyTags, familyOptions);
+  initTagInputWithDropdown("popup-state-input", "popup-state-tags", "popup-state-dropdown", popupStateTags, stateOptions);
+
+  let selectedAnimal = null;
+
+  // --- Filtering Logic ---
+  function filterCards() {
+    const searchText = searchInput ? searchInput.value.toLowerCase() : '';
+
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name').toLowerCase();
+      const status = card.getAttribute('data-status'); 
+      const family = card.getAttribute('data-family');
+      
+      const matchesSearch = name.includes(searchText);
+      
+      // OR Logic for Tags (if array is empty, allow all)
+      const matchesStatus = popupStateTags.length === 0 || popupStateTags.includes(status);
+      const matchesFamily = popupFamilyTags.length === 0 || popupFamilyTags.includes(family);
+
+      if (matchesSearch && matchesStatus && matchesFamily) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
   }
 
-  // Add event listeners to all close buttons (X and "Cancelar")
+  // --- Event Listeners for Filtering ---
+  if (searchInput) searchInput.addEventListener('input', filterCards);
+
+  // Observer for tags (since the helper modifies DOM)
+  const observerConfig = { childList: true };
+  const tagObserver = new MutationObserver(filterCards);
+  
+  const famContainer = document.getElementById('popup-family-tags');
+  const stateContainer = document.getElementById('popup-state-tags');
+  
+  if (famContainer) tagObserver.observe(famContainer, observerConfig);
+  if (stateContainer) tagObserver.observe(stateContainer, observerConfig);
+
+
+  // --- Selection Logic ---
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      // 1. UI Updates
+      cards.forEach(c => {
+          c.classList.remove('selected');
+          c.querySelector('.btn-text').textContent = 'Selecionar';
+      });
+      
+      card.classList.add('selected');
+      card.querySelector('.btn-text').textContent = 'Selecionado';
+
+      // 2. Data Storage
+      selectedAnimal = {
+        name: card.getAttribute('data-name'),
+        family: card.getAttribute('data-family'),
+        status: card.getAttribute('data-status')
+      };
+
+      // 3. Enable Button
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+        submitButton.style.cursor = 'pointer';
+      }
+    });
+  });
+
+  // --- Menu Visibility & Location ---
+  const originalMenuAlertClick = document.getElementById('menu-alert');
+  if (originalMenuAlertClick) {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.target.classList.contains('show')) {
+               if (locationInput && locationInput.value && displayLocation) {
+                   displayLocation.textContent = locationInput.value;
+               }
+            }
+        });
+    });
+    observer.observe(alertMenu, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  function closeMenu() {
+    alertMenu.classList.remove('show');
+    // Reset Inputs
+    if(searchInput) searchInput.value = '';
+    
+    // Clear Tags
+    popupFamilyTags.length = 0;
+    popupStateTags.length = 0;
+    if(famContainer) famContainer.innerHTML = '';
+    if(stateContainer) stateContainer.innerHTML = '';
+
+    filterCards(); 
+
+    // Reset Selection
+    cards.forEach(c => {
+        c.classList.remove('selected');
+        c.querySelector('.btn-text').textContent = 'Selecionar';
+    });
+    
+    selectedAnimal = null;
+    if(submitButton) {
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.6';
+        submitButton.style.cursor = 'not-allowed';
+    }
+  }
+
   closeButtons.forEach(button => {
     button.addEventListener('click', closeMenu);
   });
 
-  // Handle submit
-  submitButton.addEventListener('click', () => {
-    const animalName = document.getElementById('alert-animal-name').value;
-    const location = document.getElementById('alert-animal-location').value;
-
-    if (!animalName || !location) {
-      alert('Por favor, preencha pelo menos o nome do animal e a localização.');
-      return;
-    }
-    
-    alert(`Alerta submetido para:\nAnimal: ${animalName}\nLocalização: ${location}`);
-    
-    // Close menu after submit
-    closeMenu();
-  });
+  if (submitButton) {
+    submitButton.addEventListener('click', () => {
+      const location = locationInput.value;
+      if (!selectedAnimal || !location) {
+        alert('Por favor, selecione um animal da lista.');
+        return;
+      }
+      alert(`SUCESSO!\n\nAlerta registado com sucesso!\n\nAnimal: ${selectedAnimal.name}\nFamília: ${selectedAnimal.family}\nLocalização: ${location}`);
+      closeMenu();
+    });
+  }
 }
 
 // Legacy function names for backward compatibility
-function initSpeciesPanel() {
-  SpeciesPanel.init();
-}
+function initSpeciesPanel() { SpeciesPanel.init(); }
+function openSpeciesPanel(details) { SpeciesPanel.open(details); }
+function closeSpeciesPanel() { SpeciesPanel.close(); }
 
-function openSpeciesPanel(details) {
-  SpeciesPanel.open(details);
-}
-
-function closeSpeciesPanel() {
-  SpeciesPanel.close();
-}
-
-
-// --- FIXED: Account Menu functionality (Moved to Global Scope) ---
+// --- FIXED: Account Menu functionality ---
 function initAccountMenu() {
   const userIcon = document.getElementById('user-icon');
   const accountMenu = document.getElementById('account-menu');
-  
-  // Elements might not exist if header hasn't loaded, so check
-  if (!userIcon || !accountMenu) {
-    // console.warn('Account menu elements not found yet.');
-    return;
-  }
-  
-  const menuLogin = document.getElementById('menu-login');
-  const menuCreateAccount = document.getElementById('menu-create-account');
+  if (!userIcon || !accountMenu) return;
 
-  // Toggle menu on user icon click
   userIcon.addEventListener('click', (e) => {
     e.stopPropagation();
     accountMenu.classList.toggle('show');
   });
 
-
-  // Close menu when clicking outside
   document.addEventListener('click', (e) => {
-    // Check if accountMenu exists and if the click is outside
     if (accountMenu && !accountMenu.contains(e.target) && e.target !== userIcon) {
       accountMenu.classList.remove('show');
     }
   });
 }
 
-// --- FIXED: Dynamic header loader (Moved to Global Scope) ---
+// --- FIXED: Dynamic header loader ---
 const headerTemplate = `
 <header class="header">
   <div class="header-content">
@@ -710,24 +739,18 @@ const headerTemplate = `
 
 async function loadHeader(path = 'header.html') {
     const placeholder = document.getElementById('header-placeholder');
-    if (!placeholder) {
-      console.warn('No #header-placeholder element found.');
-      return;
-    }
+    if (!placeholder) return;
   
     try {
-      // Using inline template as a fallback or primary method
       placeholder.innerHTML = headerTemplate;
     } catch (err) {
-      console.warn('loadHeader: failed to set inline template. Reason:', err);
+      console.warn('loadHeader: failed to set inline template.', err);
     }
   
-    // ✅ Reinitialize menu and nav highlight after header is in the DOM
     if (typeof initAccountMenu === 'function') initAccountMenu();
     if (typeof highlightCurrentPage === 'function') highlightCurrentPage();
 }
   
-// Optional: convenience helper to mark the current nav link
 function highlightCurrentPage() {
   const current = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0];
   document.querySelectorAll('.nav-link').forEach(link => {
