@@ -544,7 +544,6 @@ p {
     background-color: #ffffff;
     border-radius: 18px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
-    overflow: hidden;
     transform: translateX(-420px);
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
                 opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
@@ -555,6 +554,60 @@ p {
     visibility: hidden;
     display: block;
     border: 2px solid var(--accent-color);
+    
+    /* --- NEW/MODIFIED PROPERTIES --- */
+    /* 1. Limit height to viewport height minus header and margins */
+    max-height: calc(100vh - 120px); 
+    
+    /* 2. Enable vertical scrolling */
+    overflow-y: auto; 
+    
+    /* 3. Prevent horizontal scrolling */
+    overflow-x: hidden; 
+}
+/* Custom Scrollbar for Species Panel */
+#species-panel.species-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#species-panel.species-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 0 18px 18px 0; /* Rounds the corner to match panel */
+    margin-top: 20px; /* Pushes track down past the rounded corner */
+    margin-bottom: 20px;
+}
+
+#species-panel.species-panel::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+#species-panel.species-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color); /* Uses your green color */
+}
+/* --- Add this new rule to your styles.css --- */
+
+/* Selector for the image container inside the species card */
+.species-card .image-container {
+    /* * Make the image container stick to the top of its parent
+     * (the species-card) when the species-panel scrolls.
+     */
+    position: sticky;
+    top: 0; /* Sticks to the very top edge of the scrolling area */
+    z-index: 5; /* Ensure it stays above the scrolling text content */
+    background-color: #fff; /* Optional: adds a white background to prevent scroll text from showing through */
+    
+    /* Ensure the sticky element has the correct height and padding, 
+       and handles its inner content correctly */
+    padding: 0; /* Adjust padding as necessary, but keep it minimal to save space */
+    margin-bottom: 0;
+}
+
+/* Optional: Clean up the image itself to ensure it fills the sticky container */
+.species-card .image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
 }
 
 #species-panel.species-panel.show {
@@ -1995,7 +2048,7 @@ p {
 .card-header h3 {
     font-size: 16px;
     font-weight: 700;
-    color: #333;
+    color: var(--accent-color);
 }
 
 .badge {
@@ -2007,25 +2060,10 @@ p {
     white-space: nowrap;
 }
 
-.badge.vulnerable {
-    background-color: #ffc107;
-    color: #333;
-}
-
-.badge.threatened {
-    background-color: #90c53f;
-    color: #fff;
-}
-
-.badge.endangered {
-    background-color: #ff9800;
-    color: #fff;
-}
-
-.badge.critical {
-    background-color: #d32f2f;
-    color: #fff;
-}
+.badge.vulnerable      { background: #FFCC00; color: #fff; }   /* Amarelo */
+.badge.threatened      { background: #99CC33; color: #fff; }   /* Verde */
+.badge.endangered      { background: #FF6600; color: #fff; }   /* Laranja – ajustado para "Em perigo" */
+.badge.critical        { background: #FF0000; color: #fff; } 
 
 .family {
     display: flex;
@@ -5115,5 +5153,190 @@ body:has(.reset-password-container) .login-container {
 @media (max-width: 768px) {
     .sobre-nos-content .cards-grid {
         grid-template-columns: 1fr;
+    }
+}
+.map-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.map-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.map-modal {
+    background-color: #fff;
+    width: 90%;
+    max-width: 1000px;
+    height: 600px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.map-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.map-modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.map-search-box {
+    flex: 1;
+    margin: 0 24px;
+}
+
+.map-search-box input {
+    width: 100%;
+    padding: 10px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    outline: none;
+}
+
+.close-map-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.close-map-btn:hover {
+    color: #111827;
+}
+
+.map-modal-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.map-picker-container {
+    flex: 2;
+    height: 100%;
+}
+
+.map-sidebar {
+    flex: 1;
+    padding: 24px;
+    background-color: #f9fafb;
+    border-left: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.use-my-coord-btn {
+    padding: 10px 16px;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+}
+
+.use-my-coord-btn:hover {
+    background-color: #f3f4f6;
+}
+
+.selected-coords-container {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.coords-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.coords-value {
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: #6b7280;
+    word-break: break-all;
+}
+
+.map-tip {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: auto;
+}
+
+.confirm-map-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #198754;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.confirm-map-btn:hover {
+    background-color: #157347;
+}
+
+.confirm-map-btn:disabled {
+    background-color: #a7f3d0;
+    cursor: not-allowed;
+}
+
+/* Make the location input look clickable */
+#location-search {
+    cursor: pointer;
+}
+
+/* Responsive adjustments for the map modal */
+@media (max-width: 768px) {
+    .map-modal {
+        height: 90%;
+        max-height: none;
+    }
+    .map-modal-body {
+        flex-direction: column;
+    }
+    .map-picker-container {
+        flex: 1;
+    }
+    .map-sidebar {
+        flex: auto;
+        border-left: none;
+        border-top: 1px solid #e5e7eb;
     }
 }

@@ -32,7 +32,7 @@ const SpeciesPanel = {
     // Get all panel elements
     this.elements.container = document.getElementById('species-panel');
     if (!this.elements.container) {
-      console.error('Species panel element not found in DOM');
+      // If we are not on the map page, this is expected
       return;
     }
     console.log('Species panel element found:', this.elements.container);
@@ -115,8 +115,6 @@ const SpeciesPanel = {
       this.isOpen = true;
       console.log('Panel visible. isOpen set to true.');
     }, 100);
-    
-    // REMOVED: The synchronous "this.isOpen = true" lines that were here causing the bug
   },
 
   populateData(details) {
@@ -181,6 +179,9 @@ const SpeciesPanel = {
 
 
 function initMap() {
+  const mapElement = document.getElementById("map");
+  if (!mapElement) return;
+
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
 
   const pawIconSVG = `
@@ -204,7 +205,7 @@ const pawMarkerIcon = {
 };
 
 
-  map = new google.maps.Map(document.getElementById("map"), {
+  map = new google.maps.Map(mapElement, {
     zoom: 12,
     center,
     disableDefaultUI: true,
@@ -524,9 +525,6 @@ function initContextMenu() {
   });
 }
 
-// --- NEW: Alert Animal Menu functionality ---
-// Replace the initAlertAnimalMenu function in script.js
-
 function initAlertAnimalMenu() {
   const alertMenu = document.getElementById('alert-animal-menu');
   if (!alertMenu) return;
@@ -758,3 +756,163 @@ function highlightCurrentPage() {
     link.classList.toggle('current', linkHref === current);
   });
 }
+
+// ==========================================
+// MAP PICKER OVERLAY FUNCTIONALITY
+// ==========================================
+
+let mapPicker;
+let selectedMarker = null;
+let selectedLatLng = null;
+
+// Initialize the map functionality for the picker
+function initMapPicker() {
+    // Only initialize if the map picker container exists on this page
+    const pickerContainer = document.getElementById("map-picker-container");
+    if (!pickerContainer) return;
+
+    // Elements
+    const locationInput = document.getElementById('location-search');
+    const mapOverlay = document.getElementById('map-overlay');
+    const closeMapBtn = document.getElementById('close-map-btn');
+    const confirmMapBtn = document.getElementById('confirm-map-btn');
+    const useMyCoordBtn = document.getElementById('use-my-coord-btn');
+    const selectedCoordsDisplay = document.getElementById('selected-coords-display');
+
+    // Default map center (e.g., center of Portugal)
+    const defaultCenter = { lat: 39.557191, lng: -7.8536599 };
+
+    // Initialize Google Map
+    mapPicker = new google.maps.Map(pickerContainer, {
+        center: defaultCenter,
+        disableDefaultUI: true,
+        zoomControl: true,
+        zoom: 7,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+            position: google.maps.ControlPosition.TOP_LEFT,
+        },
+        zoomControl: true,
+        zoomControlOptions: {
+            position: google.maps.ControlPosition.RIGHT_BOTTOM,
+        },
+        scaleControl: true,
+        streetViewControl: true,
+        streetViewControlOptions: {
+            position: google.maps.ControlPosition.RIGHT_BOTTOM,
+        },
+        fullscreenControl: true,
+        fullscreenControlOptions: {
+            position: google.maps.ControlPosition.TOP_RIGHT,
+        },
+    });
+
+    // Event listener for map clicks
+    mapPicker.addListener("click", (event) => {
+        placeMarkerAndSelectedCoords(event.latLng);
+    });
+
+    // Event listener to open the map overlay
+    if (locationInput) {
+        locationInput.addEventListener('click', () => {
+            if (mapOverlay) {
+                mapOverlay.classList.add('show');
+                // Trigger a resize event to ensure map renders correctly after being unhidden
+                google.maps.event.trigger(mapPicker, 'resize');
+                if (selectedLatLng) {
+                    mapPicker.setCenter(selectedLatLng);
+                } else {
+                    mapPicker.setCenter(defaultCenter);
+                }
+            }
+        });
+    }
+
+    // Event listener to close the map overlay
+    if (closeMapBtn && mapOverlay) {
+        closeMapBtn.addEventListener('click', () => {
+            mapOverlay.classList.remove('show');
+        });
+    }
+
+    // Close overlay when clicking outside the modal content
+    if (mapOverlay) {
+        mapOverlay.addEventListener('click', (e) => {
+            if (e.target === mapOverlay) {
+                mapOverlay.classList.remove('show');
+            }
+        });
+    }
+
+    // Event listener for "Use a minha coordenada" button
+    if (useMyCoordBtn) {
+        useMyCoordBtn.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        placeMarkerAndSelectedCoords(pos);
+                        mapPicker.setCenter(pos);
+                        mapPicker.setZoom(15); // Zoom in on user location
+                    },
+                    () => {
+                        alert("Erro: O serviço de geolocalização falhou.");
+                    }
+                );
+            } else {
+                alert("Erro: O seu navegador não suporta geolocalização.");
+            }
+        });
+    }
+
+    // Event listener for "Confirmar" button
+    if (confirmMapBtn) {
+        confirmMapBtn.addEventListener('click', () => {
+            if (selectedLatLng && locationInput) {
+                const lat = typeof selectedLatLng.lat === 'function' ? selectedLatLng.lat() : selectedLatLng.lat;
+                const lng = typeof selectedLatLng.lng === 'function' ? selectedLatLng.lng() : selectedLatLng.lng;
+                
+                // Format the coordinates for the input field
+                locationInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                
+                if (mapOverlay) mapOverlay.classList.remove('show');
+            }
+        });
+    }
+
+    // Helper function to place a marker and update sidebar
+    function placeMarkerAndSelectedCoords(latLng) {
+        // Remove existing marker if it exists
+        if (selectedMarker) {
+            selectedMarker.setMap(null);
+        }
+
+        // Create a new marker at the clicked location
+        selectedMarker = new google.maps.Marker({
+            position: latLng,
+            map: mapPicker,
+            animation: google.maps.Animation.DROP
+        });
+
+        // Store the selected coordinates globally
+        selectedLatLng = latLng;
+
+        // Update the display in the sidebar
+        const lat = typeof latLng.lat === 'function' ? latLng.lat() : latLng.lat;
+        const lng = typeof latLng.lng === 'function' ? latLng.lng() : latLng.lng;
+        
+        if (selectedCoordsDisplay) {
+            selectedCoordsDisplay.textContent = `lat: ${lat.toFixed(6)} lng: ${lng.toFixed(6)}`;
+        }
+
+        // Enable the confirm button
+        if (confirmMapBtn) confirmMapBtn.disabled = false;
+    }
+}
+
+// Expose initMapPicker to the global scope so the Google Maps API callback can find it
+window.initMapPicker = initMapPicker;

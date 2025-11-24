@@ -108,7 +108,7 @@
                         <label class="visually-hidden" for="location-search">Pesquisar localização</label>
                         <div class="location-input-wrapper">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input id="location-search" type="text" placeholder="Pesquisar">
+                            <input id="location-search" type="text" placeholder="Pesquisar" readonly style="cursor: pointer;">
                         </div>
                     </div>
                 </section>
@@ -144,6 +144,8 @@
                 </div>
             </form>
         </section>
+        
+        <!-- Existing Time Picker Modal -->
         <div class="time-picker-overlay" id="timePickerOverlay" aria-hidden="true" role="dialog" aria-modal="true">
             <div class="time-picker-modal">
                 <div class="time-picker-header">
@@ -170,7 +172,38 @@
         </div>
     </main>
 
+    <!-- MAP OVERLAY HTML -->
+    <div class="map-overlay" id="map-overlay">
+        <div class="map-modal">
+            <div class="map-modal-header">
+                <h2>Escolher a localização</h2>
+                <div class="map-search-box">
+                    <input type="text" id="map-overlay-search" placeholder="Portugal" value="Portugal">
+                </div>
+                <button class="close-map-btn" id="close-map-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="map-modal-body">
+                <div id="map-picker-container" class="map-picker-container"></div>
+                <div class="map-sidebar">
+                    <button class="use-my-coord-btn" id="use-my-coord-btn">
+                        Use a minha coordenada
+                    </button>
+                    <div class="selected-coords-container">
+                        <p class="coords-label">Coordenadas selecionadas</p>
+                        <p id="selected-coords-display" class="coords-value">Nenhuma localização selecionada</p>
+                    </div>
+                    <p class="map-tip">Dica: Clique em qualquer lugar no mapa para sinalizar o localização.</p>
+                    <button class="confirm-map-btn" id="confirm-map-btn" disabled>Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="js/script.js"></script>
+    <!-- Google Maps API with callback to the global function in script.js -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMapPicker&libraries=places&v=weekly" defer></script>
+    
     <script>
         loadHeader();
         highlightCurrentPage();
@@ -178,4 +211,3 @@
     
 </body>
 </html>
-
