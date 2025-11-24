@@ -13,13 +13,11 @@
 </head>
 <body>
     <div id="header-placeholder"></div>
-    <div class="header-divider"></div>
 
     <main class="add-institution-page">
         <section class="add-institution-card">
             <div class="add-animal-header">
                 <div>
-                    <p class="breadcrumb">Mapa &gt; Instituições &gt; Adicionar</p>
                     <h1>Adicionar Instituição</h1>
                     <p class="subtitle">Preencha os detalhes para publicar uma nova instituição parceira na plataforma.</p>
                 </div>
@@ -129,8 +127,8 @@
                                 <input type="file" id="institution-image" accept="image/*">
                             </label>
                             <figure class="image-preview">
-                                <img src="img/wwf_logo.png" alt="Pré-visualização da instituição">
-                                <figcaption>Equipa de voluntários a alimentar animais resgatados.</figcaption>
+                                <img src="./img/generico_instituicao.jpg" alt="Pré-visualização da instituição">
+                                <figcaption>Imagem de exemplo</figcaption>
                             </figure>
                         </div>
                     </div>
@@ -149,7 +147,7 @@
         <div class="time-picker-overlay" id="timePickerOverlay" aria-hidden="true" role="dialog" aria-modal="true">
             <div class="time-picker-modal">
                 <div class="time-picker-header">
-                    <h3>Escolher tempo</h3>
+                    <h3 class="text-primary">Escolher tempo</h3>
                     <button type="button" class="close-picker" aria-label="Fechar seletor">&times;</button>
                 </div>
                 <div class="time-picker-body wheel-mode">
@@ -176,7 +174,7 @@
     <div class="map-overlay" id="map-overlay">
         <div class="map-modal">
             <div class="map-modal-header">
-                <h2>Escolher a localização</h2>
+                <h2 class="text-primary">Escolher a localização</h2>
                 <div class="map-search-box">
                     <input type="text" id="map-overlay-search" placeholder="Portugal" value="Portugal">
                 </div>
@@ -202,7 +200,7 @@
     <!-- Scripts -->
     <script src="js/script.js"></script>
     <!-- Google Maps API with callback to the global function in script.js -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMapPicker&libraries=places&v=weekly" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMapPicker&libraries=places&v=weekly&loading=async" defer></script>
     
     <script>
         loadHeader();

@@ -1082,6 +1082,11 @@ p {
     font-weight: 600;
     margin: 0;
 }
+a{
+    text-decoration: none;
+}
+
+
 
 /* Change Password Card */
 .change-password .action-icon {
@@ -2076,6 +2081,7 @@ p {
 
 .family-icon {
     font-size: 16px;
+    color: var(--accent-color);
 }
 
 .description {
@@ -2585,7 +2591,7 @@ p {
 }
 
 .time-picker-modal {
-    background-color: #121a1f;
+    backdrop-filter: blur(20px);
     color: #f8fafc;
     border-radius: 20px;
     width: min(420px, 90vw);
@@ -2594,6 +2600,7 @@ p {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    border:2px solid var(--accent-color);
 }
 
 .time-picker-header {
@@ -5199,7 +5206,7 @@ body:has(.reset-password-container) .login-container {
 .map-modal-header h2 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--accent-color);
     margin: 0;
 }
 
@@ -5221,7 +5228,7 @@ body:has(.reset-password-container) .login-container {
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #6b7280;
+    color: var(--accent-color);
     cursor: pointer;
     padding: 4px;
     transition: color 0.2s;
@@ -5339,4 +5346,10 @@ body:has(.reset-password-container) .login-container {
         border-left: none;
         border-top: 1px solid #e5e7eb;
     }
+}
+
+.action-link-wrapper {
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }

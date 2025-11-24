@@ -4,23 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioMap - Perfil Admin</title>
-    
-    
-    <!-- FontAwesome Icons -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
 </head>
 <body>
-    <!-- Header Placeholder -->
     <div id="header-placeholder"></div>
-    
-    <!-- Profile Banner Section -->
+
     <section class="profile-banner">
         <div class="profile-banner-content">
             <div class="profile-info">
@@ -34,72 +26,72 @@
             </div>
         </div>
     </section>
-    
-    <!-- Action Cards Section -->
+
     <section class="actions-section">
         <div class="container">
             <div class="actions-grid admin-grid">
-                <!-- Editar Perfil Card -->
-                <div class="action-card edit-profile">
-                    <div class="action-icon">
-                        <i class="fas fa-edit"></i>
+
+                <a href="editar_perfil.html" class="action-link-wrapper">
+                    <div class="action-card edit-profile">
+                        <div class="action-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3 class="action-title">Editar Perfil</h3>
                     </div>
-                    <h3 class="action-title">Editar Perfil</h3>
-                </div>
-                
-                <!-- Alterar Password Card -->
-                <div class="action-card change-password">
-                    <div class="action-icon">
-                        <i class="fas fa-lock"></i>
+                </a>
+
+                <a href="atualizar_password.html" class="action-link-wrapper">
+                    <div class="action-card change-password">
+                        <div class="action-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3 class="action-title">Alterar Password</h3>
                     </div>
-                    <h3 class="action-title">Alterar Password</h3>
-                </div>
-                
-                <!-- Administrar registo animal Card -->
-                <div class="action-card manage-animals">
-                    <div class="action-icon yellow-icon">
-                        <i class="fas fa-paw"></i>
+                </a>
+
+                <a href="admin_animal.html" class="action-link-wrapper">
+                    <div class="action-card manage-animals">
+                        <div class="action-icon yellow-icon">
+                            <i class="fas fa-paw"></i>
+                        </div>
+                        <h3 class="action-title yellow-title">Administrar registo animal</h3>
                     </div>
-                    <h3 class="action-title yellow-title">Administrar registo animal</h3>
-                </div>
-                
-                <!-- Administrar Utilizadores Card -->
-                <div class="action-card manage-users">
-                    <div class="action-icon yellow-icon">
-                        <i class="fas fa-list-ul"></i>
+                </a>
+
+                <a href="admin_util.html" class="action-link-wrapper">
+                    <div class="action-card manage-users">
+                        <div class="action-icon yellow-icon">
+                            <i class="fas fa-list-ul"></i>
+                        </div>
+                        <h3 class="action-title yellow-title">Administrar Utilizadores</h3>
                     </div>
-                    <h3 class="action-title yellow-title">Administrar Utilizadores</h3>
-                </div>
-                
-                <!-- Terminar Sessão Card -->
-                <div class="action-card log-out log-out-admin">
-                    <div class="action-icon red-icon">
-                        <i class="fas fa-door-open"></i>
+                </a>
+
+                <a href="index.html" class="action-link-wrapper">
+                    <div class="action-card log-out log-out-admin">
+                        <div class="action-icon red-icon">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <h3 class="action-title red-title">Terminar Sessão</h3>
                     </div>
-                    <h3 class="action-title red-title">Terminar Sessão</h3>
-                </div>
+                </a>
+
             </div>
         </div>
     </section>
-    
-    <!-- Delete Account Footer -->
+
     <footer class="delete-account-footer">
-        <a href="#" class="delete-account-link">
+        <a href="apagar_perfil.html" class="delete-account-link">
             <i class="fas fa-exclamation-triangle"></i>
             <span>Apagar Conta</span>
         </a>
     </footer>
-    
-    <!-- Scripts -->
+
     <script src="js/script.js"></script>
     <script>
-        // Load header when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof loadHeader === 'function') {
-                loadHeader();
-            }
+            if (typeof loadHeader === 'function') loadHeader();
         });
     </script>
 </body>
 </html>
-

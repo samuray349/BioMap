@@ -788,24 +788,10 @@ function initMapPicker() {
         disableDefaultUI: true,
         zoomControl: true,
         zoom: 7,
-        mapTypeControl: true,
-        mapTypeControlOptions: {
-            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-            position: google.maps.ControlPosition.TOP_LEFT,
-        },
         zoomControl: true,
         zoomControlOptions: {
             position: google.maps.ControlPosition.RIGHT_BOTTOM,
-        },
-        scaleControl: true,
-        streetViewControl: true,
-        streetViewControlOptions: {
-            position: google.maps.ControlPosition.RIGHT_BOTTOM,
-        },
-        fullscreenControl: true,
-        fullscreenControlOptions: {
-            position: google.maps.ControlPosition.TOP_RIGHT,
-        },
+        }
     });
 
     // Event listener for map clicks
@@ -916,3 +902,95 @@ function initMapPicker() {
 
 // Expose initMapPicker to the global scope so the Google Maps API callback can find it
 window.initMapPicker = initMapPicker;
+// === Time picker (improved) ===
+(function(){
+  let currentTargetBtn = null;
+
+  const displays = document.querySelectorAll('.time-display');
+  const overlay = document.getElementById('timePickerOverlay');
+  const hourWheel = document.getElementById('hourWheel');
+  const minuteWheel = document.getElementById('minuteWheel');
+  const hourValue = document.getElementById('hourValue');
+  const minuteValue = document.getElementById('minuteValue');
+  const confirmBtn = document.getElementById('confirmTimePicker');
+  const cancelBtn = document.getElementById('cancelTimePicker');
+  const closeBtn = document.querySelector('.close-picker');
+
+  if (!overlay || !hourWheel || !minuteWheel || !confirmBtn || !cancelBtn) return;
+
+  function buildWheel(container, start, end, step = 1) {
+    const ul = document.createElement('ul');
+    ul.className = 'wheel-list';
+    for (let v = start; v <= end; v += step) {
+      const li = document.createElement('li');
+      li.tabIndex = 0;
+      li.textContent = String(v).padStart(2, '0');
+      li.addEventListener('click', () => {
+        if (container === hourWheel) hourValue.textContent = li.textContent;
+        else minuteValue.textContent = li.textContent;
+
+        // mark active
+        container.querySelectorAll('li').forEach(n => n.classList.remove('active'));
+        li.classList.add('active');
+      });
+      ul.appendChild(li);
+    }
+    container.innerHTML = '';
+    container.appendChild(ul);
+  }
+
+  // Build wheels (hours 0..23, minutes 0..55 step 5)
+  buildWheel(hourWheel, 0, 23, 1);
+  buildWheel(minuteWheel, 0, 55, 5);
+
+  function openPickerFor(btn) {
+    currentTargetBtn = btn;
+    const input = document.getElementById(btn.dataset.target);
+    const defaultParts = (input && input.value) ? input.value.split(':') : btn.textContent.split(':');
+    const h = (defaultParts[0] || '09').padStart(2, '0');
+    const m = (defaultParts[1] || '00').padStart(2, '0');
+    hourValue.textContent = h;
+    minuteValue.textContent = m;
+
+    // mark active items and scroll them into view
+    const hourLi = hourWheel.querySelector(`li:nth-child(${parseInt(h,10) + 1})`);
+    const minuteLi = [...minuteWheel.querySelectorAll('li')].find(li => li.textContent === m);
+    hourWheel.querySelectorAll('li').forEach(n => n.classList.remove('active'));
+    minuteWheel.querySelectorAll('li').forEach(n => n.classList.remove('active'));
+    if (hourLi) { hourLi.classList.add('active'); hourLi.scrollIntoView({block: 'center'}); }
+    if (minuteLi) { minuteLi.classList.add('active'); minuteLi.scrollIntoView({block: 'center'}); }
+
+    // show overlay using CSS class (important — your CSS uses .show). 
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+
+  displays.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openPickerFor(btn);
+      console.log('Time picker opened for', btn.dataset.target);
+    });
+  });
+
+  confirmBtn.addEventListener('click', () => {
+    if (!currentTargetBtn) return;
+    const input = document.getElementById(currentTargetBtn.dataset.target);
+    const value = `${hourValue.textContent}:${minuteValue.textContent}`;
+    if (input) input.value = value;
+    currentTargetBtn.textContent = value;
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+    currentTargetBtn = null;
+  });
+
+  function closePicker() {
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+    currentTargetBtn = null;
+  }
+  cancelBtn.addEventListener('click', closePicker);
+  if (closeBtn) closeBtn.addEventListener('click', closePicker);
+  // click outside modal content closes picker
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closePicker(); });
+})();
