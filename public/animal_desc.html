@@ -226,7 +226,7 @@
             </div>
             <div style="max-width: 1200px;margin-right: auto;margin-left: auto;">
             <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: block; height: auto;">
+                <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: flex; height: 100%; margin-bottom: 0px;">
                     <h3 class="text-xl font-semibold mb-4" style="color: var(--accent-color, #198754);">5 Principais Ameaças</h3>
                     <ul class="space-y-3" style="list-style-type: none;">
                         <li class="threat-item">Perda e fragmentação do habitat devido à urbanização e agricultura intensiva</li>
@@ -237,19 +237,21 @@
                     </ul>
                 </div>
                 
-                <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: block; height: auto;">
-                    <h3 class="text-xl font-semibold mb-4" style="color: var(--accent-color, #198754);">Estado de Conservação</h3>
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4" style="background-color: #FFCC00; color: black;">
-                            <i data-feather="alert-triangle"></i>
+                <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: flex; align-self: stretch;">
+                    <div style="display: flex; flex-direction: column; gap: 1rem; flex-grow: 1;">
+                        <h3 class="text-xl font-semibold" style="color: var(--accent-color, #198754); margin: 0;">Estado de Conservação</h3>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4" style="background-color: #FFCC00; color: black;">
+                                <i data-feather="alert-triangle"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm" style="margin-bottom: 0;">Lista Vermelha IUCN</p>
+                                <p class="font-medium">Vulnerável</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-gray-500 text-sm" style="margin-bottom: 0;">Lista Vermelha IUCN</p>
-                            <p class="font-medium">Vulnerável</p>
-                        </div>
+                        <p class="text-gray-700" style="margin: 0;">População estimada: 4.000-6.500 indivíduos maduros restantes na natureza.</p>
                     </div>
-                    <p class="text-gray-700 mb-4">População estimada: 4.000-6.500 indivíduos maduros restantes na natureza.</p>
-                    <a href="doar.html" class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition w-full flex items-center justify-center" style="background-color: var(--accent-color);text-decoration: none;">
+                    <a href="doar.html" class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition w-full flex items-center justify-center" style="background-color: var(--accent-color); text-decoration: none; margin-top: auto;">
                         <i data-feather="heart" class="inline mr-2"></i> Doar
                     </a>
                 </div>

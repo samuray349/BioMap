@@ -10,6 +10,280 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
+    <style>
+        .preview-section {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .preview-section .preview-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .preview-section .preview-header h2 {
+            margin: 8px 0 0;
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            margin-top: 3.5rem;
+        }
+
+        .preview-section .preview-block {
+            margin-bottom: 48px;
+        }
+
+        .preview-section .preview-title {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            color: var(--text-dark, #1f2937);
+        }
+
+        .preview-section .preview-card {
+            max-width: 360px;
+        }
+
+        .preview-section .animal-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px #1987548c;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            align-items: stretch;
+        }
+
+        .preview-section .animal-card.main {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto 32px;
+        }
+
+        .preview-section .description-preview .animal-card.main {
+            transform: scale(0.7);
+            transform-origin: center top;
+        }
+
+        .preview-section .animal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 13px #1987548c;
+        }
+
+        .preview-section .card-image-section {
+            width: 65%;
+            position: relative;
+        }
+
+        .preview-section .card-image-section img {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        .preview-section .card-content-section {
+            width: 35%;
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .preview-section .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .preview-section .animal-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent-color, #198754);
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .preview-section .scientific-name {
+            font-style: italic;
+            color: #6b7280;
+            font-size: 1rem;
+            margin-top: 0.25rem;
+        }
+
+        .preview-section .status-badge {
+            background-color: #ffc107;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
+            white-space: nowrap;
+            align-self: flex-start;
+        }
+
+        .preview-section .section-title {
+            color: var(--accent-color, #198754);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            margin-top: 0;
+            text-align: left;
+        }
+
+        .preview-section .facts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 1400px) {
+            .preview-section .facts-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .preview-section .fact-label {
+            color: var(--accent-color, #198754);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .preview-section .fact-value {
+            color: #1f2937;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .preview-section .description-text {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .preview-section .preview-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .preview-section .preview-info-card {
+            flex-direction: column;
+            padding: 24px;
+            height: 100%;
+        }
+
+        .preview-section .preview-info-card h3 {
+            color: var(--accent-color, #198754);
+            margin: 0 0 16px;
+        }
+
+        .preview-section .threat-item {
+            position: relative;
+            padding-left: 20px;
+            color: #4b5563;
+            margin-bottom: 12px;
+            list-style: none;
+        }
+
+        .preview-section .threat-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #198754;
+        }
+
+        .preview-section .conservation-status {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .preview-section .status-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffcc00;
+            color: #1f1f1f;
+            font-size: 20px;
+        }
+
+        .preview-section .donate-btn {
+            margin-top: auto;
+            background-color: var(--accent-color, #198754);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .preview-section .preview-fact-card {
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 24px;
+            gap: 16px;
+        }
+
+        .preview-section .preview-fact-card .status-icon {
+            background-color: var(--accent-color, #198754);
+            color: #fff;
+        }
+
+        .preview-section .preview-share-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .preview-section .preview-share-row button {
+            border: 1px solid #d1d5db;
+            background: #fff;
+            border-radius: 999px;
+            padding: 6px 18px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+            .preview-section .animal-card {
+                flex-direction: column;
+            }
+
+            .preview-section .card-image-section,
+            .preview-section .card-content-section {
+                width: 100%;
+            }
+
+            .preview-section .card-content-section {
+                padding: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="header-placeholder"></div>
@@ -278,6 +552,113 @@
                 </div>
             </form>
         </section>
+        
+            <section class="preview-section">
+                <div class="preview-header">
+                    <h2>Veja como o animal aparecerá na plataforma</h2>
+                </div>
+    
+                <div class="preview-block">
+                    <h3 class="preview-title">Miniatura</h3>
+                    <div class="card green-shadow preview-card">
+                        <img src="https://t4.ftcdn.net/jpg/10/64/99/85/360_F_1064998553_4RvqeSWINhkKJEyVLzidd8bUKtOV7hIc.jpg" alt="Lince ibérico" class="card-image">
+                        <div class="card-content">
+                            <div class="card-header">
+                                <h3>Lince ibérico</h3>
+                                <span class="badge vulnerable">Vulnerável</span>
+                            </div>
+                            <div class="family">
+                                <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
+                                <span>Felídeos</span>
+                            </div>
+                            <p class="description">O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...</p>
+                            <a href="animal_desc.html" class="btn-details">
+                                <span>👁</span> Ver detalhes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="preview-block">
+                    <h3 class="preview-title">Descrição</h3>
+                    <div class="preview-share-row">
+                        <button type="button">Partilhar</button>
+                    </div>
+                    <div class="animal-card main">
+                        <div class="card-image-section">
+                            <img src="./img/lince.jpg" alt="Lince Ibérico">
+                        </div>
+    
+                        <div class="card-content-section">
+                            <div class="card-header-row">
+                                <div>
+                                    <h1 class="animal-title">Lince Ibérico</h1>
+                                    <p class="scientific-name">Lynx pardinus</p>
+                                </div>
+                                <span class="status-badge">Vulnerável</span>
+                            </div>
+    
+                            <div class="mb-6">
+                                <h3 class="section-title">Factos</h3>
+                                <div class="facts-grid">
+                                    <div>
+                                        <span class="fact-label">Família:</span>
+                                        <span class="fact-value">Felidae</span>
+                                    </div>
+                                    <div>
+                                        <span class="fact-label">Dieta:</span>
+                                        <span class="fact-value">Carnívoro</span>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div>
+                                <h3 class="section-title">Descrição</h3>
+                                <p class="description-text">O lince-ibérico é um felino de médio porte endêmico da Península Ibérica, considerado o felino mais ameaçado do mundo até recentemente. Reconhecido pelas suas orelhas pontiagudas com tufos pretos, patas longas, cauda curta e o característico “barbicho” facial, o lince-ibérico é um predador ágil e solitário, perfeitamente adaptado aos ecossistemas mediterrânicos.</p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="preview-details-grid">
+                        <div class="animal-card preview-info-card">
+                            <h3>5 Principais Ameaças</h3>
+                            <ul style="padding:0; margin:0;">
+                                <li class="threat-item">Perda e fragmentação do habitat devido à urbanização</li>
+                                <li class="threat-item">Redução das populações das suas presas por doenças</li>
+                                <li class="threat-item">Atropelamentos em estradas</li>
+                                <li class="threat-item">Caça ilegal e armadilhas destinadas a outros animais</li>
+                                <li class="threat-item">Mudanças climáticas que afetam presas e habitat</li>
+                            </ul>
+                        </div>
+                        <div class="animal-card preview-info-card">
+                            <h3>Estado de Conservação</h3>
+                            <div class="conservation-status">
+                                <div class="status-icon">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm" style="margin:0;">Lista Vermelha IUCN</p>
+                                    <p class="font-medium" style="margin:0;">Vulnerável</p>
+                                    <p class="text-gray-700" style="margin:8px 0 0;">População estimada: 4.000-6.500 indivíduos.</p>
+                                </div>
+                            </div>
+                            <button class="donate-btn" type="button">
+                                <i class="fa-solid fa-heart"></i> Doar
+                            </button>
+                        </div>
+                    </div>
+    
+                    <div class="animal-card preview-fact-card" style="margin-top: 2rem;">
+                        <div class="status-icon">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin:0 0 8px;">Facto interessante</h3>
+                            <p style="margin:0;">Nos anos 2000, restavam menos de 100 indivíduos — à beira da extinção. Graças a programas de reprodução e proteção de habitat, hoje existem mais de 2.000 linces ibéricos livres na Península Ibérica.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
     </main>
 
     <script src="js/script.js"></script>
