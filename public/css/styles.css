@@ -2150,6 +2150,7 @@ p {
 
 .family-icon {
     font-size: 16px;
+    color: var(--accent-color);
 }
 
 .description {

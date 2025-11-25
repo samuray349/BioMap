@@ -250,8 +250,13 @@
         }
 
         .preview-section .preview-fact-card .status-icon {
-            background-color: var(--accent-color, #198754);
+            width: 3rem;
+            height: 2rem;
+            background: linear-gradient(145deg, #1b7f4a, #23a05b);
             color: #fff;
+            border: 3px solid #e6f4ec;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .preview-section .preview-share-row {
@@ -572,7 +577,7 @@
                                 <span>Felídeos</span>
                             </div>
                             <p class="description">O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...</p>
-                            <a href="animal_desc.html" class="btn-details">
+                            <a class="btn-details">
                                 <span>👁</span> Ver detalhes
                             </a>
                         </div>
@@ -665,6 +670,291 @@
     <script>
         loadHeader();
         highlightCurrentPage();
+
+        // Dynamic Preview System
+        (function setupDynamicPreviews() {
+            // Store default values
+            const defaults = {
+                animalName: 'Lince ibérico',
+                scientificName: 'Lynx pardinus',
+                family: 'Felídeos',
+                familyScientific: 'Felidae',
+                diet: 'Carnívoro',
+                conservationStatus: 'Vulnerável',
+                population: '4.000-6.500 indivíduos.',
+                fact: 'Nos anos 2000, restavam menos de 100 indivíduos — à beira da extinção. Graças a programas de reprodução e proteção de habitat, hoje existem mais de 2.000 linces ibéricos livres na Península Ibérica.',
+                description: 'O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...',
+                descriptionFull: 'O lince-ibérico é um felino de médio porte endêmico da Península Ibérica, considerado o felino mais ameaçado do mundo até recentemente. Reconhecido pelas suas orelhas pontiagudas com tufos pretos, patas longas, cauda curta e o característico "barbicho" facial, o lince-ibérico é um predador ágil e solitário, perfeitamente adaptado aos ecossistemas mediterrânicos.',
+                threats: [
+                    'Perda e fragmentação do habitat devido à urbanização',
+                    'Redução das populações das suas presas por doenças',
+                    'Atropelamentos em estradas',
+                    'Caça ilegal e armadilhas destinadas a outros animais',
+                    'Mudanças climáticas que afetam presas e habitat'
+                ]
+            };
+
+            // Get preview elements
+            const previewElements = {
+                animalNameMini: document.querySelector('.preview-card h3'),
+                animalNameMain: document.querySelector('.animal-title'),
+                scientificName: document.querySelector('.scientific-name'),
+                familyMini: document.querySelector('.family span:last-child'),
+                familyMain: document.querySelector('.facts-grid .fact-value:first-child'),
+                dietMain: document.querySelector('.facts-grid .fact-value:last-child'),
+                conservationBadgeMini: document.querySelector('.preview-card .badge'),
+                conservationBadgeMain: document.querySelector('.status-badge'),
+                conservationStatusText: document.querySelector('.conservation-status .font-medium'),
+                population: document.querySelector('.conservation-status .text-gray-700'),
+                fact: document.querySelector('.preview-fact-card p'),
+                descriptionMini: document.querySelector('.preview-card .description'),
+                descriptionMain: document.querySelector('.description-text'),
+                threats: document.querySelectorAll('.threat-item'),
+                imageMini: document.querySelector('.preview-card .card-image'),
+                imageMain: document.querySelector('.card-image-section img')
+            };
+
+            // Family mapping for display names
+            const familyDisplayNames = {
+                'Felidae': 'Felídeos',
+                'Canidae': 'Canídeos',
+                'Ursidae': 'Ursídeos',
+                'Bovidae': 'Bovídeos',
+                'Cervidae': 'Cervídeos',
+                'Mustelidae': 'Mustelídeos',
+                'Accipitridae': 'Accipitrídeos',
+                'Strigidae': 'Estrigídeos',
+                'Falconidae': 'Falconídeos',
+                'Boidae': 'Boidídeos',
+                'Viperidae': 'Viperídeos',
+                'Cyprinidae': 'Ciprinídeos',
+                'Cichlidae': 'Ciclídeos'
+            };
+
+            // Conservation status badge classes
+            const conservationClasses = {
+                'Quase ameaçada': 'near-threatened',
+                'Vulnerável': 'vulnerable',
+                'Em perigo': 'endangered',
+                'Perigo crítico': 'critically-endangered',
+                'Extinto na Natureza': 'extinct'
+            };
+
+            // Helper function to get or default
+            function getValueOrDefault(value, defaultValue) {
+                return value && value.trim() ? value.trim() : defaultValue;
+            }
+
+            // Update animal name
+            function updateAnimalName() {
+                const input = document.getElementById('animal-name');
+                const value = getValueOrDefault(input.value, defaults.animalName);
+                if (previewElements.animalNameMini) previewElements.animalNameMini.textContent = value;
+                if (previewElements.animalNameMain) previewElements.animalNameMain.textContent = value;
+                // Update image alt text
+                if (previewElements.imageMini) previewElements.imageMini.alt = value;
+                if (previewElements.imageMain) previewElements.imageMain.alt = value;
+            }
+
+            // Update scientific name
+            function updateScientificName() {
+                const input = document.getElementById('scientific-name');
+                const value = getValueOrDefault(input.value, defaults.scientificName);
+                if (previewElements.scientificName) {
+                    previewElements.scientificName.textContent = value;
+                }
+            }
+
+            // Update family
+            function updateFamily() {
+                const selects = [
+                    document.getElementById('familia-mamiferos'),
+                    document.getElementById('familia-aves'),
+                    document.getElementById('familia-repteis'),
+                    document.getElementById('familia-peixes')
+                ];
+                
+                let selectedFamily = '';
+                for (const select of selects) {
+                    if (select && select.value) {
+                        selectedFamily = select.value;
+                        break;
+                    }
+                }
+
+                const familyScientific = getValueOrDefault(selectedFamily, defaults.familyScientific);
+                const familyDisplay = familyDisplayNames[familyScientific] || familyScientific || defaults.family;
+
+                if (previewElements.familyMini) previewElements.familyMini.textContent = familyDisplay;
+                if (previewElements.familyMain) previewElements.familyMain.textContent = familyScientific || defaults.familyScientific;
+            }
+
+            // Update diet
+            function updateDiet() {
+                const select = document.getElementById('diet-type');
+                const value = getValueOrDefault(select.value, defaults.diet);
+                if (previewElements.dietMain) previewElements.dietMain.textContent = value;
+            }
+
+            // Update conservation status
+            function updateConservationStatus() {
+                const select = document.getElementById('conservation-status');
+                const value = getValueOrDefault(select.value, defaults.conservationStatus);
+                
+                if (previewElements.conservationBadgeMini) {
+                    previewElements.conservationBadgeMini.textContent = value;
+                    // Update badge class
+                    previewElements.conservationBadgeMini.className = 'badge';
+                    const statusClass = conservationClasses[value] || 'vulnerable';
+                    previewElements.conservationBadgeMini.classList.add(statusClass);
+                }
+                
+                if (previewElements.conservationBadgeMain) {
+                    previewElements.conservationBadgeMain.textContent = value;
+                }
+                
+                if (previewElements.conservationStatusText) {
+                    previewElements.conservationStatusText.textContent = value;
+                }
+            }
+
+            // Update population
+            function updatePopulation() {
+                const input = document.getElementById('population');
+                const value = getValueOrDefault(input.value, defaults.population);
+                if (previewElements.population) {
+                    previewElements.population.textContent = `População estimada: ${value}`;
+                }
+            }
+
+            // Update fact
+            function updateFact() {
+                const input = document.getElementById('fact');
+                const value = getValueOrDefault(input.value, defaults.fact);
+                if (previewElements.fact) previewElements.fact.textContent = value;
+            }
+
+            // Update description
+            function updateDescription() {
+                const textarea = document.getElementById('description');
+                const value = textarea.value.trim();
+                
+                if (previewElements.descriptionMini) {
+                    previewElements.descriptionMini.textContent = value || defaults.description;
+                }
+                
+                if (previewElements.descriptionMain) {
+                    previewElements.descriptionMain.textContent = value || defaults.descriptionFull;
+                }
+            }
+
+            // Update threats
+            function updateThreats() {
+                const threatInputs = [
+                    document.getElementById('threat-1'),
+                    document.getElementById('threat-2'),
+                    document.getElementById('threat-3'),
+                    document.getElementById('threat-4'),
+                    document.getElementById('threat-5')
+                ];
+
+                previewElements.threats.forEach((threatEl, index) => {
+                    const input = threatInputs[index];
+                    const value = getValueOrDefault(input.value, defaults.threats[index]);
+                    threatEl.textContent = value;
+                });
+            }
+
+            // Update image
+            function updateImage() {
+                const input = document.getElementById('image-input');
+                if (!input) return;
+
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imageUrl = e.target.result;
+                            if (previewElements.imageMini) {
+                                previewElements.imageMini.src = imageUrl;
+                            }
+                            if (previewElements.imageMain) {
+                                previewElements.imageMain.src = imageUrl;
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Attach event listeners
+            document.getElementById('animal-name')?.addEventListener('input', updateAnimalName);
+            document.getElementById('scientific-name')?.addEventListener('input', updateScientificName);
+            document.getElementById('diet-type')?.addEventListener('change', updateDiet);
+            document.getElementById('conservation-status')?.addEventListener('change', function() {
+                updateConservationStatus();
+                updateConservationBgColor(this);
+            });
+            document.getElementById('population')?.addEventListener('input', updatePopulation);
+            document.getElementById('fact')?.addEventListener('input', updateFact);
+            document.getElementById('description')?.addEventListener('input', updateDescription);
+
+            // Family selects
+            ['familia-mamiferos', 'familia-aves', 'familia-repteis', 'familia-peixes'].forEach(id => {
+                document.getElementById(id)?.addEventListener('change', updateFamily);
+            });
+
+            // Threat inputs
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`threat-${i}`)?.addEventListener('input', updateThreats);
+            }
+
+            // Image upload
+            updateImage();
+
+            // Clear form button
+            document.querySelector('.ghost-btn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('.add-animal-form')?.reset();
+                
+                // Reset all previews to defaults
+                updateAnimalName();
+                updateScientificName();
+                updateFamily();
+                updateDiet();
+                updateConservationStatus();
+                updatePopulation();
+                updateFact();
+                updateDescription();
+                updateThreats();
+                
+                // Reset image
+                const imageInput = document.getElementById('image-input');
+                if (imageInput) imageInput.value = '';
+                if (previewElements.imageMini) {
+                    previewElements.imageMini.src = 'https://t4.ftcdn.net/jpg/10/64/99/85/360_F_1064998553_4RvqeSWINhkKJEyVLzidd8bUKtOV7hIc.jpg';
+                }
+                if (previewElements.imageMain) {
+                    previewElements.imageMain.src = './img/lince.jpg';
+                }
+                
+                // Reset conservation status background
+                const conservationSelect = document.getElementById('conservation-status');
+                if (conservationSelect) updateConservationBgColor(conservationSelect);
+            });
+
+            // Initialize all previews on load
+            updateAnimalName();
+            updateScientificName();
+            updateFamily();
+            updateDiet();
+            updateConservationStatus();
+            updatePopulation();
+            updateFact();
+            updateDescription();
+            updateThreats();
+        })();
     </script>
 </body>
 </html>
