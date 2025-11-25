@@ -2024,8 +2024,9 @@ p {
     margin-bottom: 14px;
     flex-grow: 1;
 }
-
+/* Botão "Ver detalhes" */
 .btn-details {
+<<<<<<< Updated upstream
     width: 100%;
     padding: 10px;
     background-color: #1a7854;
@@ -2044,6 +2045,24 @@ p {
 
 .btn-details:hover {
     background-color: #145c42;
+=======
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-color);
+    color: white;
+    padding: 5px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background 0.2s ease;
+    margin-top: auto;
+}
+
+.btn-details:hover {
+    background: var(--accent-hover);
+>>>>>>> Stashed changes
 }
 
 /* ==================== DOAR PAGE STYLES ==================== */
@@ -2157,7 +2176,7 @@ p {
 .org-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .org-content {
