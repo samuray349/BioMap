@@ -792,20 +792,22 @@ p {
 
 /* Scrollbar styling */
 .sidebar::-webkit-scrollbar {
-    width: 8px;
+    width: 6px; /* Make it slightly thinner */
 }
 
 .sidebar::-webkit-scrollbar-track {
     background: #f1f1f1;
+    /* Optional: Add a slight border radius to the track */
+    border-radius: 0 4px 4px 0; 
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-    background: #ccc;
+    background: var(--accent-color); /* Use the main accent color for the thumb */
     border-radius: 4px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-    background: #999;
+    background: var(--accent-hover); /* Use the hover accent color on hover */
 }
 
 /* Page Loader */
