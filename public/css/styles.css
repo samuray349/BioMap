@@ -1058,6 +1058,23 @@ p {
 .action-link-wrapper-wide {
     grid-column: 1 / -1;
 }
+/* Force the logout button to take the full line ONLY in the admin dashboard */
+/* Make the logout button as wide as 3 cards (3 * 280px) plus 2 gaps (2 * 32px) */
+.admin-dashboard-grid .action-link-wrapper-wide {
+    flex: 0 1 calc((280px * 3) + (32px * 2)); /* Approx 904px */
+    max-width: 100%; /* Ensures it shrinks on smaller screens */
+}
+.time-picker-modal {
+    backdrop-filter: blur(20px);
+    border: 2px solid var(--accent-color);
+    color: #f8fafc;
+    border-radius: 20px;
+    width: min(420px, 90vw);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
 
 .action-card {
     background-color: #ffffff;
@@ -2660,11 +2677,11 @@ p {
 }
 
 .time-picker-modal {
-    background-color: #121a1f;
+    backdrop-filter: blur(20px);
+    border: 2px solid var(--accent-color);
     color: #f8fafc;
     border-radius: 20px;
     width: min(420px, 90vw);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
     padding: 24px;
     display: flex;
     flex-direction: column;
