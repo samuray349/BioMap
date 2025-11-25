@@ -2154,7 +2154,8 @@ p {
 .badge.vulnerable      { background: #FFCC00; color: #fff; }   /* Amarelo */
 .badge.threatened      { background: #99CC33; color: #fff; }   /* Verde */
 .badge.endangered      { background: #FF6600; color: #fff; }   /* Laranja – ajustado para "Em perigo" */
-.badge.critical        { background: #FF0000; color: #fff; } 
+.badge.critical        { background: #FF0000; color: #fff; } /* Vermelho */
+.badge.extinct         { background: #828282; color: #fff; } /* Cinzento */
 
 .family {
     display: flex;
