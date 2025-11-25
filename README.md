@@ -17,7 +17,7 @@ Disponibilizar uma plataforma que aumenta a visibilidade de instituições de co
 - HTML5/CSS
 
 ## Site do Projeto
-[Visite o site do projeto](http://aluno12695.damiaodegoes.pt)
+[Visite o site do projeto](https://samuray349.github.io/BioMap/public)
 
 ## Site do modelo da base de dados
 [Visite o site do modelo](https://dbdiagram.io/d/BioMap-68fd15d8357668b73299cd44)
