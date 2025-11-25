@@ -729,6 +729,10 @@ const headerTemplate = `
         <div class="account-menu-item" id="menu-login"><a style="text-decoration: none;color: #333;"href="login.html">Iniciar Sessão</a></div>
         <div class="account-menu-separator"></div>
         <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;"href="sign_up.html">Criar Conta</a></div>
+        <div class="account-menu-separator"></div>
+        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;"href="perfil.html">Perfil</a></div>
+        <div class="account-menu-separator"></div>
+        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;"href="perfil_admin.html">Perfil Admin</a></div>
       </div>
     </div>
   </div>
