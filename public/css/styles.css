@@ -42,6 +42,10 @@ body {
     color: var(--text-medium);
 }
 
+a{
+    text-decoration: none;
+}
+
 /* ==================== TYPOGRAPHY ==================== */
 h1, h2, h3, h4, h5, h6 {
     color: var(--text-dark, #333);
@@ -965,6 +969,10 @@ p {
 }
 
 /* ==================== PROFILE PAGE STYLES ==================== */
+.admin-dashboard-page {
+    background-color: #f4f5f7;
+}
+
 .profile-banner {
     background-color: #198754;
     width: 100%;
@@ -1037,10 +1045,18 @@ p {
 
 .actions-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 30px;
     max-width: 800px;
     margin: 0 auto;
+}
+
+.action-link-wrapper {
+    display: block;
+}
+
+.action-link-wrapper-wide {
+    grid-column: 1 / -1;
 }
 
 .action-card {
@@ -1054,7 +1070,48 @@ p {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 20px;
+    min-height: 190px;
+}
+
+.action-card .action-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #198754;
+}
+
+.action-card .action-icon i {
+    font-size: inherit;
+    line-height: 1;
+}
+
+.action-card .action-title {
+    color: #198754;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+}
+
+.action-card .action-icon.yellow-icon {
+    color: #f4b400;
+}
+
+.action-card .action-title.yellow-title {
+    color: #f4b400;
+}
+
+.action-card .action-icon.red-icon {
+    color: #dc3545;
+}
+
+.action-card .action-title.red-title {
+    color: #dc3545;
 }
 
 .action-card:hover {
@@ -1062,82 +1119,21 @@ p {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Edit Profile Card */
-.edit-profile .action-icon {
-    width: 80px;
-    height: 80px;
+.admin-grid {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     justify-content: center;
-    color: #198754;
+    gap: 30px;
+    max-width: 900px;
 }
 
-.edit-profile .action-icon i {
-    font-size: 48px;
+.admin-grid .action-card {
+    flex: 1 1 260px;
+    max-width: 280px;
 }
 
-.edit-profile .action-title {
-    color: #198754;
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
-}
-a{
-    text-decoration: none;
-}
-
-
-
-/* Change Password Card */
-.change-password .action-icon {
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #198754;
-}
-
-.change-password .action-icon i {
-    font-size: 48px;
-}
-
-.change-password .action-title {
-    color: #198754;
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
-}
-
-/* Log Out Card */
 .log-out {
     grid-column: 1 / -1;
-}
-
-.log-out .action-icon {
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.log-out .red-icon {
-    color: #dc3545;
-}
-
-.log-out .red-icon i {
-    font-size: 48px;
-}
-
-.log-out .action-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
-}
-
-.log-out .red-title {
-    color: #dc3545;
 }
 
 /* Delete Account Footer */
@@ -1166,6 +1162,79 @@ a{
 
 .delete-account-link i {
     font-size: 16px;
+}
+
+/* ==================== ADMIN DASHBOARD CARDS ==================== */
+.admin-dashboard {
+    padding: 80px 30px;
+    background-color: #f4f5f7;
+}
+
+.admin-dashboard-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 32px;
+}
+
+.admin-dashboard-card {
+    background-color: #ffffff;
+    border-radius: 18px;
+    padding: 48px 32px;
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex: 0 1 280px;
+    max-width: 320px;
+}
+
+.admin-dashboard-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 45px rgba(0, 0, 0, 0.12);
+}
+
+.admin-dashboard-card:focus-visible {
+    outline: 2px solid #198754;
+    outline-offset: 6px;
+}
+
+.admin-dashboard-icon {
+    font-size: 44px;
+    color: #198754;
+}
+
+.admin-dashboard-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #198754;
+}
+
+.admin-dashboard-card--yellow .admin-dashboard-icon,
+.admin-dashboard-card--yellow .admin-dashboard-title {
+    color: #f4b400;
+}
+
+.admin-dashboard-card--red .admin-dashboard-icon,
+.admin-dashboard-card--red .admin-dashboard-title {
+    color: #dc3545;
+}
+
+@media (max-width: 768px) {
+    .admin-dashboard {
+        padding: 60px 20px;
+    }
+
+    .admin-dashboard-card {
+        padding: 36px 24px;
+    }
 }
 
 /* ==================== EDIT PROFILE PAGE STYLES ==================== */
@@ -2081,7 +2150,6 @@ a{
 
 .family-icon {
     font-size: 16px;
-    color: var(--accent-color);
 }
 
 .description {
@@ -2591,7 +2659,7 @@ a{
 }
 
 .time-picker-modal {
-    backdrop-filter: blur(20px);
+    background-color: #121a1f;
     color: #f8fafc;
     border-radius: 20px;
     width: min(420px, 90vw);
@@ -2600,7 +2668,6 @@ a{
     display: flex;
     flex-direction: column;
     gap: 24px;
-    border:2px solid var(--accent-color);
 }
 
 .time-picker-header {
@@ -5206,7 +5273,7 @@ body:has(.reset-password-container) .login-container {
 .map-modal-header h2 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--accent-color);
+    color: #111827;
     margin: 0;
 }
 
@@ -5228,7 +5295,7 @@ body:has(.reset-password-container) .login-container {
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: var(--accent-color);
+    color: #6b7280;
     cursor: pointer;
     padding: 4px;
     transition: color 0.2s;
@@ -5346,10 +5413,4 @@ body:has(.reset-password-container) .login-container {
         border-left: none;
         border-top: 1px solid #e5e7eb;
     }
-}
-
-.action-link-wrapper {
-    text-decoration: none;
-    color: inherit;
-    display: block;
 }

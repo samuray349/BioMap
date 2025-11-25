@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
 </head>
-<body>
+<body class="admin-dashboard-page">
     <div id="header-placeholder"></div>
 
     <section class="profile-banner">
@@ -27,56 +27,44 @@
         </div>
     </section>
 
-    <section class="actions-section">
-        <div class="container">
-            <div class="actions-grid admin-grid">
+    <section class="admin-dashboard">
+        <div class="admin-dashboard-grid">
 
-                <a href="editar_perfil.html" class="action-link-wrapper">
-                    <div class="action-card edit-profile">
-                        <div class="action-icon">
-                            <i class="fas fa-edit"></i>
-                        </div>
-                        <h3 class="action-title">Editar Perfil</h3>
-                    </div>
-                </a>
+            <a href="editar_perfil.html" class="admin-dashboard-card">
+                <div class="admin-dashboard-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h3 class="admin-dashboard-title">Editar Perfil</h3>
+            </a>
 
-                <a href="atualizar_password.html" class="action-link-wrapper">
-                    <div class="action-card change-password">
-                        <div class="action-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                        <h3 class="action-title">Alterar Password</h3>
-                    </div>
-                </a>
+            <a href="atualizar_password.html" class="admin-dashboard-card">
+                <div class="admin-dashboard-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 class="admin-dashboard-title">Alterar Password</h3>
+            </a>
 
-                <a href="admin_animal.html" class="action-link-wrapper">
-                    <div class="action-card manage-animals">
-                        <div class="action-icon yellow-icon">
-                            <i class="fas fa-paw"></i>
-                        </div>
-                        <h3 class="action-title yellow-title">Administrar registo animal</h3>
-                    </div>
-                </a>
+            <a href="admin_animal.html" class="admin-dashboard-card admin-dashboard-card--yellow">
+                <div class="admin-dashboard-icon">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h3 class="admin-dashboard-title">Administrar registo animal</h3>
+            </a>
 
-                <a href="admin_util.html" class="action-link-wrapper">
-                    <div class="action-card manage-users">
-                        <div class="action-icon yellow-icon">
-                            <i class="fas fa-list-ul"></i>
-                        </div>
-                        <h3 class="action-title yellow-title">Administrar Utilizadores</h3>
-                    </div>
-                </a>
+            <a href="admin_util.html" class="admin-dashboard-card admin-dashboard-card--yellow">
+                <div class="admin-dashboard-icon">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+                <h3 class="admin-dashboard-title">Administrar Utilizadores</h3>
+            </a>
 
-                <a href="index.html" class="action-link-wrapper">
-                    <div class="action-card log-out log-out-admin">
-                        <div class="action-icon red-icon">
-                            <i class="fas fa-door-open"></i>
-                        </div>
-                        <h3 class="action-title red-title">Terminar Sessão</h3>
-                    </div>
-                </a>
+            <a href="index.html" class="admin-dashboard-card admin-dashboard-card--red">
+                <div class="admin-dashboard-icon">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <h3 class="admin-dashboard-title">Terminar Sessão</h3>
+            </a>
 
-            </div>
         </div>
     </section>
 
