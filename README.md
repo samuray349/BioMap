@@ -13,8 +13,9 @@ Disponibilizar uma plataforma que aumenta a visibilidade de instituições de co
 - JS
 - PostGreSQL
 - Node.JS
-- BootStrap
+- PHP (Slim)
 - HTML5/CSS
+  
 
 ## Site do Projeto
 [Visite o site do projeto](https://samuray349.github.io/BioMap/public)
