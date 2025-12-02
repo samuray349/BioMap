@@ -344,7 +344,7 @@
                     </div>
                     <div class="family">
                         <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Felídeos</span>
+                        <span>Felidae</span>
                     </div>
                     <p class="description">O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...</p>
                     <a href="animal_desc.html" class="btn-details">
@@ -362,7 +362,7 @@
                     </div>
                     <div class="family">
                         <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Felídeos</span>
+                        <span>Felidae</span>
                     </div>
                     <p class="description">Maior felino das Américas, possui pelagem amarelada com manchas pretas em formato...</p>
                     <a href="animal_desc.html" class="btn-details">
@@ -494,12 +494,12 @@
     "Felidae", "Canidae", "Ursidae", "Mustelidae", 
     "Cervidae", "Suidae", "Leporidae", "Sciuridae",
     "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla",
-    "Felídeos", "Canidae", "Psittacidae", "Accipitridae",
-    "Lacertidae", "Bovidae", "Suídeos"
+    "Psittacidae", "Accipitridae", "Bovidae", "Lacertidae",
+    "Suídeos"
   ];
   
   const stateOptions = [
-    "Em Perigo", "Vulnerável", "Quase Ameaçado",
+    "Vulnerável", "Em perigo", "Quase ameaçada",
     "Pouco Preocupante", "Dados Insuficientes",
     "Extinto na Natureza", "Extinto", "Perigo crítico"
   ];
@@ -509,10 +509,70 @@
     // Check if elements and function exist
     const familyInput = document.getElementById('family-input');
     const stateInput = document.getElementById('state-input');
+    const searchInput = document.getElementById('search-input');
+    const cards = document.querySelectorAll('.cards-grid .card');
     
     if (familyInput && stateInput && typeof initTagInputWithDropdown === 'function') {
       initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", animaisFamilyTags, familyOptions);
       initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", animaisStateTags, stateOptions);
+    }
+
+    // Unified filter (search + family tags + state tags)
+    if (cards.length > 0) {
+      const normalizeText = (text) =>
+        (text || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, ''); // remove accents
+
+      function filterCards() {
+        const query = searchInput ? normalizeText(searchInput.value || '') : '';
+
+        cards.forEach(card => {
+          const titleEl = card.querySelector('.card-header h3');
+          const familyEl = card.querySelector('.family span:last-child');
+          const descEl = card.querySelector('.description');
+          const badgeEl = card.querySelector('.badge');
+
+          const title = titleEl ? normalizeText(titleEl.textContent) : '';
+          const family = familyEl ? normalizeText(familyEl.textContent) : '';
+          const desc = descEl ? normalizeText(descEl.textContent) : '';
+          const state = badgeEl ? normalizeText(badgeEl.textContent) : '';
+
+          const matchesSearch =
+            !query ||
+            title.includes(query) ||
+            family.includes(query) ||
+            desc.includes(query);
+
+          const matchesFamily =
+            animaisFamilyTags.length === 0 ||
+            animaisFamilyTags.some(tag => normalizeText(tag) === family);
+
+          const matchesState =
+            animaisStateTags.length === 0 ||
+            animaisStateTags.some(tag => normalizeText(tag) === state);
+
+          card.style.display = (matchesSearch && matchesFamily && matchesState) ? 'flex' : 'none';
+        });
+      }
+
+      // Search input triggers filter
+      if (searchInput) {
+        searchInput.addEventListener('input', filterCards);
+      }
+
+      // Observe tag DOM changes to re-run filter when tags change
+      const observerConfig = { childList: true };
+      const famContainer = document.getElementById('family-tags');
+      const stateContainer = document.getElementById('state-tags');
+
+      const tagObserver = new MutationObserver(filterCards);
+      if (famContainer) tagObserver.observe(famContainer, observerConfig);
+      if (stateContainer) tagObserver.observe(stateContainer, observerConfig);
+
+      // Initial filter (show all)
+      filterCards();
     } else if (familyInput || stateInput) {
       // If elements exist but function doesn't, wait a bit and try again
       setTimeout(initAnimaisTagInputs, 100);

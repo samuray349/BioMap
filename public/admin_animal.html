@@ -200,53 +200,108 @@
     <script src="js/script.js"></script>
     <script>
         // Load header when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             if (typeof loadHeader === 'function') {
                 loadHeader();
             }
         });
 
-        // Initialize tag-input system for animais.html
-  // Use separate arrays to avoid conflicts with index.html
-  let animaisFamilyTags = [];
-  let animaisStateTags = [];
-  
-  const familyOptions = [
-    "Felidae", "Canidae", "Ursidae", "Mustelidae", 
-    "Cervidae", "Suidae", "Leporidae", "Sciuridae",
-    "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla",
-    "Felídeos", "Canidae", "Psittacidae", "Accipitridae",
-    "Lacertidae", "Bovidae", "Suídeos"
-  ];
-  
-  const stateOptions = [
-    "Em Perigo", "Vulnerável", "Quase Ameaçado",
-    "Pouco Preocupante", "Dados Insuficientes",
-    "Extinto na Natureza", "Extinto", "Perigo crítico"
-  ];
-  
-  // Initialize tag inputs when page is ready
-  function initAnimaisTagInputs() {
-    // Check if elements and function exist
-    const familyInput = document.getElementById('family-input');
-    const stateInput = document.getElementById('state-input');
-    
-    if (familyInput && stateInput && typeof initTagInputWithDropdown === 'function') {
-      initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", animaisFamilyTags, familyOptions);
-      initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", animaisStateTags, stateOptions);
-    } else if (familyInput || stateInput) {
-      // If elements exist but function doesn't, wait a bit and try again
-      setTimeout(initAnimaisTagInputs, 100);
-    }
-  }
-  
-  // Try to initialize immediately (script.js should be loaded by now)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAnimaisTagInputs);
-  } else {
-    // DOM is already ready
-    initAnimaisTagInputs();
-  }
+        // Tag arrays specific to admin_animal.html
+        let adminFamilyTags = [];
+        let adminStateTags = [];
+
+        const familyOptions = [
+            "Felidae", "Canidae", "Ursidae", "Mustelidae",
+            "Cervidae", "Suidae", "Leporidae", "Sciuridae",
+            "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla",
+            "Felídeos", "Psittacidae", "Accipitridae",
+            "Lacertidae", "Bovidae", "Suídeos"
+        ];
+
+        const stateOptions = [
+            "Vulnerável", "Em perigo", "Quase ameaçada",
+            "Pouco Preocupante", "Dados Insuficientes",
+            "Extinto na Natureza", "Extinto", "Perigo crítico"
+        ];
+
+        function initAdminAnimalFilters() {
+            const familyInput = document.getElementById('family-input');
+            const stateInput = document.getElementById('state-input');
+            const searchInput = document.getElementById('search-input');
+            const rows = document.querySelectorAll('.admin-animals-table tbody tr');
+
+            // Initialize tag inputs
+            if (familyInput && stateInput && typeof initTagInputWithDropdown === 'function') {
+                initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", adminFamilyTags, familyOptions);
+                initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", adminStateTags, stateOptions);
+            } else if (familyInput || stateInput) {
+                // If elements exist but function doesn't, wait a bit and try again
+                setTimeout(initAdminAnimalFilters, 100);
+                return;
+            }
+
+            if (rows.length === 0) return;
+
+            const normalizeText = (text) =>
+                (text || '')
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+
+            function filterRows() {
+                const query = searchInput ? normalizeText(searchInput.value || '') : '';
+
+                rows.forEach(row => {
+                    const nameCell = row.cells[0]; // Nome Animal
+                    const familyCell = row.cells[1]; // Família
+                    const stateBadge = row.querySelector('.badge'); // Estado de cons
+
+                    const name = nameCell ? normalizeText(nameCell.textContent) : '';
+                    const family = familyCell ? normalizeText(familyCell.textContent) : '';
+                    const state = stateBadge ? normalizeText(stateBadge.textContent) : '';
+
+                    const matchesSearch =
+                        !query ||
+                        name.includes(query) ||
+                        family.includes(query) ||
+                        state.includes(query);
+
+                    const matchesFamily =
+                        adminFamilyTags.length === 0 ||
+                        adminFamilyTags.some(tag => normalizeText(tag) === family);
+
+                    const matchesState =
+                        adminStateTags.length === 0 ||
+                        adminStateTags.some(tag => normalizeText(tag) === state);
+
+                    row.style.display = (matchesSearch && matchesFamily && matchesState) ? '' : 'none';
+                });
+            }
+
+            // Search input triggers filter
+            if (searchInput) {
+                searchInput.addEventListener('input', filterRows);
+            }
+
+            // Observe tag DOM changes to re-run filter when tags change
+            const observerConfig = { childList: true };
+            const famContainer = document.getElementById('family-tags');
+            const stateContainer = document.getElementById('state-tags');
+
+            const tagObserver = new MutationObserver(filterRows);
+            if (famContainer) tagObserver.observe(famContainer, observerConfig);
+            if (stateContainer) tagObserver.observe(stateContainer, observerConfig);
+
+            // Initial filter
+            filterRows();
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAdminAnimalFilters);
+        } else {
+            initAdminAnimalFilters();
+        }
     </script>
 </body>
 </html>
