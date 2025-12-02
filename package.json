@@ -1,14 +1,14 @@
-
 {
-  "name": "my-map-app",
+  "name": "BioMap",
   "version": "1.0.0",
-  "description": "Google Maps with collapsible sidebar",
+  "description": "Mapa de diversos animais",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.22.1",
+    "path": "^0.12.7",
+    "pg": "^8.16.3"
   }
 }
-
