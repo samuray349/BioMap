@@ -76,7 +76,6 @@ app.get('/users', async (req, res) => {
         sqlQuery += ` ORDER BY a.animal_id`;
 
         // Execute Query
-        console.log(sqlQuery, queryParams);
         const { rows } = await pool.query(sqlQuery, queryParams);
         res.json(rows);
 
@@ -84,6 +83,76 @@ app.get('/users', async (req, res) => {
         console.error('Erro ao executar a query', error);
         res.status(500).send('Erro ao executar a query');
     }
+});
+app.get('/animaisDesc/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      // Validar ID
+      if (!/^\d+$/.test(id)) {
+        return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+   }
+   
+   // Query para detalhes do animal
+   let sqlQuery = `
+       SELECT 
+           a.animal_id, 
+           a.nome_comum, 
+           a.nome_cientifico, 
+           a.descricao, 
+           a.url_imagem, 
+           a.populacao_estimada,
+           a.facto_interessante,
+           f.nome_familia, 
+           d.nome_dieta,
+           e.nome_estado, 
+           e.hex_cor as estado_cor
+       FROM animal a
+       LEFT JOIN familia f ON a.familia_id = f.familia_id
+       LEFT JOIN estado_conservacao e ON a.estado_id = e.estado_id
+       LEFT JOIN dieta d ON a.dieta_id = d.dieta_id
+       WHERE a.animal_id = $1
+   `;
+
+   // Query para ameacas
+   let sqlQueryAmeacas = `
+       SELECT a.descricao
+       FROM ameaca a 
+       JOIN animal_ameaca aa ON a.ameaca_id = aa.ameaca_id 
+       WHERE aa.animal_id = $1
+   `;
+
+   const queryParams = [id]; 
+   
+   const [animalResult, ameacasResult] = await Promise.all([
+       pool.query(sqlQuery, queryParams),
+       pool.query(sqlQueryAmeacas, queryParams)
+   ]);
+
+   const rows = animalResult.rows;
+
+   const ameacas = ameacasResult.rows; 
+
+   if (rows.length === 0) {
+       return res.status(404).json({ error: 'Animal not found' });
+   }
+   
+   // Extrair a descrição das ameacas
+   const ameacasList = ameacas.map(ameaca => ameaca.descricao);
+
+   // Combinar os dados do animal e das ameacas
+   const finalData = {
+       ...rows[0],
+       // 'ameacas' é agora uma lista de strings
+       ameacas: ameacasList 
+   };
+console.log(finalData);
+   res.json(finalData);
+
+  } catch (error) {
+      console.error('Erro ao executar a query', error);
+      res.status(500).send('Erro ao executar a query');
+  }
 });
 
 app.listen(PORT, () => console.log(`A correr na porta http://localhost:${PORT}`));

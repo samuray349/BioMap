@@ -98,13 +98,11 @@
         }
 
         .status-badge {
-            background-color: #ffc107; 
             color: #ffffff;
             font-weight: 600;
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 0.85rem;
-            box-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
             white-space: nowrap;
             align-self: flex-start;
         }
@@ -192,78 +190,78 @@
 
             <div class="animal-card main">
                 <div class="card-image-section">
-                    <img src="./img/lince.jpg" alt="Lince Ibérico">
+                    <img src="./img/lince.jpg" alt="Lince Ibérico" id="imagem-animal">
                 </div>
                 
                 <div class="card-content-section">
                     <div class="card-header-row">
                         <div>
-                            <h1 class="animal-title">Lince Ibérico</h1>
-                            <p class="scientific-name">Lynx pardinus</p>
+                            <h1 class="animal-title" id="nome-comum">Lince Ibérico</h1>
+                            <p class="scientific-name" id="nome-cientifico">Lynx pardinus</p>
                         </div>
-                        <span class="status-badge">Vulnerável</span>
+                        <span class="status-badge" id="estado-conservacao">Vulnerável</span>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="section-title">Factos</h3>
+                        <h3 class="section-title" id="factos-title">Factos</h3>
                         <div class="facts-grid">
                             <div>
                                 <span class="fact-label">Família:</span>
-                                <span class="fact-value">Felidae</span>
+                                <span class="fact-value" id="familia">Felidae</span>
                             </div>
                             <div>
                                 <span class="fact-label">Dieta:</span>
-                                <span class="fact-value">Carnívoro</span>
+                                <span class="fact-value" id="dieta">Carnívoro</span>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <h3 class="section-title">Descrição</h3>
-                        <p class="description-text">O lince-ibérico é um felino de médio porte endêmico da Península Ibérica, considerado o felino mais ameaçado do mundo até recentemente. Reconhecido pelas suas orelhas pontiagudas com tufos pretos, patas longas, cauda curta e o característico “barbicho” facial, o lince-ibérico é um predador ágil e solitário, perfeitamente adaptado aos ecossistemas mediterrânicos.</p>
+                        <h3 class="section-title" id="descricao-title">Descrição</h3>
+                        <p class="description-text" id="descricao">O lince-ibérico é um felino de médio porte endêmico da Península Ibérica, considerado o felino mais ameaçado do mundo até recentemente. Reconhecido pelas suas orelhas pontiagudas com tufos pretos, patas longas, cauda curta e o característico “barbicho” facial, o lince-ibérico é um predador ágil e solitário, perfeitamente adaptado aos ecossistemas mediterrânicos.</p>
                     </div>
                 </div>
             </div>
             <div style="max-width: 1200px;margin-right: auto;margin-left: auto;">
             <div class="grid md:grid-cols-2 gap-8 mb-12">
                 <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: flex; height: 100%; margin-bottom: 0px;">
-                    <h3 class="text-xl font-semibold mb-4" style="color: var(--accent-color, #198754);">5 Principais Ameaças</h3>
+                    <h3 class="text-xl font-semibold mb-4" style="color: var(--accent-color, #198754);" id="ameacas-title">5 Principais Ameaças</h3>
                     <ul class="space-y-3" style="list-style-type: none;">
-                        <li class="threat-item">Perda e fragmentação do habitat devido à urbanização e agricultura intensiva</li>
-                        <li class="threat-item">Redução das populações das suas principais presas por doenças </li>
-                        <li class="threat-item">Atropelamentos em estradas</li>
-                        <li class="threat-item">Caça ilegal e armadilhas destinadas a outros animais</li>
-                        <li class="threat-item">Mudanças climáticas que afetam a disponibilidade de presas e habitat adequado</li>
+                        <li class="threat-item" id="ameaca-1">Perda e fragmentação do habitat devido à urbanização e agricultura intensiva</li>
+                        <li class="threat-item" id="ameaca-2">Redução das populações das suas principais presas por doenças </li>
+                        <li class="threat-item" id="ameaca-3">Atropelamentos em estradas</li>
+                        <li class="threat-item" id="ameaca-4">Caça ilegal e armadilhas destinadas a outros animais</li>
+                        <li class="threat-item" id="ameaca-5">Mudanças climáticas que afetam a disponibilidade de presas e habitat adequado</li>
                     </ul>
                 </div>
                 
                 <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: flex; align-self: stretch;">
                     <div style="display: flex; flex-direction: column; gap: 1rem; flex-grow: 1;">
-                        <h3 class="text-xl font-semibold" style="color: var(--accent-color, #198754); margin: 0;">Estado de Conservação</h3>
+                        <h3 class="text-xl font-semibold" style="color: var(--accent-color, #198754); margin: 0;" id="estado-conservacao-title">Estado de Conservação</h3>
                         <div class="flex items-center">
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4" style="background-color: #FFCC00; color: black;">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4" style="background-color: #FFCC00; color: black;" id="estado-conservacao-icon">
                                 <i data-feather="alert-triangle"></i>
                             </div>
                             <div>
                                 <p class="text-gray-500 text-sm" style="margin-bottom: 0;">Lista Vermelha IUCN</p>
-                                <p class="font-medium">Vulnerável</p>
+                                <p class="font-medium" id="estado-conservacao-texto">Vulnerável</p>
                             </div>
                         </div>
-                        <p class="text-gray-700" style="margin: 0;">População estimada: 4.000-6.500 indivíduos maduros restantes na natureza.</p>
+                        <p class="text-gray-700" style="margin: 0;" id="populacao-estimada">População estimada: 4.000-6.500 indivíduos maduros restantes na natureza.</p>
                     </div>
                     <a href="doar.html" class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition w-full flex items-center justify-center" style="background-color: var(--accent-color); text-decoration: none; margin-top: auto;">
-                        <i data-feather="heart" class="inline mr-2"></i> Doar
+                        <i data-feather="heart" class="inline mr-2" id="doar-icon"></i> Doar
                     </a>
                 </div>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow mb-12 animal-card" style="flex-direction: row; align-items: flex-start; height: auto;">
-                <div class="w-12 h-12 rounded-full  flex items-center justify-center mr-4 flex-shrink-0" style="background-color: var(--accent-color); color: white;">
+                <div class="w-12 h-12 rounded-full  flex items-center justify-center mr-4 flex-shrink-0" style="background-color: var(--accent-color); color: white;" id="info-icon">
                     <i data-feather="info"></i>
                 </div>
                 <div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Facto interessante</h3>
-                    <p class="text-gray-700">Nos anos 2000, restavam menos de 100 indivíduos — à beira da extinção. Graças a programas de reprodução em cativeiro, reintrodução e proteção de habitat, hoje existem mais de 2.000 linces ibéricos em liberdade na Península Ibérica.</p>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2" id="facto-interessante-title">Facto interessante</h3>    
+                    <p class="text-gray-700" id="facto-interessante-texto">Nos anos 2000, restavam menos de 100 indivíduos — à beira da extinção. Graças a programas de reprodução em cativeiro, reintrodução e proteção de habitat, hoje existem mais de 2.000 linces ibéricos em liberdade na Península Ibérica.</p>
                 </div>
             </div>
         </div>
@@ -278,6 +276,55 @@
         if (typeof loadHeader === 'function') {
             loadHeader();
         }
+
+        async function fetchAnimalDesc() {
+            try {
+            const params = new URLSearchParams(window.location.search);
+    
+            // 2. Extract the 'id' parameter
+            const animalId = params.get('id');
+            console.log(animalId);
+            if (!animalId) {
+                console.error("ID do animal não encontrado");
+                return;
+            }
+            if (!/^\d+$/.test(animalId)) {
+                // Case B: ID is not a number (e.g., ?id=abc)
+                document.body.innerHTML = '<h1>Erro: ID inválido.</h1>';
+                return;
+            }
+            // Buscar dos animais da API
+            const response = await fetch(`/animaisDesc/${animalId}`);
+            const animal = await response.json();
+
+            renderAnimalDesc(animal);   
+
+          } catch (error) {
+              console.error("Erro ao buscar animal:", error);
+          }
+        }
+        function renderAnimalDesc(animal) {
+            document.getElementById('nome-comum').textContent = animal.nome_comum;
+            document.getElementById('nome-cientifico').textContent = animal.nome_cientifico;
+            document.getElementById('estado-conservacao').textContent = animal.nome_estado;
+            document.getElementById('estado-conservacao').style.backgroundColor = animal.estado_cor;
+            document.getElementById('estado-conservacao-icon').style.backgroundColor = animal.estado_cor;
+            document.getElementById('familia').textContent = animal. nome_familia;
+            document.getElementById('dieta').textContent = animal.nome_dieta;
+            document.getElementById('descricao').textContent = animal.descricao;
+            document.getElementById('imagem-animal').src = animal.url_imagem;
+            document.getElementById('imagem-animal').alt = animal.nome_comum;
+            document.getElementById('facto-interessante-texto').textContent = animal.facto_interessante_texto;
+            document.getElementById('estado-conservacao-texto').textContent = animal.nome_estado;
+            document.getElementById('populacao-estimada').textContent = "População estimada: " + animal.populacao_estimada;
+            document.getElementById('ameaca-1').textContent = animal.ameacas[0];
+            document.getElementById('ameaca-2').textContent = animal.ameacas[1];
+            document.getElementById('ameaca-3').textContent = animal.ameacas[2];
+            document.getElementById('ameaca-4').textContent = animal.ameacas[3];
+            document.getElementById('ameaca-5').textContent = animal.ameacas[4];
+            document.getElementById('facto-interessante-texto').textContent = animal.facto_interessante;  
+        }
+        fetchAnimalDesc();
     </script>
 </body>
 </html>
