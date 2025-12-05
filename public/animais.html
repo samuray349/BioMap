@@ -287,6 +287,11 @@
 </style>
 </head>
 <body>
+    <div id="page-loader" class="page-loader">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
     <div id="header-placeholder"></div>
     <!-- Main Content -->
     <main class="main-content">
@@ -334,258 +339,140 @@
         </div>
         <!-- Animal Cards Grid -->
         <div class="cards-grid">
-            <!-- Card 1 -->
-            <div class="card green-shadow">
-                <img src="https://t4.ftcdn.net/jpg/10/64/99/85/360_F_1064998553_4RvqeSWINhkKJEyVLzidd8bUKtOV7hIc.jpg" alt="Lince ibérico" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Lince ibérico</h3>
-                        <span class="badge vulnerable">Vulnerável</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Felidae</span>
-                    </div>
-                    <p class="description">O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-            <!-- Card 2 -->
-            <div class="card green-shadow">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Standing_jaguar.jpg" alt="Jaguar" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Jaguar</h3>
-                        <span class="badge threatened">Quase ameaçada</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Felidae</span>
-                    </div>
-                    <p class="description">Maior felino das Américas, possui pelagem amarelada com manchas pretas em formato...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-            <!-- Card 3 -->
-            <div class="card green-shadow">
-                <img src="https://i0.wp.com/revistaamazonia.com.br/wp-content/uploads/2025/05/7-fatos-incriveis-sobre-a-arara-azul-que-vao-alem-das-penas-coloridas.webp?fit=768%2C512&ssl=1" alt="Arara-azul-grande" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Arara-azul-grande</h3>
-                        <span class="badge vulnerable">Vulnerável</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Psittacidae</span>
-                    </div>
-                    <p class="description">Maior espécie de arara do mundo, de plumagem azul intensa e bico robusto...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-            <!-- Card 4 -->
-            <div class="card green-shadow">
-                <img src="https://wildsideholidays.co.uk/wp-content/uploads/2020/07/The-European-wolf-Canis-Lupus.jpg" alt="Lobo-ibérico" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Lobo-ibérico</h3>
-                        <span class="badge endangered">Em perigo</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Canidae</span>
-                    </div>
-                    <p class="description">Subespécie ibérica do lobo-cinzento, possui pelagem acastanhada com manchas escura...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-            <!-- Card 5 -->
-            <div class="card green-shadow">
-                <img src="https://ppl.pt/sites/default/files/projects/logo/AGUIA_IMPERIAL_IBERICA_JOSE_PESQUERO-1.jpg" alt="Águia-imperial-ibérica" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Águia-imperial-ibérica</h3>
-                        <span class="badge vulnerable">Vulnerável</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Accipitridae</span>
-                    </div>
-                    <p class="description">Grande ave de rapina endêmica da Península Ibérica, com plumagem escura e manchas...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-            <!-- Card 6 -->
-            <div class="card green-shadow">
-                <img src="https://cdn.britannica.com/71/227471-050-A1E23E6D/Saiga-tatarica-in-the-wild.jpg" alt="Saiga" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Saiga</h3>
-                        <span class="badge critical">Perigo crítico</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Bovidae</span>
-                    </div>
-                    <p class="description">Antílope de aparência singular, com um nariz grande e flexível que filtra o ar e regula a...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-            <!-- Card 7 -->
-            <div class="card green-shadow">
-                <img src="https://www.ndow.org/wp-content/uploads/2021/10/neovison_vison.jpg" alt="Vison" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Vison</h3>
-                        <span class="badge critical">Perigo crítico</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Mustelidae</span>
-                    </div>
-                    <p class="description">O vison é um mamífero carnívoro semiaquático, de corpo alongado, pelagem densa e brilhante...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-            <!-- Card 8 -->
-            <div class="card green-shadow">
-                <img src="https://live.staticflickr.com/6149/5998614697_45011f027b_b.jpg" alt="Lagarto-de-água" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Lagarto-de-água</h3>
-                        <span class="badge vulnerable">Vulnerável</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Lacertidae</span>
-                    </div>
-                    <p class="description">Lagarto de médio porte e coloração verde viva com reflexos azulados no pescoço...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
+            
         </div>
     </main>
     <script src="js/script.js"></script>
-<script>
-  loadHeader();
-  highlightCurrentPage();
-  
-  // Initialize tag-input system for animais.html
-  // Use separate arrays to avoid conflicts with index.html
-  let animaisFamilyTags = [];
-  let animaisStateTags = [];
-  
-  const familyOptions = [
-    "Felidae", "Canidae", "Ursidae", "Mustelidae", 
-    "Cervidae", "Suidae", "Leporidae", "Sciuridae",
-    "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla",
-    "Psittacidae", "Accipitridae", "Bovidae", "Lacertidae",
-    "Suídeos"
-  ];
-  
-  const stateOptions = [
-    "Vulnerável", "Em perigo", "Quase ameaçada",
-    "Pouco Preocupante", "Dados Insuficientes",
-    "Extinto na Natureza", "Extinto", "Perigo crítico"
-  ];
-  
-  // Initialize tag inputs when page is ready
-  function initAnimaisTagInputs() {
-    // Check if elements and function exist
-    const familyInput = document.getElementById('family-input');
-    const stateInput = document.getElementById('state-input');
-    const searchInput = document.getElementById('search-input');
-    const cards = document.querySelectorAll('.cards-grid .card');
-    
-    if (familyInput && stateInput && typeof initTagInputWithDropdown === 'function') {
-      initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", animaisFamilyTags, familyOptions);
-      initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", animaisStateTags, stateOptions);
-    }
-
-    // Unified filter (search + family tags + state tags)
-    if (cards.length > 0) {
-      const normalizeText = (text) =>
-        (text || '')
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, ''); // remove accents
-
-      function filterCards() {
-        const query = searchInput ? normalizeText(searchInput.value || '') : '';
-
-        cards.forEach(card => {
-          const titleEl = card.querySelector('.card-header h3');
-          const familyEl = card.querySelector('.family span:last-child');
-          const descEl = card.querySelector('.description');
-          const badgeEl = card.querySelector('.badge');
-
-          const title = titleEl ? normalizeText(titleEl.textContent) : '';
-          const family = familyEl ? normalizeText(familyEl.textContent) : '';
-          const desc = descEl ? normalizeText(descEl.textContent) : '';
-          const state = badgeEl ? normalizeText(badgeEl.textContent) : '';
-
-          const matchesSearch =
-            !query ||
-            title.includes(query) ||
-            family.includes(query) ||
-            desc.includes(query);
-
-          const matchesFamily =
-            animaisFamilyTags.length === 0 ||
-            animaisFamilyTags.some(tag => normalizeText(tag) === family);
-
-          const matchesState =
-            animaisStateTags.length === 0 ||
-            animaisStateTags.some(tag => normalizeText(tag) === state);
-
-          card.style.display = (matchesSearch && matchesFamily && matchesState) ? 'flex' : 'none';
+    <script>
+        // Loader
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('page-loader');
+            setTimeout(() => {
+                if (loader) {
+                    loader.classList.add('hidden');
+                    // Optional: Remove loader from DOM after animation
+                    loader.addEventListener('transitionend', () => loader.remove());
+                }
+            }, 300);
         });
-      }
+        loadHeader();
+        highlightCurrentPage();
+      
+        // Arrays para as tags de família e estado de conservação
+        let animaisFamilyTags = [];
+        let animaisStateTags = [];
+      
+        const cardsGrid = document.querySelector('.cards-grid');
+        const searchInput = document.getElementById('search-input');
+        
+        // Opções para os dropdowns
+        const familyOptions = [
+          "Felidae", "Canidae", "Ursidae", "Mustelidae", 
+          "Cervidae", "Suidae", "Leporidae", "Sciuridae",
+          "Accipitridae", "Bovidae", "Lacertidae"
+        ];
+        
+        const stateOptions = [
+          "Não Avaliada","Dados Insuficientes","Pouco Preocupante","Quase Ameaçada","Vulnerável","Em Perigo","Perigo Crítico","Extinto na Natureza","Extinto"
+        ];
+      
+        // Função principal para buscar os animais
+        async function fetchAnimals() {
+          try {
+              // Construir a query string
+              const params = new URLSearchParams();
+              
+              if (searchInput.value.trim()) {
+                  params.append('search', searchInput.value.trim());
+              }
+              if (animaisFamilyTags.length > 0) {
+                  params.append('families', animaisFamilyTags.join(','));
+              }
+              if (animaisStateTags.length > 0) {
+                  params.append('states', animaisStateTags.join(','));
+              }
+      
+              // Buscar dos animais da API
+              const response = await fetch(`/animais?${params.toString()}`);
+              const animals = await response.json();
+      
+              renderAnimals(animals);
+      
+          } catch (error) {
+              console.error("Erro ao buscar animais:", error);
+              cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
+          }
+        }
+      
+        // Função para renderizar os animais
+        function renderAnimals(animals) {
+          cardsGrid.innerHTML = ''; // Limpar os resultados atuais
+      
+          if (animals.length === 0) {
+              cardsGrid.innerHTML = '<p>Nenhum animal encontrado.</p>';
+              return;
+          }
+      
+          animals.forEach(animal => {
+              // Determinar a classe do badge com base no texto do estado (lógica opcional)
+              let badgeClass = 'badge'; 
+      
+              const card = document.createElement('div');
+              card.className = 'card green-shadow';
+              
+              card.innerHTML = `
+                  <img src="${animal.url_imagem}" alt="${animal.nome_comum}" class="card-image" onerror="this.src='img/placeholder.jpg'">
+                  <div class="card-content">
+                      <div class="card-header">
+                          <h3>${animal.nome_comum}</h3>
+                          <span class="badge" style="background-color: ${animal.estado_cor || '#ccc'}; color: white;">
+                              ${animal.nome_estado}
+                          </span>
+                      </div>
+                      <div class="family">
+                          <span class="family-icon"><i class="fa-solid fa-paw"></i></span>
+                          <span>${animal.nome_familia}</span>
+                      </div>
+                      <p class="description">${animal.descricao}</p>
+                      <a href="animal_desc.html?id=${animal.animal_id}" class="btn-details">
+                          <span>👁</span> Ver detalhes
+                      </a>
+                  </div>
+              `;
+              cardsGrid.appendChild(card);
+          });
+        }
+      
+        document.addEventListener('DOMContentLoaded', () => {
+          
+          // Inicializar o listener do input de pesquisa
+          if (searchInput) {
+              searchInput.addEventListener('input', () => {
+                  fetchAnimals();
+              });
+          }
+      
+          // Inicializar os inputs de tags
+          if (typeof initTagInputWithDropdown === 'function') {
 
-      // Search input triggers filter
-      if (searchInput) {
-        searchInput.addEventListener('input', filterCards);
-      }
-
-      // Observe tag DOM changes to re-run filter when tags change
-      const observerConfig = { childList: true };
-      const famContainer = document.getElementById('family-tags');
-      const stateContainer = document.getElementById('state-tags');
-
-      const tagObserver = new MutationObserver(filterCards);
-      if (famContainer) tagObserver.observe(famContainer, observerConfig);
-      if (stateContainer) tagObserver.observe(stateContainer, observerConfig);
-
-      // Initial filter (show all)
-      filterCards();
-    } else if (familyInput || stateInput) {
-      // If elements exist but function doesn't, wait a bit and try again
-      setTimeout(initAnimaisTagInputs, 100);
-    }
-  }
-  
-  // Try to initialize immediately (script.js should be loaded by now)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAnimaisTagInputs);
-  } else {
-    // DOM is already ready
-    initAnimaisTagInputs();
-  }
-</script>
+              
+              initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", animaisFamilyTags, familyOptions);
+              initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", animaisStateTags, stateOptions);
+      
+              // Adicionar observers para acionar a busca quando as tags mudarem
+              const observerConfig = { childList: true };
+              const observer = new MutationObserver(fetchAnimals);
+              
+              const famContainer = document.getElementById('family-tags');
+              const stateContainer = document.getElementById('state-tags');
+              
+              if (famContainer) observer.observe(famContainer, observerConfig);
+              if (stateContainer) observer.observe(stateContainer, observerConfig);
+          }
+      
+          // Carregar os animais
+          fetchAnimals();
+        });
+      </script>
 </body>
 </html>

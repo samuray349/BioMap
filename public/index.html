@@ -344,15 +344,17 @@
   <script src="js/script.js"></script>
   
 <script>
-  // Hide loader when the page is fully loaded
+  // Loader
   window.addEventListener('load', () => {
-    const loader = document.getElementById('page-loader');
-    if (loader) {
-      loader.classList.add('hidden');
-      // Optional: Remove loader from DOM after animation
-      loader.addEventListener('transitionend', () => loader.remove());
-    }
-  });
+            const loader = document.getElementById('page-loader');
+            setTimeout(() => {
+                if (loader) {
+                    loader.classList.add('hidden');
+                    // Optional: Remove loader from DOM after animation
+                    loader.addEventListener('transitionend', () => loader.remove());
+                }
+            }, 300);
+        });
 
   // Load header and highlight nav link
   loadHeader();
