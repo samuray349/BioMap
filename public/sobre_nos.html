@@ -60,81 +60,7 @@
         <h2 class="species-section-title">Conheça Algumas Espécies que Visamos Proteger</h2>
         
         <div class="cards-grid">
-            
-            <div class="card green-shadow">
-                <img src="https://t4.ftcdn.net/jpg/10/64/99/85/360_F_1064998553_4RvqeSWINhkKJEyVLzidd8bUKtOV7hIc.jpg" alt="Lince ibérico" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Lince ibérico</h3>
-                        <span class="badge vulnerable">Vulnerável</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Felídeos</span>
-                    </div>
-                    <p class="description">O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-
-            <div class="card green-shadow">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Standing_jaguar.jpg" alt="Jaguar" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Jaguar</h3>
-                        <span class="badge threatened">Quase ameaçada</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Felídeos</span>
-                    </div>
-                    <p class="description">Maior felino das Américas, possui pelagem amarelada com manchas pretas em formato...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-
-            <div class="card green-shadow">
-                <img src="https://i0.wp.com/revistaamazonia.com.br/wp-content/uploads/2025/05/7-fatos-incriveis-sobre-a-arara-azul-que-vao-alem-das-penas-coloridas.webp?fit=768%2C512&amp;ssl=1" alt="Arara-azul-grande" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Arara-azul-grande</h3>
-                        <span class="badge vulnerable">Vulnerável</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Psittacidae</span>
-                    </div>
-                    <p class="description">Maior espécie de arara do mundo, de plumagem azul intensa e bico robusto...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-
-            <div class="card green-shadow">
-                <img src="https://wildsideholidays.co.uk/wp-content/uploads/2020/07/The-European-wolf-Canis-Lupus.jpg" alt="Lobo-ibérico" class="card-image">
-                <div class="card-content">
-                    <div class="card-header">
-                        <h3>Lobo-ibérico</h3>
-                        <span class="badge endangered">Em perigo</span>
-                    </div>
-                    <div class="family">
-                        <span class="family-icon"><i class="fa-solid fa-people-group"></i></span>
-                        <span>Canidae</span>
-                    </div>
-                    <p class="description">Subespécie ibérica do lobo-cinzento, possui pelagem acastanhada com manchas escura...</p>
-                    <a href="animal_desc.html" class="btn-details">
-                        <span>👁</span> Ver detalhes
-                    </a>
-                </div>
-            </div>
-
-            
-
+            <!-- Animal cards will be loaded dynamically from API -->
         </div> <div class="sobre-nos-footer">
             <p class="footer-message">
                 A mão humana causou um grande impacto negativo no reino animal, o que levou à extinção de muitas 
@@ -145,14 +71,31 @@
     </main>
     
     <script src="js/script.js"></script>
+    <script src="js/animals.js"></script>
     <script>
         // Load header when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             if (typeof loadHeader === 'function') {
                 loadHeader();
             }
             if (typeof highlightCurrentPage === 'function') {
                 highlightCurrentPage();
+            }
+            
+            // Load and display animal cards
+            const cardsGrid = document.querySelector('.cards-grid');
+            if (cardsGrid && typeof fetchAnimals === 'function' && typeof renderAnimalCards === 'function') {
+                try {
+                    // Load first 4 animals (or all if less than 4)
+                    const animals = await fetchAnimals({});
+                    const displayAnimals = animals.slice(0, 4); // Show first 4 animals
+                    renderAnimalCards(displayAnimals, cardsGrid, {
+                        emptyMessage: 'Nenhum animal encontrado.'
+                    });
+                } catch (error) {
+                    console.error("Erro ao carregar animais:", error);
+                    cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
+                }
             }
         });
     </script>

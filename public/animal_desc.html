@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WildPedia - Animal Encyclopedia</title>
+    <title>BioMap</title>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -175,6 +175,11 @@
     </style>
 </head>
 <body class="min-h-screen bg-white">
+    <div id="page-loader" class="page-loader">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Carragar...</span>
+        </div>
+      </div>
     <div id="header-placeholder"></div>
 
     <main class="container mx-auto px-4 py-12" style="max-width: 1500px;">
@@ -190,16 +195,16 @@
 
             <div class="animal-card main">
                 <div class="card-image-section">
-                    <img src="./img/lince.jpg" alt="Lince Ibérico" id="imagem-animal">
+                    <img src="" alt="" id="imagem-animal">
                 </div>
                 
                 <div class="card-content-section">
                     <div class="card-header-row">
                         <div>
-                            <h1 class="animal-title" id="nome-comum">Lince Ibérico</h1>
-                            <p class="scientific-name" id="nome-cientifico">Lynx pardinus</p>
+                            <h1 class="animal-title" id="nome-comum"></h1>
+                            <p class="scientific-name" id="nome-cientifico"></p>
                         </div>
-                        <span class="status-badge" id="estado-conservacao">Vulnerável</span>
+                        <span class="status-badge" id="estado-conservacao"></span>
                     </div>
 
                     <div class="mb-6">
@@ -207,18 +212,18 @@
                         <div class="facts-grid">
                             <div>
                                 <span class="fact-label">Família:</span>
-                                <span class="fact-value" id="familia">Felidae</span>
+                                <span class="fact-value" id="familia"></span>
                             </div>
                             <div>
                                 <span class="fact-label">Dieta:</span>
-                                <span class="fact-value" id="dieta">Carnívoro</span>
+                                <span class="fact-value" id="dieta"></span>
                             </div>
                         </div>
                     </div>
 
                     <div>
                         <h3 class="section-title" id="descricao-title">Descrição</h3>
-                        <p class="description-text" id="descricao">O lince-ibérico é um felino de médio porte endêmico da Península Ibérica, considerado o felino mais ameaçado do mundo até recentemente. Reconhecido pelas suas orelhas pontiagudas com tufos pretos, patas longas, cauda curta e o característico “barbicho” facial, o lince-ibérico é um predador ágil e solitário, perfeitamente adaptado aos ecossistemas mediterrânicos.</p>
+                        <p class="description-text" id="descricao"></p>
                     </div>
                 </div>
             </div>
@@ -227,11 +232,11 @@
                 <div class="bg-white p-6 rounded-xl shadow animal-card" style="flex-direction: column; display: flex; height: 100%; margin-bottom: 0px;">
                     <h3 class="text-xl font-semibold mb-4" style="color: var(--accent-color, #198754);" id="ameacas-title">5 Principais Ameaças</h3>
                     <ul class="space-y-3" style="list-style-type: none;">
-                        <li class="threat-item" id="ameaca-1">Perda e fragmentação do habitat devido à urbanização e agricultura intensiva</li>
-                        <li class="threat-item" id="ameaca-2">Redução das populações das suas principais presas por doenças </li>
-                        <li class="threat-item" id="ameaca-3">Atropelamentos em estradas</li>
-                        <li class="threat-item" id="ameaca-4">Caça ilegal e armadilhas destinadas a outros animais</li>
-                        <li class="threat-item" id="ameaca-5">Mudanças climáticas que afetam a disponibilidade de presas e habitat adequado</li>
+                        <li class="threat-item" id="ameaca-1"></li>
+                        <li class="threat-item" id="ameaca-2"></li>
+                        <li class="threat-item" id="ameaca-3"></li>
+                        <li class="threat-item" id="ameaca-4"></li>
+                        <li class="threat-item" id="ameaca-5"></li>
                     </ul>
                 </div>
                 
@@ -244,10 +249,10 @@
                             </div>
                             <div>
                                 <p class="text-gray-500 text-sm" style="margin-bottom: 0;">Lista Vermelha IUCN</p>
-                                <p class="font-medium" id="estado-conservacao-texto">Vulnerável</p>
+                                <p class="font-medium" id="estado-conservacao-texto"></p>
                             </div>
                         </div>
-                        <p class="text-gray-700" style="margin: 0;" id="populacao-estimada">População estimada: 4.000-6.500 indivíduos maduros restantes na natureza.</p>
+                        <p class="text-gray-700" style="margin: 0;" id="populacao-estimada"></p>
                     </div>
                     <a href="doar.html" class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition w-full flex items-center justify-center" style="background-color: var(--accent-color); text-decoration: none; margin-top: auto;">
                         <i data-feather="heart" class="inline mr-2" id="doar-icon"></i> Doar
@@ -261,7 +266,7 @@
                 </div>
                 <div>
                     <h3 class="text-xl font-semibold text-gray-800 mb-2" id="facto-interessante-title">Facto interessante</h3>    
-                    <p class="text-gray-700" id="facto-interessante-texto">Nos anos 2000, restavam menos de 100 indivíduos — à beira da extinção. Graças a programas de reprodução em cativeiro, reintrodução e proteção de habitat, hoje existem mais de 2.000 linces ibéricos em liberdade na Península Ibérica.</p>
+                    <p class="text-gray-700" id="facto-interessante-texto"></p>
                 </div>
             </div>
         </div>
@@ -273,6 +278,18 @@
     </script>
     <script src="js/script.js"></script>
     <script>
+        // Loader
+  window.addEventListener('load', () => {
+            const loader = document.getElementById('page-loader');
+            setTimeout(() => {
+                if (loader) {
+                    loader.classList.add('hidden');
+                    // Optional: Remove loader from DOM after animation
+                    loader.addEventListener('transitionend', () => loader.remove());
+                }
+            }, 300);
+        });
+
         if (typeof loadHeader === 'function') {
             loadHeader();
         }
@@ -304,6 +321,7 @@
           }
         }
         function renderAnimalDesc(animal) {
+            document.title="BioMap - " + animal.nome_comum;
             document.getElementById('nome-comum').textContent = animal.nome_comum;
             document.getElementById('nome-cientifico').textContent = animal.nome_cientifico;
             document.getElementById('estado-conservacao').textContent = animal.nome_estado;

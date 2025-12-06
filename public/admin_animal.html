@@ -82,83 +82,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Vison-europeu</td>
-                        <td>Mustelidae</td>
-                        <td><span class="badge critical">Perigo crítico</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Águia-imperial-ibérica</td>
-                        <td>Accipitridae</td>
-                        <td><span class="badge endangered">Em perigo</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Sapo-parteiro-de-Majorca</td>
-                        <td>Alytidae</td>
-                        <td><span class="badge endangered">Em perigo</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Lince Ibérico</td>
-                        <td>Felidae</td>
-                        <td><span class="badge vulnerable">Vulnerável</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Esturjão-europeu</td>
-                        <td>Acipenseridae</td>
-                        <td><span class="badge endangered">Em perigo</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Corvo-marinho-de-faces-branca</td>
-                        <td>Phalacrocoracidae</td>
-                        <td><span class="badge threatened">Quase ameaçada</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Tritão-alpino</td>
-                        <td>Salamandridae</td>
-                        <td><span class="badge threatened">Quase ameaçada</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Lobo-ibérico</td>
-                        <td>Canidae</td>
-                        <td><span class="badge vulnerable">Vulnerável</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Peixe-panda da Grécia</td>
-                        <td>Gasterosteidae</td>
-                        <td><span class="badge critical">Perigo crítico</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Foca-monge-do-mediterrâneo</td>
-                        <td>Phocidae</td>
-                        <td><span class="badge vulnerable">Vulnerável</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Cegonha-negra</td>
-                        <td>Ciconiidae</td>
-                        <td><span class="badge threatened">Quase ameaçada</span></td>
-                        <td><i class="fas fa-sync-alt update-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
+                    <!-- Animal rows will be loaded dynamically from API -->
                 </tbody>
             </table>
         </div>
@@ -198,6 +122,7 @@
     
     <!-- Scripts -->
     <script src="js/script.js"></script>
+    <script src="js/animals.js"></script>
     <script>
         // Load header when page loads
         document.addEventListener('DOMContentLoaded', function () {
@@ -213,87 +138,59 @@
         const familyOptions = [
             "Felidae", "Canidae", "Ursidae", "Mustelidae",
             "Cervidae", "Suidae", "Leporidae", "Sciuridae",
-            "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla",
-            "Felídeos", "Psittacidae", "Accipitridae",
-            "Lacertidae", "Bovidae", "Suídeos"
+            "Accipitridae", "Bovidae", "Lacertidae", "Psittacidae"
         ];
 
         const stateOptions = [
-            "Vulnerável", "Em perigo", "Quase ameaçada",
-            "Pouco Preocupante", "Dados Insuficientes",
-            "Extinto na Natureza", "Extinto", "Perigo crítico"
+            "Não Avaliada", "Dados Insuficientes", "Pouco Preocupante", "Quase Ameaçada",
+            "Vulnerável", "Em Perigo", "Perigo Crítico", "Extinto na Natureza", "Extinto"
         ];
 
-        function initAdminAnimalFilters() {
-            const familyInput = document.getElementById('family-input');
-            const stateInput = document.getElementById('state-input');
-            const searchInput = document.getElementById('search-input');
-            const rows = document.querySelectorAll('.admin-animals-table tbody tr');
+        const tbody = document.querySelector('.admin-animals-table tbody');
+        const searchInput = document.getElementById('search-input');
 
-            // Initialize tag inputs
-            if (familyInput && stateInput && typeof initTagInputWithDropdown === 'function') {
-                initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", adminFamilyTags, familyOptions);
-                initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", adminStateTags, stateOptions);
-            } else if (familyInput || stateInput) {
-                // If elements exist but function doesn't, wait a bit and try again
-                setTimeout(initAdminAnimalFilters, 100);
-                return;
-            }
-
-            if (rows.length === 0) return;
-
-            const normalizeText = (text) =>
-                (text || '')
-                    .toLowerCase()
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '');
-
-            function filterRows() {
-                const query = searchInput ? normalizeText(searchInput.value || '') : '';
-
-                rows.forEach(row => {
-                    const nameCell = row.cells[0]; // Nome Animal
-                    const familyCell = row.cells[1]; // Família
-                    const stateBadge = row.querySelector('.badge'); // Estado de cons
-
-                    const name = nameCell ? normalizeText(nameCell.textContent) : '';
-                    const family = familyCell ? normalizeText(familyCell.textContent) : '';
-                    const state = stateBadge ? normalizeText(stateBadge.textContent) : '';
-
-                    const matchesSearch =
-                        !query ||
-                        name.includes(query) ||
-                        family.includes(query) ||
-                        state.includes(query);
-
-                    const matchesFamily =
-                        adminFamilyTags.length === 0 ||
-                        adminFamilyTags.some(tag => normalizeText(tag) === family);
-
-                    const matchesState =
-                        adminStateTags.length === 0 ||
-                        adminStateTags.some(tag => normalizeText(tag) === state);
-
-                    row.style.display = (matchesSearch && matchesFamily && matchesState) ? '' : 'none';
+        // Load and render animals
+        async function loadAnimals() {
+            try {
+                const filters = getAnimalFilters({
+                    searchInput: searchInput,
+                    familyTagsArray: adminFamilyTags,
+                    stateTagsArray: adminStateTags
                 });
+                
+                const animals = await fetchAnimals(filters);
+                renderAnimalTable(animals, tbody);
+            } catch (error) {
+                console.error("Erro ao carregar animais:", error);
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="5">Erro ao carregar dados.</td></tr>';
+                }
             }
+        }
 
-            // Search input triggers filter
+        function initAdminAnimalFilters() {
+            // Initialize filters
+            initAnimalFilters({
+                familyInputId: "family-input",
+                familyTagsId: "family-tags",
+                familyDropdownId: "family-dropdown",
+                stateInputId: "state-input",
+                stateTagsId: "state-tags",
+                stateDropdownId: "state-dropdown",
+                familyOptions: familyOptions,
+                stateOptions: stateOptions,
+                familyTagsArray: adminFamilyTags,
+                stateTagsArray: adminStateTags,
+                onFilterChange: loadAnimals
+            });
+
+            // Search input triggers load
             if (searchInput) {
-                searchInput.addEventListener('input', filterRows);
+                searchInput.addEventListener('input', loadAnimals);
             }
 
-            // Observe tag DOM changes to re-run filter when tags change
-            const observerConfig = { childList: true };
-            const famContainer = document.getElementById('family-tags');
-            const stateContainer = document.getElementById('state-tags');
-
-            const tagObserver = new MutationObserver(filterRows);
-            if (famContainer) tagObserver.observe(famContainer, observerConfig);
-            if (stateContainer) tagObserver.observe(stateContainer, observerConfig);
-
-            // Initial filter
-            filterRows();
+            // Initial load
+            loadAnimals();
         }
 
         // Initialize when DOM is ready

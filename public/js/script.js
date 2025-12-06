@@ -533,99 +533,102 @@ function initAlertAnimalMenu() {
   const closeButtons = document.querySelectorAll('.close-alert-menu');
   const locationInput = document.getElementById('alert-animal-location');
   const displayLocation = document.getElementById('display-location-text');
-  
-  // Elements for filtering
-  const cards = alertMenu.querySelectorAll('.card'); // Note: We use .card class now
+  const cardsGrid = alertMenu.querySelector('.cards-grid');
   const searchInput = document.getElementById('popup-search-input');
   
   // Unique Tag Arrays for the popup to avoid conflict with sidebar
   let popupFamilyTags = [];
   let popupStateTags = [];
 
-  // Options (Same as animais.html)
+  // Options (Same as animais.html) - using scientific names to match database
   const familyOptions = [
-    "Felídeos", "Canidae", "Ursidae", "Mustelidae", 
+    "Felidae", "Canidae", "Ursidae", "Mustelidae", 
     "Cervidae", "Suidae", "Leporidae", "Sciuridae",
-    "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla",
-    "Psittacidae", "Accipitridae", "Bovidae", "Lacertidae"
+    "Accipitridae", "Bovidae", "Lacertidae", "Psittacidae"
   ];
   
   const stateOptions = [
-    "Em Perigo", "Vulnerável", "Quase Ameaçado",
-    "Pouco Preocupante", "Dados Insuficientes",
-    "Extinto na Natureza", "Extinto", "Perigo crítico"
+    "Não Avaliada", "Dados Insuficientes", "Pouco Preocupante", "Quase Ameaçada",
+    "Vulnerável", "Em Perigo", "Perigo Crítico", "Extinto na Natureza", "Extinto"
   ];
-
-  // Initialize Tags using existing helper function
-  initTagInputWithDropdown("popup-family-input", "popup-family-tags", "popup-family-dropdown", popupFamilyTags, familyOptions);
-  initTagInputWithDropdown("popup-state-input", "popup-state-tags", "popup-state-dropdown", popupStateTags, stateOptions);
 
   let selectedAnimal = null;
 
-  // --- Filtering Logic ---
-  function filterCards() {
-    const searchText = searchInput ? searchInput.value.toLowerCase() : '';
-
-    cards.forEach(card => {
-      const name = card.getAttribute('data-name').toLowerCase();
-      const status = card.getAttribute('data-status'); 
-      const family = card.getAttribute('data-family');
+  // --- Load and Render Animals ---
+  async function loadAnimals() {
+    if (!cardsGrid) return;
+    
+    try {
+      const filters = getAnimalFilters({
+        searchInput: searchInput,
+        familyTagsArray: popupFamilyTags,
+        stateTagsArray: popupStateTags
+      });
       
-      const matchesSearch = name.includes(searchText);
+      const animals = await fetchAnimals(filters);
       
-      // OR Logic for Tags (if array is empty, allow all)
-      const matchesStatus = popupStateTags.length === 0 || popupStateTags.includes(status);
-      const matchesFamily = popupFamilyTags.length === 0 || popupFamilyTags.includes(family);
-
-      if (matchesSearch && matchesStatus && matchesFamily) {
-        card.style.display = 'flex';
-      } else {
-        card.style.display = 'none';
+      renderAnimalCards(animals, cardsGrid, {
+        buttonText: 'Selecionar',
+        showDetailsLink: false,
+        onButtonClick: (animal, card) => {
+          // Deselect all cards
+          const allCards = cardsGrid.querySelectorAll('.card');
+          allCards.forEach(c => {
+            c.classList.remove('selected');
+            const btnText = c.querySelector('.btn-text');
+            if (btnText) btnText.textContent = 'Selecionar';
+          });
+          
+          // Select this card
+          card.classList.add('selected');
+          const btnText = card.querySelector('.btn-text');
+          if (btnText) btnText.textContent = 'Selecionado';
+          
+          // Store selected animal
+          selectedAnimal = {
+            name: animal.nome_comum,
+            family: animal.nome_familia,
+            status: animal.nome_estado,
+            id: animal.animal_id
+          };
+          
+          // Enable submit button
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.style.opacity = '1';
+            submitButton.style.cursor = 'pointer';
+          }
+        },
+        emptyMessage: 'Nenhum animal encontrado.'
+      });
+    } catch (error) {
+      console.error("Erro ao carregar animais:", error);
+      if (cardsGrid) {
+        cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
       }
-    });
+    }
+  }
+
+  // Initialize Tags using existing helper function
+  if (typeof initTagInputWithDropdown === 'function') {
+    initTagInputWithDropdown("popup-family-input", "popup-family-tags", "popup-family-dropdown", popupFamilyTags, familyOptions);
+    initTagInputWithDropdown("popup-state-input", "popup-state-tags", "popup-state-dropdown", popupStateTags, stateOptions);
   }
 
   // --- Event Listeners for Filtering ---
-  if (searchInput) searchInput.addEventListener('input', filterCards);
+  if (searchInput) {
+    searchInput.addEventListener('input', loadAnimals);
+  }
 
   // Observer for tags (since the helper modifies DOM)
   const observerConfig = { childList: true };
-  const tagObserver = new MutationObserver(filterCards);
+  const tagObserver = new MutationObserver(loadAnimals);
   
   const famContainer = document.getElementById('popup-family-tags');
   const stateContainer = document.getElementById('popup-state-tags');
   
   if (famContainer) tagObserver.observe(famContainer, observerConfig);
   if (stateContainer) tagObserver.observe(stateContainer, observerConfig);
-
-
-  // --- Selection Logic ---
-  cards.forEach(card => {
-    card.addEventListener('click', () => {
-      // 1. UI Updates
-      cards.forEach(c => {
-          c.classList.remove('selected');
-          c.querySelector('.btn-text').textContent = 'Selecionar';
-      });
-      
-      card.classList.add('selected');
-      card.querySelector('.btn-text').textContent = 'Selecionado';
-
-      // 2. Data Storage
-      selectedAnimal = {
-        name: card.getAttribute('data-name'),
-        family: card.getAttribute('data-family'),
-        status: card.getAttribute('data-status')
-      };
-
-      // 3. Enable Button
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.style.opacity = '1';
-        submitButton.style.cursor = 'pointer';
-      }
-    });
-  });
 
   // --- Menu Visibility & Location ---
   const originalMenuAlertClick = document.getElementById('menu-alert');
@@ -636,6 +639,8 @@ function initAlertAnimalMenu() {
                if (locationInput && locationInput.value && displayLocation) {
                    displayLocation.textContent = locationInput.value;
                }
+               // Load animals when menu opens
+               loadAnimals();
             }
         });
     });
@@ -653,13 +658,15 @@ function initAlertAnimalMenu() {
     if(famContainer) famContainer.innerHTML = '';
     if(stateContainer) stateContainer.innerHTML = '';
 
-    filterCards(); 
-
     // Reset Selection
-    cards.forEach(c => {
+    if (cardsGrid) {
+      const cards = cardsGrid.querySelectorAll('.card');
+      cards.forEach(c => {
         c.classList.remove('selected');
-        c.querySelector('.btn-text').textContent = 'Selecionar';
-    });
+        const btnText = c.querySelector('.btn-text');
+        if (btnText) btnText.textContent = 'Selecionar';
+      });
+    }
     
     selectedAnimal = null;
     if(submitButton) {
