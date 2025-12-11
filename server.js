@@ -198,7 +198,7 @@ app.post('/api/signup', async (req, res) => {
         estado_id,
         data_criacao
       )
-      VALUES ($1, $2, $3, 1, 1, NOW())
+      VALUES ($1, $2, $3, 2, 1, NOW())
       RETURNING utilizador_id
     `;
 
@@ -215,6 +215,52 @@ app.post('/api/signup', async (req, res) => {
       detail: error?.detail,
     });
     return res.status(500).json({ error: 'Erro ao criar utilizador.' });
+  }
+});
+
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email e password são obrigatórios.' });
+    }
+
+    const { rows } = await pool.query(
+      'SELECT utilizador_id, nome_utilizador, email, password_hash, estado_id, funcao_id FROM utilizador WHERE email = $1 LIMIT 1',
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Credenciais inválidas.' });
+    }
+
+    const user = rows[0];
+    if (Number(user.estado_id) !== 1) {
+      return res.status(403).json({ error: 'Conta inativa.' });
+    }
+
+    const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+    if (passwordHash !== user.password_hash) {
+      return res.status(401).json({ error: 'Credenciais inválidas.' });
+    }
+
+    return res.status(200).json({
+      message: 'Login bem-sucedido.',
+      user: {
+        id: user.utilizador_id,
+        name: user.nome_utilizador,
+        email: user.email,
+        funcao_id: user.funcao_id
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao iniciar sessão', {
+      message: error?.message,
+      code: error?.code,
+      detail: error?.detail,
+    });
+    return res.status(500).json({ error: 'Erro ao iniciar sessão.' });
   }
 });
 

@@ -733,13 +733,15 @@ const headerTemplate = `
     <div class="user-section">
       <i class="fas fa-user user-icon" id="user-icon"></i>
       <div id="account-menu" class="account-menu">
-        <div class="account-menu-item" id="menu-login"><a style="text-decoration: none;color: #333;"href="login.html">Iniciar Sessão</a></div>
-        <div class="account-menu-separator"></div>
-        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;"href="sign_up.html">Criar Conta</a></div>
-        <div class="account-menu-separator"></div>
-        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;"href="perfil.html">Perfil</a></div>
-        <div class="account-menu-separator"></div>
-        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;"href="perfil_admin.html">Perfil Admin</a></div>
+        <div class="account-menu-item" id="menu-login"><a style="text-decoration: none;color: #333;" href="login.html">Iniciar Sessão</a></div>
+        <div class="account-menu-separator" id="sep-login"></div>
+        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;" href="sign_up.html">Criar Conta</a></div>
+        <div class="account-menu-separator" id="sep-create"></div>
+        <div class="account-menu-item" id="menu-profile"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil.html">Perfil</a></div>
+        <div class="account-menu-separator" id="sep-profile"></div>
+        <div class="account-menu-item" id="menu-profile-admin"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil_admin.html">Perfil Admin</a></div>
+        <div class="account-menu-separator" id="sep-logout"></div>
+        <div class="account-menu-item" id="menu-logout"><a style="text-decoration: none;color: #333;font-weight:600;" href="logout.html">Terminar Sessão</a></div>
       </div>
     </div>
   </div>
@@ -757,6 +759,7 @@ async function loadHeader(path = 'header.html') {
     }
   
     if (typeof initAccountMenu === 'function') initAccountMenu();
+    if (typeof applyHeaderAuthState === 'function') applyHeaderAuthState();
     if (typeof highlightCurrentPage === 'function') highlightCurrentPage();
 }
   
@@ -766,6 +769,54 @@ function highlightCurrentPage() {
     const linkHref = (link.getAttribute('href') || '').split('?')[0];
     link.classList.toggle('current', linkHref === current);
   });
+}
+
+// --- Dynamic header visibility by user role ---
+function applyHeaderAuthState() {
+  const raw = localStorage.getItem('biomapUser');
+  let user = null;
+  try {
+    user = raw ? JSON.parse(raw) : null;
+  } catch {
+    user = null;
+  }
+
+  const loginItem = document.getElementById('menu-login');
+  const createItem = document.getElementById('menu-create-account');
+  const profileItem = document.getElementById('menu-profile');
+  const adminItem = document.getElementById('menu-profile-admin');
+  const sepLogin = document.getElementById('sep-login');
+  const sepCreate = document.getElementById('sep-create');
+  const sepProfile = document.getElementById('sep-profile');
+  const logoutItem = document.getElementById('menu-logout');
+  const sepLogout = document.getElementById('sep-logout');
+
+  const hide = (el) => { if (el) el.style.display = 'none'; };
+  const show = (el) => { if (el) el.style.display = 'block'; };
+
+  if (!user) {
+    show(loginItem); show(sepLogin);
+    show(createItem); show(sepCreate);
+    hide(profileItem); hide(sepProfile);
+    hide(adminItem);
+    hide(logoutItem); hide(sepLogout);
+    return;
+  }
+
+  hide(loginItem); hide(sepLogin);
+  hide(createItem); hide(sepCreate);
+  show(logoutItem); show(sepLogout);
+
+  if (Number(user.funcao_id) === 2) {
+    show(profileItem); show(sepProfile);
+    hide(adminItem);
+  } else if (Number(user.funcao_id) === 1) {
+    hide(profileItem); hide(sepProfile);
+    show(adminItem);
+  } else {
+    hide(profileItem); hide(sepProfile);
+    hide(adminItem);
+  }
 }
 
 // ==========================================
