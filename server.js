@@ -3,12 +3,25 @@ import express from "express"
 import path2 from "path";
 import { fileURLToPath } from "url"
 import { appendFile } from "fs";
+import crypto from "crypto";
 import pool from './bd.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path2.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Quick connectivity probe on startup to surface DB issues early
+(async () => {
+  try {
+    await pool.query("SELECT 1");
+    console.log("DB connection OK");
+  } catch (err) {
+    console.error("DB connection failed:", err);
+  }
+})();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path2.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
@@ -152,6 +165,56 @@ console.log(finalData);
   } catch (error) {
       console.error('Erro ao executar a query', error);
       res.status(500).send('Erro ao executar a query');
+  }
+});
+
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Nome, email e password são obrigatórios.' });
+    }
+
+    // Verificar se o utilizador já existe pelo email
+    const existingUser = await pool.query(
+      'SELECT utilizador_id FROM utilizador WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser.rowCount > 0) {
+      return res.status(409).json({ error: 'Email já registado. Inicie sessão ou utilize outro email.' });
+    }
+
+    // Hash simples da password (SHA-256). Pode ser trocado por bcrypt se necessário.
+    const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+
+    const insertQuery = `
+      INSERT INTO utilizador (
+        nome_utilizador,
+        email,
+        password_hash,
+        funcao_id,
+        estado_id,
+        data_criacao
+      )
+      VALUES ($1, $2, $3, 1, 1, NOW())
+      RETURNING utilizador_id
+    `;
+
+    const { rows } = await pool.query(insertQuery, [name, email, passwordHash]);
+
+    return res.status(201).json({
+      message: 'Utilizador criado com sucesso.',
+      utilizador_id: rows[0]?.utilizador_id
+    });
+  } catch (error) {
+    console.error('Erro ao criar utilizador', {
+      message: error?.message,
+      code: error?.code,
+      detail: error?.detail,
+    });
+    return res.status(500).json({ error: 'Erro ao criar utilizador.' });
   }
 });
 
