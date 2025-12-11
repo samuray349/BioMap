@@ -28,7 +28,6 @@
         <!-- Page Title -->
         <h1 class="admin-users-title">Administração de Utilizadores</h1>
         
-        <!-- Search and Filters Section -->
         <div class="sidebar-content">
             <div class="search-section">
               <div class="search-wrapper">
@@ -37,7 +36,28 @@
               </div>
             </div>
     
+            <div class="filters-row">
             
+              <div class="filter-section">
+                <label class="filter-label">Estado</label>
+                <div class="tag-input-wrapper">
+                  <input type="text" id="estado-input" class="tag-input" placeholder="Selecionar estado" autocomplete="off">
+                  <div class="tag-container" id="estado-tags"></div>
+                  <i class="fas fa-chevron-down filter-arrow"></i>
+                  <div class="dropdown-menu" id="estado-dropdown"></div>
+                </div>
+              </div>
+
+              <div class="filter-section">
+                <label class="filter-label">Estatuto</label>
+                <div class="tag-input-wrapper">
+                  <input type="text" id="estatuto-input" class="tag-input" placeholder="Selecionar estatuto" autocomplete="off">
+                  <div class="tag-container" id="estatuto-tags"></div>
+                  <i class="fas fa-chevron-down filter-arrow"></i>
+                  <div class="dropdown-menu" id="estatuto-dropdown"></div>
+                </div>
+              </div>
+            </div>
           </div>
         
         <!-- Users Table -->
@@ -66,86 +86,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>John Smith</td>
-                        <td>john.smith@gmail.com</td>
-                        <td><span class="status-badge status-normal">Normal</span></td>
-                        <td>Admin</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Olivia Bennett</td>
-                        <td>ollyben@gmail.com</td>
-                        <td><span class="status-badge status-suspended">Suspenso</span></td>
-                        <td>User</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Michael Johnson</td>
-                        <td>michael.j@outlook.com</td>
-                        <td><span class="status-badge status-normal">Normal</span></td>
-                        <td>User</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Sarah Williams</td>
-                        <td>sarah.williams@yahoo.com</td>
-                        <td><span class="status-badge status-suspended">Suspenso</span></td>
-                        <td>User</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>David Brown</td>
-                        <td>david.brown@gmail.com</td>
-                        <td><span class="status-badge status-normal">Normal</span></td>
-                        <td>Admin</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Emma Davis</td>
-                        <td>emma.davis@hotmail.com</td>
-                        <td><span class="status-badge status-suspended">Suspenso</span></td>
-                        <td>User</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>James Wilson</td>
-                        <td>james.wilson@gmail.com</td>
-                        <td><span class="status-badge status-normal">Normal</span></td>
-                        <td>User</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Sophia Martinez</td>
-                        <td>sophia.m@outlook.com</td>
-                        <td><span class="status-badge status-suspended">Suspenso</span></td>
-                        <td>User</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Robert Taylor</td>
-                        <td>robert.taylor@gmail.com</td>
-                        <td><span class="status-badge status-normal">Normal</span></td>
-                        <td>Admin</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Isabella Anderson</td>
-                        <td>isabella.a@yahoo.com</td>
-                        <td><span class="status-badge status-suspended">Suspenso</span></td>
-                        <td>User</td>
-                        <td><i class="fas fa-clock suspend-icon"></i></td>
-                        <td><i class="fas fa-ban ban-icon"></i></td>
-                    </tr>
+                    <!-- User rows will be loaded dynamically from API -->
                 </tbody>
             </table>
         </div>
@@ -185,6 +126,7 @@
     
     <!-- Scripts -->
     <script src="js/script.js"></script>
+    <script src="js/users.js"></script>
     <script>
         // Load header when page loads
         document.addEventListener('DOMContentLoaded', function () {
@@ -193,162 +135,102 @@
             }
         });
 
-        // Search + sort + filter behaviour for admin users table
-        function initAdminUserSearch() {
-            const searchInput = document.getElementById('search-input');
-            const table = document.querySelector('.admin-users-table');
-            if (!table) return;
+        // Tag arrays specific to admin_util.html
+        let adminEstadoTags = [];
+        let adminEstatutoTags = [];
 
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            if (!searchInput || rows.length === 0) return;
+        // Options loaded from database
+        let estadoOptions = [];
+        let estatutoOptions = [];
 
-            // Store original index to be able to revert sort
-            rows.forEach((row, index) => {
-                row.dataset.originalIndex = index;
-            });
+        const tbody = document.querySelector('.admin-users-table tbody');
+        const searchInput = document.getElementById('search-input');
 
-            const normalizeText = (text) =>
-                (text || '')
-                    .toLowerCase()
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '');
-
-            // Sort / filter state
-            let sortBy = null; // 'name' | 'email'
-            let sortDir = 'asc'; // 'asc' | 'desc'
-            let nameSortMode = 0;  // 0 = no sort, 1 = asc, 2 = desc
-            let emailSortMode = 0; // 0 = no sort, 1 = asc, 2 = desc
-            let statusMode = 0;  // 0 = all, 1 = only Suspenso, 2 = only Normal
-            let roleMode = 0;    // 0 = all, 1 = only User, 2 = only Admin
-
-            function applyFiltersAndSort() {
-                const query = normalizeText(searchInput.value || '');
-
-                rows.forEach(row => {
-                    // Columns: 0 = Nome, 1 = Email, 2 = Estado (badge), 3 = Estatuto
-                    const nameCell = row.cells[0];
-                    const emailCell = row.cells[1];
-                    const statusBadge = row.querySelector('.status-badge');
-                    const roleCell = row.cells[3];
-
-                    const name = nameCell ? normalizeText(nameCell.textContent) : '';
-                    const email = emailCell ? normalizeText(emailCell.textContent) : '';
-                    const status = statusBadge ? normalizeText(statusBadge.textContent) : '';
-                    const role = roleCell ? normalizeText(roleCell.textContent) : '';
-
-                    const matchesSearch =
-                        !query ||
-                        name.includes(query) ||
-                        email.includes(query) ||
-                        status.includes(query) ||
-                        role.includes(query);
-
-                    // Status mode: 0 = all, 1 = Suspenso, 2 = Normal
-                    let matchesStatus = true;
-                    if (statusMode === 1) {
-                        matchesStatus = status.includes('suspenso');
-                    } else if (statusMode === 2) {
-                        matchesStatus = status.includes('normal');
-                    }
-
-                    // Role mode: 0 = all, 1 = User, 2 = Admin
-                    let matchesRole = true;
-                    if (roleMode === 1) {
-                        matchesRole = role.includes('user');
-                    } else if (roleMode === 2) {
-                        matchesRole = role.includes('admin');
-                    }
-
-                    const visible = matchesSearch && matchesStatus && matchesRole;
-                    row.style.display = visible ? '' : 'none';
-                });
-
-                // Apply sort (only affects visible rows order)
-                let sortedRows = [...rows];
-                if (sortBy) {
-                    sortedRows.sort((a, b) => {
-                        const idx = sortBy === 'name' ? 0 : 1; // 0 = name, 1 = email
-                        const aText = normalizeText(a.cells[idx]?.textContent || '');
-                        const bText = normalizeText(b.cells[idx]?.textContent || '');
-
-                        if (aText < bText) return sortDir === 'asc' ? -1 : 1;
-                        if (aText > bText) return sortDir === 'asc' ? 1 : -1;
-                        // Fallback to original index to keep stable order
-                        const aIdx = Number(a.dataset.originalIndex);
-                        const bIdx = Number(b.dataset.originalIndex);
-                        return aIdx - bIdx;
-                    });
-                } else {
-                    // No sort: restore original order
-                    sortedRows.sort((a, b) => Number(a.dataset.originalIndex) - Number(b.dataset.originalIndex));
+        // Fetch estado options from API
+        async function fetchEstadoOptions() {
+            try {
+                const response = await fetch('/users/estados');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-
-                // Re-append rows to tbody in the new order
-                sortedRows.forEach(row => {
-                    tbody.appendChild(row);
-                });
+                estadoOptions = await response.json();
+                return estadoOptions;
+            } catch (error) {
+                console.error("Erro ao buscar opções de estado:", error);
+                return [];
             }
-
-            // Search input listener
-            searchInput.addEventListener('input', applyFiltersAndSort);
-
-            // Sort / filter icon listeners
-            const headerIcons = table.querySelectorAll('thead th .sort-icon');
-            if (headerIcons.length >= 4) {
-                // Nome Utilizador (index 0) - cycle: asc -> desc -> no sort
-                headerIcons[0].addEventListener('click', () => {
-                    nameSortMode = (nameSortMode + 1) % 3;
-                    // Reset email sort when clicking on name
-                    emailSortMode = 0;
-
-                    if (nameSortMode === 0) {
-                        sortBy = null;
-                    } else {
-                        sortBy = 'name';
-                        sortDir = nameSortMode === 1 ? 'asc' : 'desc';
-                    }
-
-                    applyFiltersAndSort();
-                });
-
-                // Email (index 1) - cycle: asc -> desc -> no sort
-                headerIcons[1].addEventListener('click', () => {
-                    emailSortMode = (emailSortMode + 1) % 3;
-                    // Reset name sort when clicking on email
-                    nameSortMode = 0;
-
-                    if (emailSortMode === 0) {
-                        sortBy = null;
-                    } else {
-                        sortBy = 'email';
-                        sortDir = emailSortMode === 1 ? 'asc' : 'desc';
-                    }
-
-                    applyFiltersAndSort();
-                });
-
-                // Estado (index 2) - cycle: Suspenso only -> Normal only -> All
-                headerIcons[2].addEventListener('click', () => {
-                    statusMode = (statusMode + 1) % 3;
-                    applyFiltersAndSort();
-                });
-
-                // Estatuto (index 3) - cycle: User only -> Admin only -> All
-                headerIcons[3].addEventListener('click', () => {
-                    roleMode = (roleMode + 1) % 3;
-                    applyFiltersAndSort();
-                });
-            }
-
-            // Initial state (show all, original order)
-            applyFiltersAndSort();
         }
 
+        // Fetch estatuto options from API
+        async function fetchEstatutoOptions() {
+            try {
+                const response = await fetch('/users/estatutos');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                estatutoOptions = await response.json();
+                return estatutoOptions;
+            } catch (error) {
+                console.error("Erro ao buscar opções de estatuto:", error);
+                return [];
+            }
+        }
+
+        // Load and render users
+        async function loadUsers() {
+            try {
+                const filters = getUserFilters({
+                    searchInput: searchInput,
+                    estadoTagsArray: adminEstadoTags,
+                    estatutoTagsArray: adminEstatutoTags
+                });
+                
+                const users = await fetchUsers(filters);
+                renderUserTable(users, tbody);
+            } catch (error) {
+                console.error("Erro ao carregar utilizadores:", error);
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="6">Erro ao carregar dados.</td></tr>';
+                }
+            }
+        }
+
+        async function initAdminUserFilters() {
+            // Load filter options from API first
+            await Promise.all([
+                fetchEstadoOptions(),
+                fetchEstatutoOptions()
+            ]);
+
+            // Initialize filters with loaded options
+            initUserFilters({
+                estadoInputId: "estado-input",
+                estadoTagsId: "estado-tags",
+                estadoDropdownId: "estado-dropdown",
+                estatutoInputId: "estatuto-input",
+                estatutoTagsId: "estatuto-tags",
+                estatutoDropdownId: "estatuto-dropdown",
+                estadoOptions: estadoOptions,
+                estatutoOptions: estatutoOptions,
+                estadoTagsArray: adminEstadoTags,
+                estatutoTagsArray: adminEstatutoTags,
+                onFilterChange: loadUsers
+            });
+
+            // Search input triggers load
+            if (searchInput) {
+                searchInput.addEventListener('input', loadUsers);
+            }
+
+            // Initial load
+            loadUsers();
+        }
+
+        // Initialize when DOM is ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initAdminUserSearch);
+            document.addEventListener('DOMContentLoaded', initAdminUserFilters);
         } else {
-            initAdminUserSearch();
+            initAdminUserFilters();
         }
     </script>
 </body>

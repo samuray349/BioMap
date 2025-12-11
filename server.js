@@ -29,13 +29,85 @@ app.get("/", (req, res) => {
 });
 app.get('/users', async (req, res) => {
     try {
-      const { rows } = await pool.query('SELECT utilizador_id, nome_utilizador, email FROM utilizador ORDER BY utilizador_id');
-      res.json(rows);
+        const { search, estados, estatutos } = req.query;
+        
+        // Base Query: Join tables to get readable names (Estado and Funcao)
+        let sqlQuery = `
+            SELECT 
+                u.utilizador_id, 
+                u.nome_utilizador, 
+                u.email,
+                e.nome_estado,
+                e.hex_cor as estado_cor,
+                f.nome_funcao as estatuto
+            FROM utilizador u
+            JOIN estado e ON u.estado_id = e.estado_id
+            JOIN funcao f ON u.funcao_id = f.funcao_id
+            WHERE 1=1
+        `;
+
+        const queryParams = [];
+        let paramCounter = 1;
+
+        // Text Search Filter (Case insensitive ILIKE on Name or Email)
+        if (search) {
+            sqlQuery += ` AND (u.nome_utilizador ILIKE $${paramCounter} OR u.email ILIKE $${paramCounter + 1})`;
+            queryParams.push(`%${search}%`);
+            queryParams.push(`%${search}%`);
+            paramCounter += 2;
+        }
+
+        // Estado Filter (Matches 'estado' table)
+        if (estados) {
+            const estadoArray = estados.split(',');
+            sqlQuery += ` AND e.nome_estado = ANY($${paramCounter})`;
+            queryParams.push(estadoArray);
+            paramCounter++;
+        }
+
+        // Estatuto Filter (Matches 'funcao' table)
+        if (estatutos) {
+            const estatutoArray = estatutos.split(',');
+            sqlQuery += ` AND f.nome_funcao = ANY($${paramCounter})`;
+            queryParams.push(estatutoArray);
+            paramCounter++;
+        }
+
+        sqlQuery += ` ORDER BY u.utilizador_id`;
+
+        // Execute Query
+        const { rows } = await pool.query(sqlQuery, queryParams);
+        res.json(rows);
+
     } catch (error) {
-      console.error('Erro ao executar a query', error);
-      res.status(500).send('Erro da base de dados');
+        console.error('Erro ao executar a query', error);
+        res.status(500).send('Erro ao executar a query');
     }
-  });
+});
+
+// Get estado options for user filters
+app.get('/users/estados', async (req, res) => {
+    try {
+        const { rows } = await pool.query('SELECT nome_estado FROM estado ORDER BY estado_id');
+        const estados = rows.map(row => row.nome_estado);
+        res.json(estados);
+    } catch (error) {
+        console.error('Erro ao buscar estados:', error);
+        res.status(500).send('Erro ao buscar estados');
+    }
+});
+
+// Get estatuto (funcao) options for user filters
+app.get('/users/estatutos', async (req, res) => {
+    try {
+        const { rows } = await pool.query('SELECT nome_funcao FROM funcao ORDER BY funcao_id');
+        const estatutos = rows.map(row => row.nome_funcao);
+        res.json(estatutos);
+    } catch (error) {
+        console.error('Erro ao buscar estatutos:', error);
+        res.status(500).send('Erro ao buscar estatutos');
+    }
+});
 
   app.get('/animais', async (req, res) => {
     try {
