@@ -85,6 +85,46 @@ app.get('/users', async (req, res) => {
     }
 });
 
+app.get('/users/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      // Validar ID
+      if (!/^\d+$/.test(id)) {
+        return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+   }
+   
+   // Query para detalhes do animal
+   let sqlQuery = `
+      SELECT
+        u.utilizador_id,
+        u.nome_utilizador,
+        u.email,
+        u.funcao_id,
+        u.estado_id
+      FROM
+        utilizador AS u
+        WHERE u.utilizador_id = $1;
+   `;
+
+  const queryParams = [id]; 
+  console.log(queryParams);
+  console.log(sqlQuery);
+
+  const { rows } = await pool.query(sqlQuery, queryParams);
+
+   if (rows.length === 0) {
+       return res.status(404).json({ error: 'Utilizador not found' });
+   }
+   
+   res.json(rows[0]);
+
+  } catch (error) {
+      console.error('Erro ao executar a query', error);
+      res.status(500).send('Erro ao executar a query');
+  }
+});
+
 // Get estado options for user filters
 app.get('/users/estados', async (req, res) => {
     try {

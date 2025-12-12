@@ -731,6 +731,7 @@ const headerTemplate = `
       <a href="doar.html" class="nav-link">Doar</a>
     </nav>
     <div class="user-section">
+      <a href="perfil.html" id="user-name" class="user-name"></a>
       <i class="fas fa-user user-icon" id="user-icon"></i>
       <div id="account-menu" class="account-menu">
         <div class="account-menu-item" id="menu-login"><a style="text-decoration: none;color: #333;" href="login.html">Iniciar Sessão</a></div>
@@ -774,6 +775,7 @@ function highlightCurrentPage() {
 // --- Dynamic header visibility by user role ---
 function applyHeaderAuthState() {
   const raw = localStorage.getItem('biomapUser');
+  console.log(raw);
   let user = null;
   try {
     user = raw ? JSON.parse(raw) : null;
@@ -790,16 +792,21 @@ function applyHeaderAuthState() {
   const sepProfile = document.getElementById('sep-profile');
   const logoutItem = document.getElementById('menu-logout');
   const sepLogout = document.getElementById('sep-logout');
+  const userNameElement = document.getElementById('user-name');
 
   const hide = (el) => { if (el) el.style.display = 'none'; };
   const show = (el) => { if (el) el.style.display = 'block'; };
 
   if (!user) {
     show(loginItem); show(sepLogin);
-    show(createItem); show(sepCreate);
+    show(createItem); hide(sepCreate);
     hide(profileItem); hide(sepProfile);
     hide(adminItem);
     hide(logoutItem); hide(sepLogout);
+    if (userNameElement) {
+      userNameElement.textContent = '';
+      userNameElement.style.display = 'none';
+    }
     return;
   }
 
@@ -807,12 +814,25 @@ function applyHeaderAuthState() {
   hide(createItem); hide(sepCreate);
   show(logoutItem); show(sepLogout);
 
+  // Display user name if available
+  if (userNameElement && user.name) {
+    userNameElement.textContent = user.name;
+    userNameElement.style.display = 'inline-block';
+  } else if (userNameElement) {
+    userNameElement.textContent = '';
+    userNameElement.style.display = 'none';
+  }
+
   if (Number(user.funcao_id) === 2) {
     show(profileItem); show(sepProfile);
+    hide(sepProfile);
     hide(adminItem);
+    userNameElement.href = 'perfil.html';
+    userNameElement
   } else if (Number(user.funcao_id) === 1) {
     hide(profileItem); hide(sepProfile);
     show(adminItem);
+    userNameElement.href = 'perfil_admin.html';
   } else {
     hide(profileItem); hide(sepProfile);
     hide(adminItem);
