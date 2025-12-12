@@ -185,6 +185,27 @@
             height: 100%;
         }
 
+        /* Visual cue for blocked taxonomy selects */
+        .taxonomy-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(0.4);
+            background-color: #d8dde4 !important;
+            color: #4b5563 !important;
+        }
+
+        /* Submit feedback */
+        .submit-message {
+            margin-top: 12px;
+            font-size: 0.95rem;
+        }
+        .submit-message.error {
+            color: #b91c1c;
+        }
+        .submit-message.success {
+            color: #047857;
+        }
+
         .preview-section .preview-info-card h3 {
             color: var(--accent-color, #198754);
             margin: 0 0 16px;
@@ -476,28 +497,28 @@
                     <select id="conservation-status" name="conservation-status" class="chip-select conservation-row" aria-label="Estado de conservação"
                         onchange="updateConservationBgColor(this)">
                         <option value="">Selecione o estado de conservação</option>
-                        <option value="Quase ameaçada">Quase ameaçada</option>
+                        <option value="Quase Ameaçada">Quase Ameaçada</option>
                         <option value="Vulnerável">Vulnerável</option>
-                        <option value="Em perigo">Em perigo</option>
-                        <option value="Perigo crítico">Perigo crítico</option>
+                        <option value="Em Perigo">Em Perigo</option>
+                        <option value="Perigo Crítico">Perigo Crítico</option>
                         <option value="Extinto na Natureza">Extinto na Natureza</option>
                     </select>
                     <script>
                         function updateConservationBgColor(select) {
                             const colorMap = {
                                 "": "#d9dee7",
-                                "Quase ameaçada": "#e0faac",
+                                "Quase Ameaçada": "#e0faac",
                                 "Vulnerável": "#ffd7a0",
-                                "Em perigo": "#faa973",
-                                "Perigo crítico": "#fa7878",
+                                "Em Perigo": "#faa973",
+                                "Perigo Crítico": "#fa7878",
                                 "Extinto na Natureza": "#828282"
                             };
                             const accentColorMap = {
                                 "": "#6e7a85", // fallback gray
-                                "Quase ameaçada": "#598d13",
+                                "Quase Ameaçada": "#598d13",
                                 "Vulnerável": "#ff9100",
-                                "Em perigo": "#df540a",
-                                "Perigo crítico": "#c60a0a",
+                                "Em Perigo": "#df540a",
+                                "Perigo Crítico": "#c60a0a",
                                 "Extinto na Natureza": "#222326"
                             };
                             // Set background color
@@ -540,19 +561,7 @@
                         <p>Conte a história, comportamento e habitat do animal.</p>
                     </div>
                     <div class="description-editor">
-                        <div class="editor-toolbar">
-                            <button type="button" aria-label="Undo"><i class="fa-solid fa-rotate-left"></i></button>
-                            <button type="button" aria-label="Redo"><i class="fa-solid fa-rotate-right"></i></button>
-                            <span class="divider"></span>
-                            <button type="button"><i class="fa-solid fa-bold"></i></button>
-                            <button type="button"><i class="fa-solid fa-italic"></i></button>
-                            <button type="button"><i class="fa-solid fa-underline"></i></button>
-                            <button type="button"><i class="fa-solid fa-list-ul"></i></button>
-                            <button type="button"><i class="fa-solid fa-list-ol"></i></button>
-                            <button type="button"><i class="fa-solid fa-link"></i></button>
-                            <button type="button"><i class="fa-solid fa-quote-right"></i></button>
-                            <button type="button"><i class="fa-solid fa-image"></i></button>
-                        </div>
+                        
                         <label for="description">Descrição</label>
                         <textarea id="description" rows="8" placeholder="Conte a história do animal, habitat, comportamento e outros detalhes importantes..."></textarea>
                     </div>
@@ -586,6 +595,7 @@
                         <i class="fa-solid fa-paw"></i>
                         Adicionar Animal
                     </button>
+                    <div id="submit-message" class="submit-message" role="status" aria-live="polite"></div>
                 </div>
             </form>
         </section>
@@ -699,7 +709,6 @@
     </main>
 
     <script src="js/script.js"></script>
-    <script src="js/script.js"></script>
 <script>
     loadHeader();
     highlightCurrentPage();
@@ -745,7 +754,14 @@
             descriptionMain: document.querySelector('.description-text'),
             threats: document.querySelectorAll('.threat-item'),
             imageMini: document.querySelector('.preview-card .card-image'),
-            imageMain: document.querySelector('.card-image-section img')
+            imageMain: document.querySelector('.card-image-section img'),
+            imageUploadPreview: document.querySelector('.image-preview img')
+        };
+
+        const defaultImages = {
+            mini: previewElements.imageMini?.src || '',
+            main: previewElements.imageMain?.src || '',
+            upload: previewElements.imageUploadPreview?.src || ''
         };
 
         // Family mapping for display names
@@ -767,10 +783,10 @@
 
         // Conservation status badge classes (UPDATED TO USER REQUEST)
         const conservationClasses = {
-            'Quase ameaçada': 'threatened',      // Maps to Green (#99CC33)
+            'Quase Ameaçada': 'threatened',      // Maps to Green (#99CC33)
             'Vulnerável': 'vulnerable',         // Maps to Yellow (#FFCC00)
-            'Em perigo': 'endangered',          // Maps to Orange (#FF6600)
-            'Perigo crítico': 'critical',       // Maps to Red (#FF0000)
+            'Em Perigo': 'endangered',          // Maps to Orange (#FF6600)
+            'Perigo Crítico': 'critical',       // Maps to Red (#FF0000)
             'Extinto na Natureza': 'extinct'   // Fallback to Red
         };
 
@@ -788,6 +804,7 @@
             // Update image alt text
             if (previewElements.imageMini) previewElements.imageMini.alt = value;
             if (previewElements.imageMain) previewElements.imageMain.alt = value;
+            if (previewElements.imageUploadPreview) previewElements.imageUploadPreview.alt = value;
         }
 
         // Update scientific name
@@ -821,6 +838,28 @@
 
             if (previewElements.familyMini) previewElements.familyMini.textContent = familyDisplay;
             if (previewElements.familyMain) previewElements.familyMain.textContent = familyScientific || defaults.familyScientific;
+        }
+
+        // Allow only one taxonomy group at a time; clear to unlock all
+        function enforceSingleTaxonomySelection() {
+            const taxonomyIds = ['familia-mamiferos', 'familia-aves', 'familia-repteis', 'familia-peixes'];
+            const selects = taxonomyIds
+                .map(id => document.getElementById(id))
+                .filter(Boolean);
+
+            const selected = selects.find(sel => sel.value);
+            const hasSelection = Boolean(selected);
+
+            selects.forEach(sel => {
+                if (!sel) return;
+                if (hasSelection && sel !== selected) {
+                    sel.disabled = true;
+                    sel.classList.add('taxonomy-disabled');
+                } else {
+                    sel.disabled = false;
+                    sel.classList.remove('taxonomy-disabled');
+                }
+            });
         }
 
         // Update diet
@@ -924,10 +963,20 @@
                         if (previewElements.imageMain) {
                             previewElements.imageMain.src = imageUrl;
                         }
+                        if (previewElements.imageUploadPreview) {
+                            previewElements.imageUploadPreview.src = imageUrl;
+                        }
                     };
                     reader.readAsDataURL(file);
                 }
             });
+        }
+
+        function setSubmitMessage(message, type = '') {
+            const el = document.getElementById('submit-message');
+            if (!el) return;
+            el.textContent = message || '';
+            el.className = `submit-message ${type}`.trim();
         }
 
         // Attach event listeners
@@ -944,7 +993,10 @@
 
         // Family selects
         ['familia-mamiferos', 'familia-aves', 'familia-repteis', 'familia-peixes'].forEach(id => {
-            document.getElementById(id)?.addEventListener('change', updateFamily);
+            document.getElementById(id)?.addEventListener('change', () => {
+                updateFamily();
+                enforceSingleTaxonomySelection();
+            });
         });
 
         // Threat inputs
@@ -975,27 +1027,140 @@
             const imageInput = document.getElementById('image-input');
             if (imageInput) imageInput.value = '';
             if (previewElements.imageMini) {
-                previewElements.imageMini.src = 'https://t4.ftcdn.net/jpg/10/64/99/85/360_F_1064998553_4RvqeSWINhkKJEyVLzidd8bUKtOV7hIc.jpg';
+                previewElements.imageMini.src = defaultImages.mini || 'https://t4.ftcdn.net/jpg/10/64/99/85/360_F_1064998553_4RvqeSWINhkKJEyVLzidd8bUKtOV7hIc.jpg';
             }
             if (previewElements.imageMain) {
-                previewElements.imageMain.src = './img/lince.jpg';
+                previewElements.imageMain.src = defaultImages.main || './img/lince.jpg';
+            }
+            if (previewElements.imageUploadPreview) {
+                previewElements.imageUploadPreview.src = defaultImages.upload || './img/lince.jpg';
             }
             
             // Reset conservation status background
             const conservationSelect = document.getElementById('conservation-status');
             if (conservationSelect) updateConservationBgColor(conservationSelect);
+
+            // Re-enable taxonomy selects
+            enforceSingleTaxonomySelection();
         });
 
         // Initialize all previews on load
         updateAnimalName();
         updateScientificName();
         updateFamily();
+        enforceSingleTaxonomySelection();
         updateDiet();
         updateConservationStatus();
         updatePopulation();
         updateFact();
         updateDescription();
         updateThreats();
+    })();
+
+    // --- Submit handler: send data to API ---
+    (function attachAddAnimalSubmitHandler() {
+        const form = document.querySelector('.add-animal-form');
+        const imageInput = document.getElementById('image-input');
+        const messageEl = document.getElementById('submit-message');
+
+        const setMessage = (text, type = '') => {
+            if (!messageEl) return;
+            messageEl.textContent = text || '';
+            messageEl.className = `submit-message ${type}`.trim();
+        };
+
+        const getSelectedFamily = () => {
+            const selectors = ['familia-mamiferos', 'familia-aves', 'familia-repteis', 'familia-peixes'];
+            for (const id of selectors) {
+                const sel = document.getElementById(id);
+                if (sel && sel.value) return sel.value;
+            }
+            return '';
+        };
+
+        const getThreats = () => {
+            const threats = [];
+            for (let i = 1; i <= 5; i++) {
+                const value = document.getElementById(`threat-${i}`)?.value?.trim();
+                if (value) threats.push(value);
+            }
+            return threats;
+        };
+
+        const fileToDataURL = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (err) => reject(err);
+            reader.readAsDataURL(file);
+        });
+
+        if (!form) return;
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            try {
+                setMessage('A enviar...');
+
+                const family = getSelectedFamily();
+                const diet = document.getElementById('diet-type')?.value?.trim();
+                const estado = document.getElementById('conservation-status')?.value?.trim();
+                const nome = document.getElementById('animal-name')?.value?.trim();
+                const cientifico = document.getElementById('scientific-name')?.value?.trim();
+                const fact = document.getElementById('fact')?.value?.trim();
+                const descricao = document.getElementById('description')?.value?.trim();
+                const populationRaw = document.getElementById('population')?.value || '';
+                const population = populationRaw.replace(/[^\d]/g, '');
+                const threats = getThreats();
+                const file = imageInput?.files?.[0];
+
+                if (!nome || !cientifico || !descricao || !family || !diet || !estado) {
+                    setMessage('Preencha todos os campos obrigatórios.', 'error');
+                    return;
+                }
+                if (!file) {
+                    setMessage('Selecione uma imagem para o animal.', 'error');
+                    return;
+                }
+
+                const base64Image = await fileToDataURL(file);
+
+                const payload = {
+                    nome_comum: nome,
+                    nome_cientifico: cientifico,
+                    descricao,
+                    facto_interessante: fact,
+                    populacao_estimada: population ? Number(population) : null,
+                    familia_nome: family,
+                    dieta_nome: diet,
+                    estado_nome: estado,
+                    ameacas: threats,
+                    imagem: {
+                        data: base64Image,
+                        originalName: file.name
+                    }
+                };
+
+                const response = await fetch('/animais', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result?.error || 'Erro ao guardar o animal.');
+                }
+
+                setMessage('Animal adicionado com sucesso!', 'success');
+
+                // Reutilizar botão de limpar para resetar pré-visualizações
+                document.querySelector('.ghost-btn')?.click();
+            } catch (error) {
+                console.error('Erro ao submeter animal', error);
+                setMessage(error?.message || 'Erro ao submeter o animal.', 'error');
+            }
+        });
     })();
 </script>
 </body>
