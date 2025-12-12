@@ -108,8 +108,6 @@ app.get('/users/:id', async (req, res) => {
    `;
 
   const queryParams = [id]; 
-  console.log(queryParams);
-  console.log(sqlQuery);
 
   const { rows } = await pool.query(sqlQuery, queryParams);
 
