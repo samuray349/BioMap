@@ -2,6 +2,51 @@ let map;
 let familyTags = [];
 let stateTags = [];
 let rightClickPosition = null; // Store this globally to pass to the alert menu
+let mapMarkers = []; // Store all map markers for dynamic updates
+let pawMarkerIcon = null; // Will be initialized in initMap() after Google Maps API loads
+
+// Notification System
+function showNotification(message, type = 'success') {
+  const container = document.getElementById('notification-container');
+  if (!container) return;
+
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  
+  // Add icon based on type
+  let icon = '';
+  if (type === 'success') {
+    icon = '<i class="fas fa-check-circle"></i>';
+  } else if (type === 'error') {
+    icon = '<i class="fas fa-exclamation-circle"></i>';
+  } else if (type === 'info') {
+    icon = '<i class="fas fa-info-circle"></i>';
+  }
+  
+  notification.innerHTML = `
+    <div class="notification-content">
+      ${icon}
+      <span class="notification-message">${message}</span>
+    </div>
+  `;
+
+  container.appendChild(notification);
+
+  // Trigger animation
+  setTimeout(() => {
+    notification.classList.add('show');
+  }, 10);
+
+  // Remove after 3 seconds
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 300);
+  }, 3000);
+}
 
 // Species Panel Manager
 const SpeciesPanel = {
@@ -19,7 +64,12 @@ const SpeciesPanel = {
     alertDate: null,
     location: null,
     closeButton: null,
-    mainContainer: null
+    mainContainer: null,
+    badge: null,
+    menu: null,
+    menuToggle: null,
+    menuDropdown: null,
+    deleteButton: null
   },
 
   init() {
@@ -47,6 +97,11 @@ const SpeciesPanel = {
     this.elements.location = document.getElementById('species-panel-location');
     this.elements.closeButton = document.getElementById('species-panel-close');
     this.elements.mainContainer = document.querySelector('.main-container');
+    this.elements.badge = this.elements.container?.querySelector('.badge');
+    this.elements.menu = document.getElementById('species-panel-menu');
+    this.elements.menuToggle = document.getElementById('species-panel-menu-toggle');
+    this.elements.menuDropdown = document.getElementById('species-panel-menu-dropdown');
+    this.elements.deleteButton = document.getElementById('species-panel-delete');
 
     // Setup event listeners
     this.setupEventListeners();
@@ -67,14 +122,106 @@ const SpeciesPanel = {
       }
     });
 
-    // Click outside to close
+    // Menu toggle
+    if (this.elements.menuToggle) {
+      this.elements.menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = this.elements.menuDropdown.style.display === 'block';
+        this.elements.menuDropdown.style.display = isVisible ? 'none' : 'block';
+      });
+    }
+
+    // Delete button
+    if (this.elements.deleteButton) {
+      this.elements.deleteButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.deleteAvistamento();
+      });
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (this.elements.menuDropdown && 
+          !this.elements.menu.contains(e.target) && 
+          this.elements.menuDropdown.style.display === 'block') {
+        this.elements.menuDropdown.style.display = 'none';
+      }
+    });
+
+    // Click outside to close - close when clicking anywhere outside the panel
     document.addEventListener('click', (e) => {
       if (!this.isOpen) return;
+      // Don't close if clicking inside the panel
       if (this.elements.container.contains(e.target)) return;
-      if (e.target.closest('.marker-label')) return;
+      // Don't close if clicking on sidebar
       if (e.target.closest('.sidebar')) return;
+      // Close for all other clicks (including markers and map)
       this.close();
     });
+  },
+
+  async deleteAvistamento() {
+    if (!this.currentAvistamentoId) {
+      console.error('No avistamento ID available');
+      return;
+    }
+
+    // Get current user
+    const userData = localStorage.getItem('biomapUser');
+    let user = null;
+    try {
+      user = userData ? JSON.parse(userData) : null;
+    } catch (e) {
+      user = null;
+    }
+
+    if (!user || !user.id) {
+      alert('Por favor, inicie sessão para eliminar avistamentos.');
+      return;
+    }
+
+    // Confirm deletion
+    if (!confirm('Tem a certeza que deseja eliminar este avistamento?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/alerts/${this.currentAvistamentoId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          utilizador_id: user.id,
+          funcao_id: user.funcao_id
+        })
+      });
+
+      let result;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        throw new Error(text || `Erro ${response.status}: ${response.statusText}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Erro ao eliminar avistamento.');
+      }
+
+      // Show success notification
+      showNotification('Avistamento eliminado com sucesso!', 'success');
+
+      // Close panel and reload avistamentos
+      this.close();
+      if (typeof loadAvistamentos === 'function') {
+        loadAvistamentos();
+      }
+    } catch (error) {
+      console.error('Erro ao eliminar avistamento:', error);
+      alert(error?.message || 'Erro ao eliminar avistamento. Por favor, tente novamente.');
+    }
   },
 
   open(details) {
@@ -89,6 +236,11 @@ const SpeciesPanel = {
       console.error('Cannot open panel: container not found');
       return;
     }
+    
+    // If panel is already open, we can still update it with new data
+    // Set isOpen to false temporarily to prevent the click listener from interfering
+    const wasOpen = this.isOpen;
+    this.isOpen = false;
     
     // Populate panel with data
     this.populateData(details);
@@ -109,12 +261,12 @@ const SpeciesPanel = {
       this.elements.mainContainer.classList.add('detail-panel-open');
     }
 
-    // UPDATED CODE: Add a slight delay to prevent the document click listener 
+    // Set isOpen after a short delay to prevent the document click listener 
     // from closing the panel immediately in the same event loop.
     setTimeout(() => {
       this.isOpen = true;
       console.log('Panel visible. isOpen set to true.');
-    }, 100);
+    }, 50);
   },
 
   populateData(details) {
@@ -151,10 +303,68 @@ const SpeciesPanel = {
       const coords = details.coordinates || {};
       if (typeof coords.lat === 'number' && typeof coords.lng === 'number') {
         this.elements.location.textContent = `${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`;
+      } else if (details.location) {
+        this.elements.location.textContent = details.location;
       } else {
         this.elements.location.textContent = '—';
       }
     }
+
+    // Conservation status badge
+    if (this.elements.badge && details.estado) {
+      this.elements.badge.textContent = details.estado;
+      // Update badge color if estadoCor is provided
+      if (details.estadoCor) {
+        this.elements.badge.style.backgroundColor = details.estadoCor;
+      }
+    }
+
+    // Show/hide menu based on permissions
+    this.updateMenuVisibility(details);
+    
+    // Store avistamento ID for deletion
+    this.currentAvistamentoId = details.avistamento_id;
+    this.currentAvistamentoCreatorId = details.utilizador_id;
+  },
+
+  updateMenuVisibility(details) {
+    if (!this.elements.menu) return;
+
+    // Get current user from localStorage
+    const userData = localStorage.getItem('biomapUser');
+    let user = null;
+    try {
+      user = userData ? JSON.parse(userData) : null;
+    } catch (e) {
+      user = null;
+    }
+
+    // Show menu only if:
+    // 1. User is logged in
+    // 2. User is admin (funcao_id === 1) OR user is the creator of the avistamento
+    const isAdmin = user && Number(user.funcao_id) === 1;
+    const isCreator = user && details.utilizador_id && Number(user.id) === Number(details.utilizador_id);
+    const canManage = isAdmin || isCreator;
+
+    if (canManage) {
+      this.elements.menu.style.display = 'block';
+    } else {
+      this.elements.menu.style.display = 'none';
+      // Close dropdown if open
+      if (this.elements.menuDropdown) {
+        this.elements.menuDropdown.style.display = 'none';
+      }
+    }
+  },
+
+  // Helper function to convert hex color to RGB
+  hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
   },
 
   close() {
@@ -184,6 +394,7 @@ function initMap() {
 
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
 
+  // Initialize paw marker icon (needs google.maps to be available)
   const pawIconSVG = `
 <svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
   <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
@@ -198,12 +409,11 @@ function initMap() {
 </svg>
 `;
 
-const pawMarkerIcon = {
-  url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(pawIconSVG),
-  scaledSize: new google.maps.Size(45, 60),
-  anchor: new google.maps.Point(22.5, 60)
-};
-
+  pawMarkerIcon = {
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(pawIconSVG),
+    scaledSize: new google.maps.Size(45, 60),
+    anchor: new google.maps.Point(22.5, 60)
+  };
 
   map = new google.maps.Map(mapElement, {
     zoom: 12,
@@ -213,72 +423,8 @@ const pawMarkerIcon = {
     mapId: "DEMO_MAP_ID",
   });
 
-  const locations = [
-    { 
-      position: { lat: 39.098569723610105,  lng: -9.21834924308909 }, 
-      title: "Fundação dos Animais",
-      type:"intituicao",
-      details: {
-        name: "Fundação dos Animais",
-        institutionType: "Centro de Reabilitação",
-        description: "Base de operações da equipa BioMap responsável por monitorizar espécies ameaçadas na região e acolher animais em recuperação.",
-        alertDate: "15-10-2025 10:05",
-        coordinates: { lat: 39.098569723610105, lng: -9.21834924308909 },
-        image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=700&q=80"
-      }
-    },
-    { 
-      position: { lat: 39.13471130131973, lng: -9.299138410129158 }, 
-      title: "Lince Ibérico",
-      type:"animal",
-      details: {
-        name: "Lince ibérico",
-        scientificName: "Lynx pardinus",
-        family: "Felídeos",
-        diet: "Carnívoro",
-        description: "O lince-ibérico é um felino de tamanho médio, oriundo da Península Ibérica, facilmente identificável pela sua pelagem castanho-amarelada com manchas escuras, tufos de pêlo nas orelhas em forma de pincel e cauda curta com ponta negra. É um predador solitário e territorial que vive em matagais mediterrânicos.",
-        alertDate: "17-10-2025 19:23",
-        coordinates: { lat: 39.13471130131973, lng: -9.299138410129158 },
-        image: "img/lince-login.jpeg"
-      }
-    },
-    { 
-      position: { lat: 39.16084345764295, lng: -9.237634072626696 }, 
-      title: "Javali",
-      type:"animal",
-      details: {
-        name: "Javali europeu",
-        scientificName: "Sus scrofa",
-        family: "Suídeos",
-        diet: "Omnívoro",
-        description: "Registo de javali adulto observado próximo de zonas agrícolas. Espécie oportunista com atividade crepuscular, pode causar danos em culturas se não for monitorizada.",
-        alertDate: "12-10-2025 06:41",
-        coordinates: { lat: 39.16084345764295, lng: -9.237634072626696 },
-        image: "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=700&q=80"
-      }
-    }
-  ];
-
-  locations.forEach(loc => {
-    const marker = new google.maps.Marker({
-      position: loc.position,
-      map,
-      icon: pawMarkerIcon,
-      label: {
-        text: loc.title,
-        className: "marker-label"
-      },
-      title: loc.title
-    });
-    
-    marker.addListener("click", () => {
-      try {
-        SpeciesPanel.open(loc.details || createFallbackDetails(loc));
-      } catch (error) {
-        console.error('Error opening panel:', error);
-      }
-    });
-  });
+  // Load and display avistamentos dynamically
+  loadAvistamentos();
 
   const familyOptions = [
     "Felidae", "Canidae", "Ursidae", "Mustelidae", 
@@ -287,17 +433,175 @@ const pawMarkerIcon = {
   ];
   
   const stateOptions = [
-    "Em Perigo", "Vulnerável", "Quase Ameaçado",
-    "Pouco Preocupante", "Dados Insuficientes",
-    "Extinto na Natureza", "Extinto"
+    "Não Avaliada", "Dados Insuficientes", "Pouco Preocupante", "Quase Ameaçada",
+    "Vulnerável", "Em Perigo", "Perigo Crítico", "Extinto na Natureza", "Extinto"
   ];
 
   initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", familyTags, familyOptions);
   initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, stateOptions);
 
+  // Set up filter change listeners to update map markers
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce(loadAvistamentos, 300));
+  }
+
+  // Observe changes to tag containers
+  const familyTagsContainer = document.getElementById('family-tags');
+  const stateTagsContainer = document.getElementById('state-tags');
+  
+  if (familyTagsContainer) {
+    const familyObserver = new MutationObserver(debounce(loadAvistamentos, 300));
+    familyObserver.observe(familyTagsContainer, { childList: true });
+  }
+  
+  if (stateTagsContainer) {
+    const stateObserver = new MutationObserver(debounce(loadAvistamentos, 300));
+    stateObserver.observe(stateTagsContainer, { childList: true });
+  }
+
+  // Clear filters button
+  const sidebarClearFiltersBtn = document.getElementById('sidebar-clear-filters-btn');
+  if (sidebarClearFiltersBtn && typeof clearAnimalFilters === 'function') {
+    sidebarClearFiltersBtn.addEventListener('click', () => {
+      clearAnimalFilters({
+        searchInput: searchInput, // Pass the actual element
+        familyTagsArray: familyTags,
+        stateTagsArray: stateTags,
+        familyTagsId: 'family-tags',
+        stateTagsId: 'state-tags',
+        familyInputId: 'family-input',
+        stateInputId: 'state-input'
+      });
+      // Reload avistamentos after clearing filters
+      loadAvistamentos();
+    });
+  }
+
   initContextMenu();
   initAlertAnimalMenu();
   SpeciesPanel.init();
+}
+
+// Debounce helper function
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Fetch and display avistamentos on the map
+async function loadAvistamentos() {
+  if (!map || !pawMarkerIcon) return;
+
+  try {
+    // Get current filter values
+    const filters = getAnimalFilters({
+      searchInput: document.getElementById('search-input'),
+      familyTagsArray: familyTags,
+      stateTagsArray: stateTags
+    });
+
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (filters.search) {
+      params.append('search', filters.search);
+    }
+    if (filters.families && filters.families.length > 0) {
+      params.append('families', filters.families.join(','));
+    }
+    if (filters.states && filters.states.length > 0) {
+      params.append('states', filters.states.join(','));
+    }
+
+    // Fetch avistamentos from API
+    const response = await fetch(`/api/alerts?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const avistamentos = await response.json();
+
+    // Clear existing markers
+    mapMarkers.forEach(marker => marker.setMap(null));
+    mapMarkers = [];
+
+    // Create markers for each avistamento
+    avistamentos.forEach(avistamento => {
+      const position = {
+        lat: parseFloat(avistamento.latitude),
+        lng: parseFloat(avistamento.longitude)
+      };
+
+      if (isNaN(position.lat) || isNaN(position.lng)) {
+        console.warn('Invalid coordinates for avistamento:', avistamento);
+        return;
+      }
+
+      const marker = new google.maps.Marker({
+        position: position,
+        map: map,
+        icon: pawMarkerIcon,
+        label: {
+          text: avistamento.nome_comum,
+          className: "marker-label"
+        },
+        title: avistamento.nome_comum
+      });
+
+      // Format date for display
+      const alertDate = new Date(avistamento.data_avistamento);
+      const formattedDate = alertDate.toLocaleDateString('pt-PT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // Format location coordinates
+      const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
+
+      // Create details object for SpeciesPanel
+      const details = {
+        avistamento_id: avistamento.avistamento_id,
+        utilizador_id: avistamento.utilizador_id,
+        name: avistamento.nome_comum,
+        scientificName: avistamento.nome_cientifico || '—',
+        family: avistamento.nome_familia || '—',
+        diet: avistamento.nome_dieta || '—',
+        description: avistamento.descricao || '—',
+        alertDate: formattedDate,
+        coordinates: position,
+        location: locationText,
+        image: avistamento.url_imagem || 'img/placeholder.jpg',
+        estado: avistamento.nome_estado || '—',
+        estadoCor: avistamento.estado_cor || '#666'
+      };
+
+      marker.addListener("click", (e) => {
+        try {
+          // If panel is already open, just update the content without closing
+          if (SpeciesPanel.isOpen) {
+            SpeciesPanel.populateData(details);
+          } else {
+            SpeciesPanel.open(details);
+          }
+        } catch (error) {
+          console.error('Error opening panel:', error);
+        }
+      });
+
+      mapMarkers.push(marker);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar avistamentos:', error);
+  }
 }
 
 function createFallbackDetails(location) {
@@ -509,7 +813,7 @@ function initContextMenu() {
         const lng = rightClickPosition.lng().toFixed(6);
         
         navigator.clipboard.writeText(`${lat}, ${lng}`).then(() => {
-          alert(`Localização copiada:\nLat: ${lat}\nLng: ${lng}`);
+          showNotification('Localização copiada para a área de transferência!', 'info');
         }).catch(() => {
           prompt('Localização:', `${lat}, ${lng}`);
         });
@@ -698,14 +1002,96 @@ function initAlertAnimalMenu() {
   });
 
   if (submitButton) {
-    submitButton.addEventListener('click', () => {
+    submitButton.addEventListener('click', async () => {
       const location = locationInput.value;
       if (!selectedAnimal || !location) {
         alert('Por favor, selecione um animal da lista.');
         return;
       }
-      alert(`SUCESSO!\n\nAlerta registado com sucesso!\n\nAnimal: ${selectedAnimal.name}\nFamília: ${selectedAnimal.family}\nLocalização: ${location}`);
-      closeMenu();
+
+      // Get user from localStorage
+      const userData = localStorage.getItem('biomapUser');
+      let user = null;
+      try {
+        user = userData ? JSON.parse(userData) : null;
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+
+      if (!user || !user.id) {
+        alert('Por favor, inicie sessão para criar um alerta.');
+        return;
+      }
+
+      // Parse location coordinates (format: "lat, lng" or "lat, lng")
+      const locationMatch = location.match(/(-?\d+\.?\d*),\s*(-?\d+\.?\d*)/);
+      if (!locationMatch) {
+        alert('Formato de localização inválido. Use: latitude, longitude');
+        return;
+      }
+
+      const latitude = parseFloat(locationMatch[1]);
+      const longitude = parseFloat(locationMatch[2]);
+
+      if (isNaN(latitude) || isNaN(longitude)) {
+        alert('Coordenadas inválidas.');
+        return;
+      }
+
+      // Disable button during submission
+      submitButton.disabled = true;
+      submitButton.style.opacity = '0.6';
+      submitButton.style.cursor = 'not-allowed';
+      const originalText = submitButton.textContent;
+      submitButton.textContent = 'A enviar...';
+
+      try {
+        const response = await fetch('/api/alerts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            animal_id: selectedAnimal.id,
+            utilizador_id: user.id,
+            latitude: latitude,
+            longitude: longitude,
+            data_avistamento: new Date().toISOString()
+          })
+        });
+
+        let result;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          result = await response.json();
+        } else {
+          const text = await response.text();
+          throw new Error(text || `Erro ${response.status}: ${response.statusText}`);
+        }
+
+        if (!response.ok) {
+          throw new Error(result?.error || 'Erro ao criar alerta.');
+        }
+
+        // Show success notification
+        showNotification('Avistamento criado com sucesso!', 'success');
+
+        closeMenu();
+        
+        // Reload avistamentos to show the new alert on the map
+        if (typeof loadAvistamentos === 'function') {
+          loadAvistamentos();
+        }
+      } catch (error) {
+        console.error('Erro ao criar alerta:', error);
+        alert(error?.message || 'Erro ao criar alerta. Por favor, tente novamente.');
+      } finally {
+        // Re-enable button
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+        submitButton.style.cursor = 'pointer';
+        submitButton.textContent = originalText;
+      }
     });
   }
 }
@@ -757,7 +1143,7 @@ const headerTemplate = `
         <div class="account-menu-separator" id="sep-create"></div>
         <div class="account-menu-item" id="menu-profile"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil.html">Perfil</a></div>
         <div class="account-menu-separator" id="sep-profile"></div>
-        <div class="account-menu-item" id="menu-profile-admin"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil_admin.html">Perfil Admin</a></div>
+        <div class="account-menu-item" id="menu-profile-admin"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil_admin.html">Perfil</a></div>
         <div class="account-menu-separator" id="sep-logout"></div>
         <div class="account-menu-item" id="menu-logout"><a style="text-decoration: none;color: #333;font-weight:600;" href="logout.html">Terminar Sessão</a></div>
       </div>

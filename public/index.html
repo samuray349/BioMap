@@ -21,7 +21,7 @@
 
   <div id="page-loader" class="page-loader">
     <div class="spinner-border text-success" role="status">
-      <span class="visually-hidden">Loading...</span>
+      <span class="visually-hidden">Carregar...</span>
     </div>
   </div>
 
@@ -30,11 +30,14 @@
   <div class="main-container d-flex">
     <div id="sidebar" class="sidebar">
       <div class="sidebar-content">
-        <div class="search-section">
-          <div class="search-wrapper ">
+        <div class="search-section" style="display: flex; align-items: center; gap: 10px;">
+          <div class="search-wrapper" style="flex: 1;">
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="search-input" class="search-input green-shadow" placeholder="Pesquisar">
           </div>
+          <button type="button" id="sidebar-clear-filters-btn" class="clear-filters-btn" title="Limpar filtros">
+            <i class="fa-solid fa-filter-circle-xmark"></i>
+          </button>
         </div>
 
         <div class="filters-row">
@@ -74,10 +77,21 @@
         </div>
         <div class="species-panel__content">
           <div class="species-panel__header">
-            <h2 id="species-panel-name">Nome do animal</h2>
-
-              <span class="badge vulnerable">Vulnerável</span>
-
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+              <h2 id="species-panel-name" style="margin: 0; flex: 1;">Nome do animal</h2>
+              <span class="badge" style="color:white;">-</span>
+              <div class="species-panel-menu" id="species-panel-menu" style="display: none; position: relative;">
+                <button class="menu-toggle-btn" id="species-panel-menu-toggle" title="Menu">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="menu-dropdown" id="species-panel-menu-dropdown" style="display: none;">
+                  <div class="menu-item" id="species-panel-delete">
+                    <i class="fas fa-trash"></i>
+                    <span>Eliminar avistamento</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="species-panel__info">
@@ -201,6 +215,9 @@
     </div>
   </div>
   
+  <!-- Notification Container -->
+  <div id="notification-container" class="notification-container"></div>
+
   <script src="js/animals.js"></script>
   <script src="js/script.js"></script>
   

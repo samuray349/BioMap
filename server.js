@@ -596,6 +596,185 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// Get avistamentos (alerts) with filtering support
+app.get('/api/alerts', async (req, res) => {
+  try {
+    const { search, families, states } = req.query;
+    
+    // Base Query: Join avistamento with animal, familia, and estado_conservacao
+    // Extract coordinates from geography point
+    let sqlQuery = `
+      SELECT 
+        av.avistamento_id,
+        av.data_avistamento,
+        av.utilizador_id,
+        ST_Y(av."localização"::geometry) as latitude,
+        ST_X(av."localização"::geometry) as longitude,
+        a.animal_id,
+        a.nome_comum,
+        a.nome_cientifico,
+        a.descricao,
+        a.url_imagem,
+        f.nome_familia,
+        d.nome_dieta,
+        e.nome_estado,
+        e.hex_cor as estado_cor
+      FROM avistamento av
+      JOIN animal a ON av.animal_id = a.animal_id
+      JOIN familia f ON a.familia_id = f.familia_id
+      JOIN estado_conservacao e ON a.estado_id = e.estado_id
+      LEFT JOIN dieta d ON a.dieta_id = d.dieta_id
+      WHERE 1=1
+    `;
+
+    const queryParams = [];
+    let paramCounter = 1;
+
+    // Text Search Filter (on animal name)
+    if (search) {
+      sqlQuery += ` AND (a.nome_comum ILIKE $${paramCounter})`;
+      queryParams.push(`%${search}%`);
+      paramCounter++;
+    }
+
+    // Family Filter
+    if (families) {
+      const familyArray = families.split(',');
+      sqlQuery += ` AND f.nome_familia = ANY($${paramCounter})`;
+      queryParams.push(familyArray);
+      paramCounter++;
+    }
+
+    // Conservation Status Filter
+    if (states) {
+      const stateArray = states.split(',');
+      sqlQuery += ` AND e.nome_estado = ANY($${paramCounter})`;
+      queryParams.push(stateArray);
+      paramCounter++;
+    }
+
+    sqlQuery += ` ORDER BY av.data_avistamento DESC`;
+
+    const { rows } = await pool.query(sqlQuery, queryParams);
+    res.json(rows);
+  } catch (error) {
+    console.error('Erro ao buscar avistamentos', error);
+    res.status(500).json({ error: 'Erro ao buscar avistamentos.' });
+  }
+});
+
+// Create animal alert (avistamento)
+app.post('/api/alerts', async (req, res) => {
+  try {
+    const { animal_id, utilizador_id, latitude, longitude, data_avistamento } = req.body;
+
+    // Validation
+    if (!animal_id || !utilizador_id || latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ error: 'Campos obrigatórios em falta: animal_id, utilizador_id, latitude, longitude.' });
+    }
+
+    // Validate IDs are numbers
+    if (!/^\d+$/.test(String(animal_id)) || !/^\d+$/.test(String(utilizador_id))) {
+      return res.status(400).json({ error: 'IDs devem ser números válidos.' });
+    }
+
+    // Validate coordinates
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+    if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+      return res.status(400).json({ error: 'Coordenadas inválidas.' });
+    }
+
+    // Check if animal exists
+    const animalCheck = await pool.query('SELECT animal_id FROM animal WHERE animal_id = $1', [animal_id]);
+    if (animalCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Animal não encontrado.' });
+    }
+
+    // Check if user exists
+    const userCheck = await pool.query('SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1', [utilizador_id]);
+    if (userCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Utilizador não encontrado.' });
+    }
+
+    // Use provided date or current timestamp
+    const avistamentoDate = data_avistamento || new Date().toISOString();
+
+    // Insert avistamento with PostGIS geography point
+    const insertQuery = `
+      INSERT INTO avistamento (
+        data_avistamento,
+        "localização",
+        animal_id,
+        utilizador_id
+      )
+      VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography, $4, $5)
+      RETURNING avistamento_id
+    `;
+
+    const { rows } = await pool.query(insertQuery, [
+      avistamentoDate,
+      lon, // PostGIS uses (longitude, latitude) order
+      lat,
+      animal_id,
+      utilizador_id
+    ]);
+
+    return res.status(201).json({
+      message: 'Alerta criado com sucesso.',
+      avistamento_id: rows[0].avistamento_id
+    });
+  } catch (error) {
+    console.error('Erro ao criar alerta', error);
+    return res.status(500).json({ error: 'Erro ao criar alerta.' });
+  }
+});
+
+// Delete avistamento (only admin or creator)
+app.delete('/api/alerts/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { utilizador_id, funcao_id } = req.body; // Get from request body (sent by frontend)
+
+    // Validate ID
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    // Validate user data
+    if (!utilizador_id || !funcao_id) {
+      return res.status(401).json({ error: 'Autenticação necessária.' });
+    }
+
+    // Check if avistamento exists and get creator ID
+    const avistamentoCheck = await pool.query(
+      'SELECT utilizador_id FROM avistamento WHERE avistamento_id = $1',
+      [id]
+    );
+
+    if (avistamentoCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Avistamento não encontrado.' });
+    }
+
+    const creatorId = avistamentoCheck.rows[0].utilizador_id;
+    const isAdmin = Number(funcao_id) === 1;
+    const isCreator = Number(utilizador_id) === Number(creatorId);
+
+    // Check permissions: only admin or creator can delete
+    if (!isAdmin && !isCreator) {
+      return res.status(403).json({ error: 'Não tem permissão para eliminar este avistamento.' });
+    }
+
+    // Delete avistamento
+    await pool.query('DELETE FROM avistamento WHERE avistamento_id = $1', [id]);
+
+    return res.status(200).json({ message: 'Avistamento eliminado com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao eliminar avistamento', error);
+    return res.status(500).json({ error: 'Erro ao eliminar avistamento.' });
+  }
+});
+
 // Static files should be served after API routes
 app.use(express.static(path2.join(__dirname, "public")));
 
