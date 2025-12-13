@@ -175,3 +175,70 @@ function getUserFilters(config) {
     };
 }
 
+/**
+ * Limpa todos os filtros de utilizadores
+ * @param {Object} config - Objeto de configuração
+ * @param {HTMLElement|string} config.searchInput - Elemento de entrada de pesquisa ou seletor
+ * @param {Array} config.estadoTagsArray - Array de etiquetas de estado selecionadas
+ * @param {Array} config.estatutoTagsArray - Array de etiquetas de estatuto selecionadas
+ * @param {string} config.estadoTagsId - ID do contentor de etiquetas de estado
+ * @param {string} config.estatutoTagsId - ID do contentor de etiquetas de estatuto
+ * @param {string} config.estadoInputId - ID do elemento de entrada de estado
+ * @param {string} config.estatutoInputId - ID do elemento de entrada de estatuto
+ */
+function clearUserFilters(config) {
+    const {
+        searchInput,
+        estadoTagsArray = [],
+        estatutoTagsArray = [],
+        estadoTagsId,
+        estatutoTagsId,
+        estadoInputId,
+        estatutoInputId
+    } = config;
+    
+    // Clear search input
+    const searchEl = typeof searchInput === 'string' 
+        ? document.querySelector(searchInput) 
+        : searchInput;
+    if (searchEl) {
+        searchEl.value = '';
+    }
+    
+    // Clear tag arrays
+    if (Array.isArray(estadoTagsArray)) {
+        estadoTagsArray.length = 0;
+    }
+    if (Array.isArray(estatutoTagsArray)) {
+        estatutoTagsArray.length = 0;
+    }
+    
+    // Clear tag containers
+    if (estadoTagsId) {
+        const estadoContainer = document.getElementById(estadoTagsId);
+        if (estadoContainer) {
+            estadoContainer.innerHTML = '';
+        }
+    }
+    if (estatutoTagsId) {
+        const estatutoContainer = document.getElementById(estatutoTagsId);
+        if (estatutoContainer) {
+            estatutoContainer.innerHTML = '';
+        }
+    }
+    
+    // Clear input fields
+    if (estadoInputId) {
+        const estadoInput = document.getElementById(estadoInputId);
+        if (estadoInput) {
+            estadoInput.value = '';
+        }
+    }
+    if (estatutoInputId) {
+        const estatutoInput = document.getElementById(estatutoInputId);
+        if (estatutoInput) {
+            estatutoInput.value = '';
+        }
+    }
+}
+

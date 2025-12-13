@@ -34,7 +34,7 @@ async function fetchAnimals(filters = {}) {
 }
 
 /**
- * Renderiza cartões de animais num contentor
+ * Renderiza os animal cards num contentor
  * @param {Array} animals - Array de objetos de animais
  * @param {HTMLElement|string} container - Elemento contentor ou seletor
  * @param {Object} options - Opções de renderização
@@ -173,7 +173,7 @@ function renderAnimalTable(animals, tbody) {
             <td>${animal.nome_familia}</td>
             <td><span class="${badgeClass}" style="background-color: ${animal.estado_cor || '#ccc'}; color: white;">${animal.nome_estado}</span></td>
             <td><i class="fas fa-sync-alt update-icon"></i></td>
-            <td><i class="fas fa-ban ban-icon"></i></td>
+            <td><i class="fas fa-ban ban-icon" data-animal-id="${animal.animal_id}" style="cursor: pointer;"></i></td>
         `;
         
         tbodyEl.appendChild(row);
@@ -270,4 +270,71 @@ function getAnimalFilters(config) {
         families: familyTagsArray,
         states: stateTagsArray
     };
+}
+
+/**
+ * Limpa todos os filtros de animais
+ * @param {Object} config - Objeto de configuração
+ * @param {HTMLElement|string} config.searchInput - Elemento de entrada de pesquisa ou seletor
+ * @param {Array} config.familyTagsArray - Array de etiquetas de família selecionadas
+ * @param {Array} config.stateTagsArray - Array de etiquetas de estado selecionadas
+ * @param {string} config.familyTagsId - ID do contentor de etiquetas de família
+ * @param {string} config.stateTagsId - ID do contentor de etiquetas de estado
+ * @param {string} config.familyInputId - ID do elemento de entrada de família
+ * @param {string} config.stateInputId - ID do elemento de entrada de estado
+ */
+function clearAnimalFilters(config) {
+    const {
+        searchInput,
+        familyTagsArray = [],
+        stateTagsArray = [],
+        familyTagsId,
+        stateTagsId,
+        familyInputId,
+        stateInputId
+    } = config;
+    
+    // Clear search input
+    const searchEl = typeof searchInput === 'string' 
+        ? document.querySelector(searchInput) 
+        : searchInput;
+    if (searchEl) {
+        searchEl.value = '';
+    }
+    
+    // Clear tag arrays
+    if (Array.isArray(familyTagsArray)) {
+        familyTagsArray.length = 0;
+    }
+    if (Array.isArray(stateTagsArray)) {
+        stateTagsArray.length = 0;
+    }
+    
+    // Clear tag containers
+    if (familyTagsId) {
+        const familyContainer = document.getElementById(familyTagsId);
+        if (familyContainer) {
+            familyContainer.innerHTML = '';
+        }
+    }
+    if (stateTagsId) {
+        const stateContainer = document.getElementById(stateTagsId);
+        if (stateContainer) {
+            stateContainer.innerHTML = '';
+        }
+    }
+    
+    // Clear input fields
+    if (familyInputId) {
+        const familyInput = document.getElementById(familyInputId);
+        if (familyInput) {
+            familyInput.value = '';
+        }
+    }
+    if (stateInputId) {
+        const stateInput = document.getElementById(stateInputId);
+        if (stateInput) {
+            stateInput.value = '';
+        }
+    }
 }

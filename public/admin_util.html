@@ -57,6 +57,13 @@
                   <div class="dropdown-menu" id="estatuto-dropdown"></div>
                 </div>
               </div>
+              
+              <div class="filter-section" style="flex: 0 0 auto; max-width: 50px;">
+                <label class="filter-label" style="visibility: hidden;">Clear</label>
+                <button type="button" id="clear-filters-btn" class="clear-filters-btn" title="Limpar filtros">
+                    <i class="fa-solid fa-filter-circle-xmark"></i>
+                </button>
+              </div>
             </div>
           </div>
         
@@ -220,6 +227,23 @@
             // Search input triggers load
             if (searchInput) {
                 searchInput.addEventListener('input', loadUsers);
+            }
+
+            // Clear filters button
+            const clearFiltersBtn = document.getElementById('clear-filters-btn');
+            if (clearFiltersBtn) {
+                clearFiltersBtn.addEventListener('click', () => {
+                    clearUserFilters({
+                        searchInput: searchInput,
+                        estadoTagsArray: adminEstadoTags,
+                        estatutoTagsArray: adminEstatutoTags,
+                        estadoTagsId: 'estado-tags',
+                        estatutoTagsId: 'estatuto-tags',
+                        estadoInputId: 'estado-input',
+                        estatutoInputId: 'estatuto-input'
+                    });
+                    loadUsers();
+                });
             }
 
             // Initial load

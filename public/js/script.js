@@ -630,6 +630,23 @@ function initAlertAnimalMenu() {
   if (famContainer) tagObserver.observe(famContainer, observerConfig);
   if (stateContainer) tagObserver.observe(stateContainer, observerConfig);
 
+  // Clear filters button for popup
+  const popupClearFiltersBtn = document.getElementById('popup-clear-filters-btn');
+  if (popupClearFiltersBtn && typeof clearAnimalFilters === 'function') {
+    popupClearFiltersBtn.addEventListener('click', () => {
+      clearAnimalFilters({
+        searchInput: searchInput,
+        familyTagsArray: popupFamilyTags,
+        stateTagsArray: popupStateTags,
+        familyTagsId: 'popup-family-tags',
+        stateTagsId: 'popup-state-tags',
+        familyInputId: 'popup-family-input',
+        stateInputId: 'popup-state-input'
+      });
+      loadAnimals();
+    });
+  }
+
   // --- Menu Visibility & Location ---
   const originalMenuAlertClick = document.getElementById('menu-alert');
   if (originalMenuAlertClick) {

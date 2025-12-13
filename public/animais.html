@@ -325,6 +325,13 @@
                   <div class="dropdown-menu" id="family-dropdown"></div>
                 </div>
               </div>
+              
+              <div class="filter-section" style="flex: 0 0 auto; max-width: 50px;">
+                <label class="filter-label" style="visibility: hidden;">Clear</label>
+                <button type="button" id="clear-filters-btn" class="clear-filters-btn" title="Limpar filtros">
+                    <i class="fa-solid fa-filter-circle-xmark"></i>
+                </button>
+              </div>
             </div>
           </div>
         <!-- Results Header -->
@@ -419,6 +426,23 @@
               stateTagsArray: animaisStateTags,
               onFilterChange: loadAnimals
           });
+      
+          // Clear filters button
+          const clearFiltersBtn = document.getElementById('clear-filters-btn');
+          if (clearFiltersBtn) {
+              clearFiltersBtn.addEventListener('click', () => {
+                  clearAnimalFilters({
+                      searchInput: searchInput,
+                      familyTagsArray: animaisFamilyTags,
+                      stateTagsArray: animaisStateTags,
+                      familyTagsId: 'family-tags',
+                      stateTagsId: 'state-tags',
+                      familyInputId: 'family-input',
+                      stateInputId: 'state-input'
+                  });
+                  loadAnimals();
+              });
+          }
       
           // Carregar os animais
           loadAnimals();

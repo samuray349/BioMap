@@ -24,7 +24,6 @@ const PORT = process.env.PORT || 3000;
 // Allow larger payloads for image uploads (base64 up to ~10MB)
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-app.use(express.static(path2.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
   res.sendFile(path2.join(__dirname, "public", "index.html"));
@@ -402,7 +401,7 @@ app.post('/animais', async (req, res) => {
     );
 
     for (const threat of uniqueThreats) {
-      // Try to reuse existing threat
+      // Try to reuse existing threat (same text could already be in database)
       let threatId;
       const existing = await client.query('SELECT ameaca_id FROM ameaca WHERE descricao = $1 LIMIT 1', [
         threat
@@ -417,9 +416,9 @@ app.post('/animais', async (req, res) => {
         threatId = inserted.rows[0].ameaca_id;
       }
 
-      // Link to animal
+      // Link to animal (ignore if link already exists)
       await client.query(
-        'INSERT INTO animal_ameaca (animal_id, ameaca_id) VALUES ($1, $2)',
+        'INSERT INTO animal_ameaca (animal_id, ameaca_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
         [animalId, threatId]
       );
     }
@@ -437,6 +436,67 @@ app.post('/animais', async (req, res) => {
     return res.status(500).json({ error: 'Erro ao criar animal.' });
   } finally {
     client.release();
+  }
+});
+
+// Delete animal and its image
+app.delete('/animais/:id', async (req, res) => {
+  const client = await pool.connect();
+  
+  try {
+    const { id } = req.params;
+    
+    // Validate ID
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    try {
+      await client.query('BEGIN');
+
+      // Get animal info to find image path
+      const animalResult = await client.query(
+        'SELECT url_imagem FROM animal WHERE animal_id = $1',
+        [id]
+      );
+
+      if (animalResult.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Animal not found.' });
+      }
+
+      const imagePath = animalResult.rows[0].url_imagem;
+
+      // Delete animal (cascade will handle animal_ameaca relationships)
+      await client.query('DELETE FROM animal WHERE animal_id = $1', [id]);
+
+      // Delete image file if it exists
+      if (imagePath && imagePath.startsWith('../animal/')) {
+        const fileName = imagePath.replace('../animal/', '');
+        const fullImagePath = path2.join(__dirname, 'public', 'animal', fileName);
+        
+        try {
+          await fs.unlink(fullImagePath);
+        } catch (fileError) {
+          // Log but don't fail if file doesn't exist
+          console.warn(`Could not delete image file: ${fullImagePath}`, fileError.message);
+        }
+      }
+
+      await client.query('COMMIT');
+
+      return res.status(200).json({ message: 'Animal deletado com sucesso.' });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      console.error('Erro ao deletar animal (transaction):', error);
+      return res.status(500).json({ error: 'Erro ao deletar animal.' });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Erro ao deletar animal (outer):', error);
+    if (client) client.release();
+    return res.status(500).json({ error: 'Erro ao deletar animal.' });
   }
 });
 
@@ -535,5 +595,8 @@ app.post('/api/login', async (req, res) => {
     return res.status(500).json({ error: 'Erro ao iniciar sessão.' });
   }
 });
+
+// Static files should be served after API routes
+app.use(express.static(path2.join(__dirname, "public")));
 
 app.listen(PORT, () => console.log(`A correr na porta http://localhost:${PORT}`));
