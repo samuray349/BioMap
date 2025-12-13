@@ -527,11 +527,10 @@ async function loadAvistamentos() {
     }
     const avistamentos = await response.json();
 
-    // Clear existing markers
-    mapMarkers.forEach(marker => marker.setMap(null));
-    mapMarkers = [];
+    // Create new markers first (but don't add to map yet to avoid flicker)
+    const newMarkers = [];
+    const markerDataMap = new Map(); // Store marker data for click handlers
 
-    // Create markers for each avistamento
     avistamentos.forEach(avistamento => {
       const position = {
         lat: parseFloat(avistamento.latitude),
@@ -542,17 +541,6 @@ async function loadAvistamentos() {
         console.warn('Invalid coordinates for avistamento:', avistamento);
         return;
       }
-
-      const marker = new google.maps.Marker({
-        position: position,
-        map: map,
-        icon: pawMarkerIcon,
-        label: {
-          text: avistamento.nome_comum,
-          className: "marker-label"
-        },
-        title: avistamento.nome_comum
-      });
 
       // Format date for display
       const alertDate = new Date(avistamento.data_avistamento);
@@ -584,21 +572,66 @@ async function loadAvistamentos() {
         estadoCor: avistamento.estado_cor || '#666'
       };
 
-      marker.addListener("click", (e) => {
-        try {
-          // If panel is already open, just update the content without closing
-          if (SpeciesPanel.isOpen) {
-            SpeciesPanel.populateData(details);
-          } else {
-            SpeciesPanel.open(details);
-          }
-        } catch (error) {
-          console.error('Error opening panel:', error);
-        }
+      const marker = new google.maps.Marker({
+        position: position,
+        map: null, // Don't add to map yet
+        icon: pawMarkerIcon,
+        label: {
+          text: avistamento.nome_comum,
+          className: "marker-label"
+        },
+        title: avistamento.nome_comum
       });
 
-      mapMarkers.push(marker);
+      // Store marker and its data
+      markerDataMap.set(marker, details);
+      newMarkers.push(marker);
     });
+
+    // Now update markers with smooth transitions
+    // First, fade out old markers
+    mapMarkers.forEach(marker => {
+      const labelDiv = marker.getLabel()?.element;
+      if (labelDiv) {
+        labelDiv.classList.add('marker-fade-out');
+      }
+      // Remove marker after fade out animation
+      setTimeout(() => {
+        marker.setMap(null);
+      }, 300);
+    });
+    
+    // Then add new markers with fade in animation
+    setTimeout(() => {
+      newMarkers.forEach((marker, index) => {
+        // Stagger the appearance slightly for a smoother effect
+        setTimeout(() => {
+          marker.setMap(map);
+          
+          // Attach click handler
+          const details = markerDataMap.get(marker);
+          if (details) {
+            marker.addListener("click", (e) => {
+              try {
+                // If panel is already open, just update the content without closing
+                if (SpeciesPanel.isOpen) {
+                  SpeciesPanel.populateData(details);
+                } else {
+                  SpeciesPanel.open(details);
+                }
+              } catch (error) {
+                console.error('Error opening panel:', error);
+              }
+            });
+          }
+        }, index * 20); // 20ms delay between each marker
+      });
+      
+      // Update the markers array after a short delay
+      setTimeout(() => {
+        mapMarkers = newMarkers;
+      }, newMarkers.length * 20 + 100);
+    }, 300);
   } catch (error) {
     console.error('Erro ao carregar avistamentos:', error);
   }
