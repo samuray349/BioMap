@@ -15,6 +15,9 @@ const app = express();
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// Serve static files from public directory (for both local and Vercel)
+app.use(express.static(path2.join(__dirname, "public")));
+
 /* =====================
    Health check
 ===================== */
