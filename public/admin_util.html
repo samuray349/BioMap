@@ -15,6 +15,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
+    <script src="js/config.js"></script>
 </head>
 <body>
     <!-- Header Placeholder -->
@@ -156,7 +157,8 @@
         // Fetch estado options from API
         async function fetchEstadoOptions() {
             try {
-                const response = await fetch('/users/estados');
+                const apiUrl = window.API_CONFIG?.getUrl('users/estados') || '/users/estados';
+                const response = await fetch(apiUrl);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -171,7 +173,8 @@
         // Fetch estatuto options from API
         async function fetchEstatutoOptions() {
             try {
-                const response = await fetch('/users/estatutos');
+                const apiUrl = window.API_CONFIG?.getUrl('users/estatutos') || '/users/estatutos';
+                const response = await fetch(apiUrl);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

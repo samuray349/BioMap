@@ -21,7 +21,8 @@ async function fetchUsers(filters = {}) {
             params.append('estatutos', filters.estatutos.join(','));
         }
         
-        const response = await fetch(`/users?${params.toString()}`);
+        const apiUrl = window.API_CONFIG?.getUrl(`users?${params.toString()}`) || `/users?${params.toString()}`;
+        const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

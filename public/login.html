@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <link href="css/styles.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
+    <script src="js/config.js"></script>
 </head>
 <body>
     <div id="header-placeholder"></div>
@@ -132,7 +133,8 @@
                 setLoading(true);
 
                 try {
-                    const response = await fetch('/api/login', {
+                    const apiUrl = window.API_CONFIG?.getUrl('api/login') || '/api/login';
+                    const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

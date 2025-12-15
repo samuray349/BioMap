@@ -186,7 +186,8 @@ const SpeciesPanel = {
     }
 
     try {
-      const response = await fetch(`/api/alerts/${this.currentAvistamentoId}`, {
+      const apiUrl = window.API_CONFIG?.getUrl(`api/alerts/${this.currentAvistamentoId}`) || `/api/alerts/${this.currentAvistamentoId}`;
+      const response = await fetch(apiUrl, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -521,7 +522,8 @@ async function loadAvistamentos() {
     }
 
     // Fetch avistamentos from API
-    const response = await fetch(`/api/alerts?${params.toString()}`);
+    const apiUrl = window.API_CONFIG?.getUrl(`api/alerts?${params.toString()}`) || `/api/alerts?${params.toString()}`;
+    const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -1079,7 +1081,8 @@ function initAlertAnimalMenu() {
       submitButton.textContent = 'A enviar...';
 
       try {
-        const response = await fetch('/api/alerts', {
+        const apiUrl = window.API_CONFIG?.getUrl('api/alerts') || '/api/alerts';
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

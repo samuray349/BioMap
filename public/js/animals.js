@@ -21,7 +21,8 @@ async function fetchAnimals(filters = {}) {
             params.append('states', filters.states.join(','));
         }
         
-        const response = await fetch(`/animais?${params.toString()}`);
+        const apiUrl = window.API_CONFIG?.getUrl(`animais?${params.toString()}`) || `/animais?${params.toString()}`;
+        const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

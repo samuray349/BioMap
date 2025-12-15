@@ -14,6 +14,7 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+    <script src="js/config.js"></script>
 </head>
 <body>
     <!-- Header Placeholder -->
@@ -314,7 +315,8 @@
             }
             
             try {
-                const response = await fetch(`/animais/${animalId}`, {
+                const apiUrl = window.API_CONFIG?.getUrl(`animais/${animalId}`) || `/animais/${animalId}`;
+                const response = await fetch(apiUrl, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'

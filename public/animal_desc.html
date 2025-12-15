@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
+    <script src="js/config.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
@@ -314,7 +315,8 @@
                 return;
             }
             // Buscar dos animais da API
-            const response = await fetch(`/animaisDesc/${animalId}`);
+            const apiUrl = window.API_CONFIG?.getUrl(`animaisDesc/${animalId}`) || `/animaisDesc/${animalId}`;
+            const response = await fetch(apiUrl);
             const animal = await response.json();
 
             renderAnimalDesc(animal);   
