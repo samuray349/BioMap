@@ -880,6 +880,7 @@ function initContextMenu() {
         return;
       }
 
+      
       const alertMenu = document.getElementById('alert-animal-menu');
       const locationInput = document.getElementById('alert-animal-location');
       
