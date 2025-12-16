@@ -58,7 +58,7 @@
                     
                     <button type="submit" class="confirm-button">Confirmar Alterações</button>
                     
-                    <a href="perfil.html" class="back-link">&lt; Voltar</a>
+                    <a href="perfil.php" class="back-link">&lt; Voltar</a>
                 </form>
             </div>
         </div>
@@ -88,4 +88,5 @@
     </script>
 </body>
 </html>
+
 

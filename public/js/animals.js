@@ -85,7 +85,7 @@ function renderAnimalCards(animals, container, options = {}) {
             `;
         } else if (showDetailsLink) {
             buttonContent = `
-                <a href="animal_desc.html?id=${animal.animal_id}" class="btn-details">
+                <a href="animal_desc.php?id=${animal.animal_id}" class="btn-details">
                     <span>👁</span> ${buttonText}
                 </a>
             `;
@@ -122,7 +122,7 @@ function renderAnimalCards(animals, container, options = {}) {
             }
         }
         
-        // Adiciona atributos de dados para filtragem (usado no popup do index.html)
+        // Adiciona atributos de dados para filtragem (usado no popup do index.php)
         card.setAttribute('data-name', animal.nome_comum);
         card.setAttribute('data-family', animal.nome_familia);
         card.setAttribute('data-status', animal.nome_estado);

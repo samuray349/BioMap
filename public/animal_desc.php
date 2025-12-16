@@ -255,7 +255,7 @@
                         </div>
                         <p class="text-gray-700" style="margin: 0;" id="populacao-estimada"></p>
                     </div>
-                    <a href="doar.html" class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition w-full flex items-center justify-center" style="background-color: var(--accent-color); text-decoration: none; margin-top: auto;">
+                    <a href="doar.php" class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition w-full flex items-center justify-center" style="background-color: var(--accent-color); text-decoration: none; margin-top: auto;">
                         <i data-feather="heart" class="inline mr-2" id="doar-icon"></i> Doar
                     </a>
                 </div>

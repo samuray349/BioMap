@@ -9,7 +9,8 @@
   <script>
     // Clear stored session info and redirect to login
     localStorage.removeItem('biomapUser');
-    window.location.replace('login.html');
+    window.location.replace('login.php');
   </script>
 </body>
 </html>
+

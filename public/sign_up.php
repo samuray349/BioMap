@@ -54,7 +54,7 @@
             </form>
 
             <div class="signup-link">
-                <p>Já tem conta? <a href="login.html">Iniciar Sessão</a></p>
+                <p>Já tem conta? <a href="login.php">Iniciar Sessão</a></p>
             </div>
 
             <div class="error-message" id="formError" role="alert"></div>
@@ -158,7 +158,7 @@
                     }
 
                     setTimeout(() => {
-                        window.location.href = 'login.html';
+                        window.location.href = 'login.php';
                     }, 1200);
                 } catch (error) {
                     showError(formError, error.message);

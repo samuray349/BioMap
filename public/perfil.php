@@ -30,7 +30,7 @@
         <div class="container">
             <div class="actions-grid">
 
-                <a href="editar_perfil.html" class="action-link-wrapper">
+                <a href="editar_perfil.php" class="action-link-wrapper">
                     <div class="action-card edit-profile">
                         <div class="action-icon">
                             <i class="fas fa-edit"></i>
@@ -39,7 +39,7 @@
                     </div>
                 </a>
 
-                <a href="atualizar_password.html" class="action-link-wrapper">
+                <a href="atualizar_password.php" class="action-link-wrapper">
                     <div class="action-card change-password">
                         <div class="action-icon">
                             <i class="fas fa-lock"></i>
@@ -48,7 +48,7 @@
                     </div>
                 </a>
 
-                <a href="logout.html" class="action-link-wrapper action-link-wrapper-wide">
+                <a href="logout.php" class="action-link-wrapper action-link-wrapper-wide">
                     <div class="action-card log-out">
                         <div class="action-icon red-icon">
                             <i class="fas fa-door-open"></i>
@@ -62,7 +62,7 @@
     </section>
 
     <footer class="delete-account-footer">
-        <a href="apagar_perfil.html" class="delete-account-link">
+        <a href="apagar_perfil.php" class="delete-account-link">
             <i class="fas fa-exclamation-triangle"></i>
             <span>Apagar Conta</span>
         </a>

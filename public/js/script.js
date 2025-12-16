@@ -879,7 +879,7 @@ function initAlertAnimalMenu() {
   let popupFamilyTags = [];
   let popupStateTags = [];
 
-  // Options (Same as animais.html) - using scientific names to match database
+  // Options (Same as animais.php) - using scientific names to match database
   const familyOptions = [
     "Felidae", "Canidae", "Ursidae", "Mustelidae", 
     "Cervidae", "Suidae", "Leporidae", "Sciuridae",
@@ -1161,34 +1161,34 @@ const headerTemplate = `
   <div class="header-content">
     <div class="logo-section">
       <img class="logo-icon" src="img/biomap-icon.png">
-      <a href="index.html" class="logo-text">BioMap</a>
+      <a href="index.php" class="logo-text">BioMap</a>
     </div>
     <nav class="nav-links">
-      <a href="index.html" class="nav-link">Mapa</a>
-      <a href="animais.html" class="nav-link">Animais</a>
-      <a href="sobre_nos.html" class="nav-link">Sobre nós</a>
-      <a href="doar.html" class="nav-link">Doar</a>
+      <a href="index.php" class="nav-link">Mapa</a>
+      <a href="animais.php" class="nav-link">Animais</a>
+      <a href="sobre_nos.php" class="nav-link">Sobre nós</a>
+      <a href="doar.php" class="nav-link">Doar</a>
     </nav>
     <div class="user-section">
-      <a href="perfil.html" id="user-name" class="user-name"></a>
+      <a href="perfil.php" id="user-name" class="user-name"></a>
       <i class="fas fa-user user-icon" id="user-icon"></i>
       <div id="account-menu" class="account-menu">
-        <div class="account-menu-item" id="menu-login"><a style="text-decoration: none;color: #333;" href="login.html">Iniciar Sessão</a></div>
+        <div class="account-menu-item" id="menu-login"><a style="text-decoration: none;color: #333;" href="login.php">Iniciar Sessão</a></div>
         <div class="account-menu-separator" id="sep-login"></div>
-        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;" href="sign_up.html">Criar Conta</a></div>
+        <div class="account-menu-item" id="menu-create-account"><a style="text-decoration: none;color: #333;font-weight:600;" href="sign_up.php">Criar Conta</a></div>
         <div class="account-menu-separator" id="sep-create"></div>
-        <div class="account-menu-item" id="menu-profile"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil.html">Perfil</a></div>
+        <div class="account-menu-item" id="menu-profile"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil.php">Perfil</a></div>
         <div class="account-menu-separator" id="sep-profile"></div>
-        <div class="account-menu-item" id="menu-profile-admin"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil_admin.html">Perfil</a></div>
+        <div class="account-menu-item" id="menu-profile-admin"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil_admin.php">Perfil</a></div>
         <div class="account-menu-separator" id="sep-logout"></div>
-        <div class="account-menu-item" id="menu-logout"><a style="text-decoration: none;color: #333;font-weight:600;" href="logout.html">Terminar Sessão</a></div>
+        <div class="account-menu-item" id="menu-logout"><a style="text-decoration: none;color: #333;font-weight:600;" href="logout.php">Terminar Sessão</a></div>
       </div>
     </div>
   </div>
 </header>
 `;
 
-async function loadHeader(path = 'header.html') {
+async function loadHeader(path = 'header.php') {
     const placeholder = document.getElementById('header-placeholder');
     if (!placeholder) return;
   
@@ -1204,7 +1204,7 @@ async function loadHeader(path = 'header.html') {
 }
   
 function highlightCurrentPage() {
-  const current = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0];
+  const current = (window.location.pathname.split('/').pop() || 'index.php').split('?')[0];
   document.querySelectorAll('.nav-link').forEach(link => {
     const linkHref = (link.getAttribute('href') || '').split('?')[0];
     link.classList.toggle('current', linkHref === current);
@@ -1266,12 +1266,12 @@ function applyHeaderAuthState() {
     show(profileItem); show(sepProfile);
     hide(sepProfile);
     hide(adminItem);
-    userNameElement.href = 'perfil.html';
+    userNameElement.href = 'perfil.php';
     userNameElement
   } else if (Number(user.funcao_id) === 1) {
     hide(profileItem); hide(sepProfile);
     show(adminItem);
-    userNameElement.href = 'perfil_admin.html';
+    userNameElement.href = 'perfil_admin.php';
   } else {
     hide(profileItem); hide(sepProfile);
     hide(adminItem);

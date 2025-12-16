@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Instituição</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="add-institution-page">
+        <section class="add-institution-card">
+            <div class="add-animal-header">
+                <div>
+                    <h1>Adicionar Instituição</h1>
+                    <p class="subtitle">Preencha os detalhes para publicar uma nova instituição parceira na plataforma.</p>
+                </div>
+                <button class="ghost-btn" type="button">
+                    <i class="fa-solid fa-rotate"></i>
+                    Limpar formulário
+                </button>
+            </div>
+
+            <form class="add-animal-form add-institution-form">
+                <div class="form-grid">
+                    <div class="input-field">
+                        <label for="institution-name">Nome da Instituição</label>
+                        <input id="institution-name" type="text" placeholder="Ex: Centro de Conservação do Lince Ibérico">
+                    </div>
+                    <div class="input-field">
+                        <label for="institution-contact">Contacto</label>
+                        <input id="institution-contact" type="text" placeholder="Email, telefone ou website oficial">
+                    </div>
+                </div>
+
+                <section class="add-section schedule-section">
+                    <div class="section-heading">
+                        <h2>Horário</h2>
+                        <p>Defina os dias de funcionamento e os respetivos horários.</p>
+                    </div>
+                    <div class="schedule-grid">
+                        <div class="input-field">
+                            <label for="schedule-days">Dias</label>
+                            <select id="schedule-days" name="schedule-days" class="chip-select multi-select" multiple aria-describedby="schedule-days-hint">
+                                <option value="Segunda">Segunda</option>
+                                <option value="Terça">Terça</option>
+                                <option value="Quarta">Quarta</option>
+                                <option value="Quinta">Quinta</option>
+                                <option value="Sexta">Sexta</option>
+                                <option value="Sábado">Sábado</option>
+                                <option value="Domingo">Domingo</option>
+                            </select>
+                            <small id="schedule-days-hint" class="field-hint">Use Ctrl (Windows) ou ⌘ (Mac) para selecionar vários dias.</small>
+                        </div>
+                        <div class="schedule-times">
+                            <div class="input-field time-field">
+                                <label for="opening-time">Hora abertura</label>
+                                <button type="button" class="time-display" data-target="opening-time">09:00</button>
+                                <input id="opening-time" type="hidden" value="09:00">
+                            </div>
+                            <div class="input-field time-field">
+                                <label for="closing-time">Hora fecho</label>
+                                <button type="button" class="time-display" data-target="closing-time">17:00</button>
+                                <input id="closing-time" type="hidden" value="17:00">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="add-section description-section">
+                    <div class="section-heading">
+                        <h2>Descrição</h2>
+                        <p>Apresente a história, missão e iniciativas da instituição.</p>
+                    </div>
+                    <div class="description-editor">
+                        <div class="editor-toolbar">
+                            <button type="button" aria-label="Desfazer"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button type="button" aria-label="Refazer"><i class="fa-solid fa-rotate-right"></i></button>
+                            <span class="divider"></span>
+                            <button type="button"><i class="fa-solid fa-bold"></i></button>
+                            <button type="button"><i class="fa-solid fa-italic"></i></button>
+                            <button type="button"><i class="fa-solid fa-underline"></i></button>
+                            <button type="button"><i class="fa-solid fa-list-ul"></i></button>
+                            <button type="button"><i class="fa-solid fa-list-ol"></i></button>
+                            <button type="button"><i class="fa-solid fa-link"></i></button>
+                            <button type="button"><i class="fa-solid fa-quote-right"></i></button>
+                            <button type="button"><i class="fa-solid fa-image"></i></button>
+                        </div>
+                        <label for="institution-description">Descrição</label>
+                        <textarea id="institution-description" rows="8" placeholder="Conte como a instituição atua, projetos desenvolvidos e impacto gerado..."></textarea>
+                    </div>
+                </section>
+
+                <section class="add-section location-section">
+                    <div class="section-heading">
+                        <h2>Localização</h2>
+                        <p>Indique a localização principal ou zona de atuação.</p>
+                    </div>
+                    <div class="location-search input-field">
+                        <label class="visually-hidden" for="location-search">Pesquisar localização</label>
+                        <div class="location-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input id="location-search" type="text" placeholder="Pesquisar" readonly style="cursor: pointer;">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="add-section image-upload-section">
+                    <div class="section-heading">
+                        <h2>Adicionar Imagem</h2>
+                        <p>Carregue uma imagem destaque da instituição ou das suas atividades.</p>
+                    </div>
+                    <div class="image-upload">
+                        <div class="image-upload-body">
+                            <label class="upload-box" for="institution-image">
+                                <div class="upload-instructions">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p>Upload Imagem...</p>
+                                    <small>Formatos aceites: JPG ou PNG até 5MB</small>
+                                </div>
+                                <input type="file" id="institution-image" accept="image/*">
+                            </label>
+                            <figure class="image-preview">
+                                <img src="./img/generico_instituicao.jpg" alt="Pré-visualização da instituição">
+                                <figcaption>Imagem de exemplo</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions add-section">
+                    <button type="submit" class="primary-btn">
+                        <i class="fa-solid fa-building"></i>
+                        Adicionar Instituição
+                    </button>
+                </div>
+            </form>
+        </section>
+        
+        <!-- Existing Time Picker Modal -->
+        <div class="time-picker-overlay" id="timePickerOverlay" aria-hidden="true" role="dialog" aria-modal="true">
+            <div class="time-picker-modal">
+                <div class="time-picker-header">
+                    <h3 class="text-primary">Escolher tempo</h3>
+                    <button type="button" class="close-picker" aria-label="Fechar seletor">&times;</button>
+                </div>
+                <div class="time-picker-body wheel-mode">
+                    <div class="time-wheel-column">
+                        <span class="wheel-label">Hora</span>
+                        <span id="hourValue" class="wheel-current" aria-live="polite">09</span>
+                        <div class="time-wheel" id="hourWheel" tabindex="0" role="listbox" aria-label="Selecionar hora"></div>
+                    </div>
+                    <div class="time-wheel-column">
+                        <span class="wheel-label">Minuto</span>
+                        <span id="minuteValue" class="wheel-current" aria-live="polite">00</span>
+                        <div class="time-wheel" id="minuteWheel" tabindex="0" role="listbox" aria-label="Selecionar minuto"></div>
+                    </div>
+                </div>
+                <div class="time-picker-actions">
+                    <button type="button" class="ghost-btn small" id="cancelTimePicker">Cancelar</button>
+                    <button type="button" class="primary-btn small" id="confirmTimePicker">Escolher</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MAP OVERLAY HTML -->
+    <div class="map-overlay" id="map-overlay">
+        <div class="map-modal">
+            <div class="map-modal-header">
+                <h2 class="text-primary">Escolher a localização</h2>
+                <div class="map-search-box">
+                    <input type="text" id="map-overlay-search" placeholder="Portugal" value="Portugal">
+                </div>
+                <button class="close-map-btn" id="close-map-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="map-modal-body">
+                <div id="map-picker-container" class="map-picker-container"></div>
+                <div class="map-sidebar">
+                    <button class="use-my-coord-btn" id="use-my-coord-btn">
+                        Use a minha coordenada
+                    </button>
+                    <div class="selected-coords-container">
+                        <p class="coords-label">Coordenadas selecionadas</p>
+                        <p id="selected-coords-display" class="coords-value">Nenhuma localização selecionada</p>
+                    </div>
+                    <p class="map-tip">Dica: Clique em qualquer lugar no mapa para sinalizar o localização.</p>
+                    <button class="confirm-map-btn" id="confirm-map-btn" disabled>Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/script.js"></script>
+    <!-- Google Maps API with callback to the global function in script.js -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMapPicker&libraries=places&v=weekly&loading=async" defer></script>
+    
+    <script>
+        loadHeader();
+        highlightCurrentPage();
+    </script>
+    
+</body>
+</html>

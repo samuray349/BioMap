@@ -143,7 +143,7 @@
             }
         });
 
-        // Tag arrays specific to admin_util.html
+        // Tag arrays specific to admin_util.php
         let adminEstadoTags = [];
         let adminEstatutoTags = [];
 
@@ -262,4 +262,5 @@
     </script>
 </body>
 </html>
+
 

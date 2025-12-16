@@ -30,41 +30,41 @@
     <section class="admin-dashboard">
         <div class="admin-dashboard-grid">
 
-            <a href="editar_perfil.html" class="admin-dashboard-card">
+            <a href="editar_perfil.php" class="admin-dashboard-card">
                 <div class="admin-dashboard-icon">
                     <i class="fas fa-edit"></i>
                 </div>
                 <h3 class="admin-dashboard-title">Editar Perfil</h3>
             </a>
 
-            <a href="atualizar_password.html" class="admin-dashboard-card">
+            <a href="atualizar_password.php" class="admin-dashboard-card">
                 <div class="admin-dashboard-icon">
                     <i class="fas fa-lock"></i>
                 </div>
                 <h3 class="admin-dashboard-title">Alterar Password</h3>
             </a>
 
-            <a href="admin_animal.html" class="admin-dashboard-card admin-dashboard-card--yellow">
+            <a href="admin_animal.php" class="admin-dashboard-card admin-dashboard-card--yellow">
                 <div class="admin-dashboard-icon">
                     <i class="fas fa-paw"></i>
                 </div>
                 <h3 class="admin-dashboard-title">Administrar registo animal</h3>
             </a>
 
-            <a href="admin_util.html" class="admin-dashboard-card admin-dashboard-card--yellow">
+            <a href="admin_util.php" class="admin-dashboard-card admin-dashboard-card--yellow">
                 <div class="admin-dashboard-icon">
                     <i class="fas fa-list-ul"></i>
                 </div>
                 <h3 class="admin-dashboard-title">Administrar Utilizadores</h3>
             </a>
-            <a href="adicionar_animal.html" class="admin-dashboard-card admin-dashboard-card--yellow">
+            <a href="adicionar_animal.php" class="admin-dashboard-card admin-dashboard-card--yellow">
                 <div class="admin-dashboard-icon">
                     <i class="fa-solid fa-plus"></i>
                     <i class="fas fa-paw"></i>
                 </div>
                 <h3 class="admin-dashboard-title">Adicionar Animal</h3>
             </a>
-            <a href="adicionar_fundacao.html" class="admin-dashboard-card admin-dashboard-card--yellow">
+            <a href="adicionar_fundacao.php" class="admin-dashboard-card admin-dashboard-card--yellow">
                 <div class="admin-dashboard-icon">
                     <i class="fa-solid fa-plus"></i>
                     <i class="fa-solid fa-building"></i>
@@ -73,7 +73,7 @@
             </a>
             
 
-            <a href="logout.html" class="action-link-wrapper action-link-wrapper-wide">
+            <a href="logout.php" class="action-link-wrapper action-link-wrapper-wide">
                 <div class="action-card log-out">
                     <div class="action-icon red-icon">
                         <i class="fas fa-door-open"></i>
@@ -86,7 +86,7 @@
     </section>
 
     <footer class="delete-account-footer">
-        <a href="apagar_perfil.html" class="delete-account-link">
+        <a href="apagar_perfil.php" class="delete-account-link">
             <i class="fas fa-exclamation-triangle"></i>
             <span>Apagar Conta</span>
         </a>
@@ -100,3 +100,4 @@
     </script>
 </body>
 </html>
+

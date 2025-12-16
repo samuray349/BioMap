@@ -38,7 +38,7 @@
                 
                 <div class="delete-account-buttons">
                     <button type="button" class="btn-delete-account">Entendo os Riscos, Apagar Conta</button>
-                    <a href="perfil.html" class="btn-back-profile">Voltar ao Perfil</a>
+                    <a href="perfil.php" class="btn-back-profile">Voltar ao Perfil</a>
                 </div>
             </div>
         </div>
@@ -56,4 +56,5 @@
     </script>
 </body>
 </html>
+
 

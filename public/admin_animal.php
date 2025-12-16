@@ -139,7 +139,7 @@
             }
         });
 
-        // Tag arrays specific to admin_animal.html
+        // Tag arrays specific to admin_animal.php
         let adminFamilyTags = [];
         let adminStateTags = [];
 
@@ -430,4 +430,5 @@
     </script>
 </body>
 </html>
+
 
