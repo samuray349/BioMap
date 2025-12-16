@@ -84,7 +84,7 @@ function renderUserTable(users, tbody) {
             <td>${user.nome_utilizador}</td>
             <td>${user.email}</td>
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
-            <td><h1 class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</h1></td>
+            <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
             <td><i class="fas fa-clock suspend-icon"></i></td>
             <td><i class="fas fa-ban ban-icon"></i></td>
         `;
@@ -92,8 +92,8 @@ function renderUserTable(users, tbody) {
         tbodyEl.appendChild(row);
     });
     
-    // Add click handlers for estatuto h1 elements after all rows are added
-    tbodyEl.querySelectorAll('.estatuto-cell').forEach(h1 => {
+    // Add click handlers for estatuto span elements after all rows are added
+    tbodyEl.querySelectorAll('.estatuto-cell').forEach(span => {
         span.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();

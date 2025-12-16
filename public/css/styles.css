@@ -1761,24 +1761,30 @@ p {
     transform: scale(1.1);
 }
 
-/* Estatuto clickable text styling - h1 element inside td */
+/* Estatuto clickable text styling - span element inside td, only the text is clickable */
 .estatuto-cell {
     cursor: pointer;
     color: var(--accent-color, #198754);
     font-weight: 600;
     text-decoration: underline;
     transition: opacity 0.2s, color 0.2s;
-    display: inline-block;
+    display: inline;
     pointer-events: auto;
     margin: 0;
     padding: 0;
-    font-size: 14px !important;
-    line-height: 1.5;
+}
+
+/* Ensure the td containing estatuto-cell doesn't capture clicks */
+.admin-users-table tbody td:has(.estatuto-cell) {
+    pointer-events: none;
+}
+
+.admin-users-table tbody td .estatuto-cell {
+    pointer-events: auto;
 }
 
 .estatuto-cell:hover {
     opacity: 0.8;
-    background-color: rgba(25, 135, 84, 0.1);
 }
 
 .estatuto-cell:active {
