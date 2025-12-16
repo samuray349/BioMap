@@ -1756,6 +1756,25 @@ p {
     transform: scale(1.1);
 }
 
+.estatuto-cell {
+    cursor: pointer;
+    color: var(--accent-color, #198754);
+    font-weight: 600;
+    text-decoration: underline;
+    transition: opacity 0.2s, color 0.2s;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.estatuto-cell:hover {
+    opacity: 0.8;
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.estatuto-cell:active {
+    opacity: 0.6;
+}
+
 .admin-pagination-container {
     display: flex;
     justify-content: space-between;

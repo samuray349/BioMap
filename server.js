@@ -53,7 +53,8 @@ app.get("/users", async (req, res) => {
         u.email,
         e.nome_estado,
         e.hex_cor as estado_cor,
-        f.nome_funcao as estatuto
+        f.nome_funcao as estatuto,
+        u.funcao_id
       FROM utilizador u
       JOIN estado e ON u.estado_id = e.estado_id
       JOIN funcao f ON u.funcao_id = f.funcao_id
@@ -148,6 +149,72 @@ app.get('/users/estatutos', async (req, res) => {
   } catch (error) {
     console.error('Erro ao buscar estatutos:', error);
     res.status(500).send('Erro ao buscar estatutos');
+  }
+});
+
+/* =====================
+   UPDATE USER FUNCAO (Role)
+===================== */
+app.put('/users/:id/funcao', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { funcao_id } = req.body;
+
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    if (!funcao_id || (funcao_id !== 1 && funcao_id !== 2)) {
+      return res.status(400).json({ error: 'funcao_id must be 1 (Admin) or 2 (Utilizador).' });
+    }
+
+    // Check if user exists
+    const userCheck = await pool.query(
+      'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+      [id]
+    );
+
+    if (userCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Utilizador not found' });
+    }
+
+    // Check if funcao exists
+    const funcaoCheck = await pool.query(
+      'SELECT funcao_id FROM funcao WHERE funcao_id = $1',
+      [funcao_id]
+    );
+
+    if (funcaoCheck.rowCount === 0) {
+      return res.status(400).json({ error: 'Funcao not found' });
+    }
+
+    // Update user funcao_id
+    await pool.query(
+      'UPDATE utilizador SET funcao_id = $1 WHERE utilizador_id = $2',
+      [funcao_id, id]
+    );
+
+    // Get updated user data with funcao name
+    const { rows } = await pool.query(
+      `SELECT 
+        u.utilizador_id,
+        u.funcao_id,
+        f.nome_funcao as estatuto
+      FROM utilizador u
+      JOIN funcao f ON u.funcao_id = f.funcao_id
+      WHERE u.utilizador_id = $1`,
+      [id]
+    );
+
+    return res.status(200).json({
+      message: 'Funcao atualizada com sucesso.',
+      utilizador_id: parseInt(id),
+      funcao_id: funcao_id,
+      estatuto: rows[0].estatuto
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar funcao do utilizador', error);
+    return res.status(500).json({ error: 'Erro ao atualizar funcao do utilizador.' });
   }
 });
 

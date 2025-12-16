@@ -71,16 +71,66 @@ function renderUserTable(users, tbody) {
         // Use the color from database if available, otherwise use default
         const badgeStyle = user.estado_cor ? `style="background-color: ${user.estado_cor}; color: white;"` : '';
         
+        // Make estatuto cell clickable - current funcao_id: 1 = Admin, 2 = Utilizador
+        const currentFuncaoId = user.funcao_id || (user.estatuto === 'Admin' ? 1 : 2);
+        const newFuncaoId = currentFuncaoId === 1 ? 2 : 1;
+        
         row.innerHTML = `
             <td>${user.nome_utilizador}</td>
             <td>${user.email}</td>
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
-            <td>${user.estatuto}</td>
+            <td class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" style="cursor: pointer; color: var(--accent-color, #198754); font-weight: 600; text-decoration: underline;" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</td>
             <td><i class="fas fa-clock suspend-icon"></i></td>
             <td><i class="fas fa-ban ban-icon"></i></td>
         `;
         
         tbodyEl.appendChild(row);
+    });
+    
+    // Add click handlers for estatuto cells
+    tbodyEl.querySelectorAll('.estatuto-cell').forEach(cell => {
+        cell.addEventListener('click', async function() {
+            const userId = this.getAttribute('data-user-id');
+            const newFuncaoId = parseInt(this.getAttribute('data-new-funcao'));
+            const currentFuncaoId = parseInt(this.getAttribute('data-current-funcao'));
+            
+            // Show loading state
+            const originalText = this.textContent;
+            this.textContent = 'A alterar...';
+            this.style.pointerEvents = 'none';
+            
+            try {
+                const apiUrl = window.API_CONFIG?.getUrl(`users/${userId}/funcao`) || `/users/${userId}/funcao`;
+                const response = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ funcao_id: newFuncaoId })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result?.error || 'Erro ao atualizar estatuto.');
+                }
+                
+                // Update the cell with new values
+                this.textContent = result.estatuto;
+                this.setAttribute('data-current-funcao', newFuncaoId);
+                this.setAttribute('data-new-funcao', currentFuncaoId);
+                
+                // Optionally reload the table to ensure consistency
+                // Or just update this row
+                
+            } catch (error) {
+                console.error('Erro ao atualizar estatuto:', error);
+                alert(error.message || 'Erro ao atualizar estatuto. Por favor, tente novamente.');
+                this.textContent = originalText;
+            } finally {
+                this.style.pointerEvents = 'auto';
+            }
+        });
     });
 }
 
