@@ -84,7 +84,7 @@ function renderUserTable(users, tbody) {
             <td>${user.nome_utilizador}</td>
             <td>${user.email}</td>
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
-            <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
+            <td><h1 class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</h1></td>
             <td><i class="fas fa-clock suspend-icon"></i></td>
             <td><i class="fas fa-ban ban-icon"></i></td>
         `;

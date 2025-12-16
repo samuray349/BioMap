@@ -1769,6 +1769,9 @@ p {
     transition: opacity 0.2s, color 0.2s;
     display: inline-block;
     pointer-events: auto;
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
 }
 
 .estatuto-cell:hover {
