@@ -13,6 +13,7 @@
 
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/config.js"></script>
+  <script src="js/session.js"></script>
   <script src="js/script.js"></script>
   
   <script async defer

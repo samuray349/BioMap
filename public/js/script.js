@@ -827,6 +827,34 @@ function initContextMenu() {
 
   if (menuAlert) {
     menuAlert.addEventListener('click', () => {
+      // Check if user is logged in before allowing alert creation
+      let user = null;
+      try {
+        // Try SessionHelper first
+        if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
+          user = SessionHelper.getCurrentUser();
+        }
+        // Fallback to localStorage
+        if (!user) {
+          const userData = localStorage.getItem('biomapUser');
+          user = userData ? JSON.parse(userData) : null;
+        }
+      } catch (e) {
+        console.error('Error checking user session:', e);
+      }
+
+      if (!user || !user.id) {
+        showNotification('Por favor, inicie sessão para criar um alerta.', 'error');
+        contextMenu.classList.remove('show');
+        // Optionally redirect to login after a short delay
+        setTimeout(() => {
+          if (confirm('Deseja ir para a página de login?')) {
+            window.location.href = 'login.php';
+          }
+        }, 500);
+        return;
+      }
+
       const alertMenu = document.getElementById('alert-animal-menu');
       const locationInput = document.getElementById('alert-animal-location');
       

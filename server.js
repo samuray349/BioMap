@@ -704,8 +704,14 @@ app.post('/api/alerts', async (req, res) => {
   try {
     const { animal_id, utilizador_id, latitude, longitude, data_avistamento } = req.body;
 
+    // Validate required fields
     if (!animal_id || !utilizador_id || latitude === undefined || longitude === undefined) {
       return res.status(400).json({ error: 'Campos obrigatórios em falta: animal_id, utilizador_id, latitude, longitude.' });
+    }
+
+    // Validate that utilizador_id is provided and valid (user must be logged in)
+    if (!utilizador_id || utilizador_id === 'null' || utilizador_id === 'undefined') {
+      return res.status(401).json({ error: 'Deve iniciar sessão para criar um alerta.' });
     }
 
     if (!/^\d+$/.test(String(animal_id)) || !/^\d+$/.test(String(utilizador_id))) {
