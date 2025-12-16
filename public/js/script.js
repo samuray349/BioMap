@@ -1155,6 +1155,7 @@ function initAccountMenu() {
   });
 }
 
+
 // --- FIXED: Dynamic header loader ---
 const headerTemplate = `
 <header class="header">
