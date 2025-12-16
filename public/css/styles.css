@@ -5625,11 +5625,11 @@ body:has(.reset-password-container) .login-container {
 #notification-container,
 .notification-container {
   position: fixed !important;
-  top: 90px !important;
+  bottom: 20px !important;
   right: 20px !important;
   z-index: 99999 !important;
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: column-reverse !important;
   gap: 10px !important;
   pointer-events: none !important;
   width: auto !important;
@@ -5649,9 +5649,7 @@ body:has(.reset-password-container) .login-container {
   pointer-events: auto !important;
   max-width: 350px !important;
   min-width: 280px !important;
-  border-left: 4px solid #198754 !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  border-left: 4px solid #198754 !important;
+  border: 2px solid #198754 !important;
 }
 
 .notification.show {
@@ -5679,7 +5677,6 @@ body:has(.reset-password-container) .login-container {
 
 /* Success notification */
 .notification.notification-success {
-  border-left-color: #198754 !important;
   background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%) !important;
 }
 
@@ -5689,7 +5686,6 @@ body:has(.reset-password-container) .login-container {
 
 /* Error notification */
 .notification.notification-error {
-  border-left-color: #dc3545 !important;
   background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%) !important;
 }
 
@@ -5699,7 +5695,6 @@ body:has(.reset-password-container) .login-container {
 
 /* Info notification */
 .notification.notification-info {
-  border-left-color: #0d6efd !important;
   background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%) !important;
 }
 
@@ -5709,7 +5704,6 @@ body:has(.reset-password-container) .login-container {
 
 /* Warning notification */
 .notification.notification-warning {
-  border-left-color: #ffc107 !important;
   background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
 }
 
@@ -5721,7 +5715,7 @@ body:has(.reset-password-container) .login-container {
 @media (max-width: 480px) {
   #notification-container,
   .notification-container {
-    top: 80px !important;
+    bottom: 10px !important;
     right: 10px !important;
     left: 10px !important;
   }
