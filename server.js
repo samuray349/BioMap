@@ -284,11 +284,18 @@ app.post('/animais', async (req, res) => {
     imagem_url
   } = req.body || {};
 
-  if (!nome_comum || !nome_cientifico || !descricao || !familia_nome || !dieta_nome || !estado_nome) {
-    return res.status(400).json({ error: 'Campos obrigatórios em falta.' });
-  }
-  if (!imagem_url) {
-    return res.status(400).json({ error: 'imagem_url é obrigatória.' });
+  // Validate all required fields and collect errors
+  const errors = [];
+  if (!nome_comum || !nome_comum.trim()) errors.push('Nome comum é obrigatório.');
+  if (!nome_cientifico || !nome_cientifico.trim()) errors.push('Nome científico é obrigatório.');
+  if (!descricao || !descricao.trim()) errors.push('Descrição é obrigatória.');
+  if (!familia_nome || !familia_nome.trim()) errors.push('Família é obrigatória.');
+  if (!dieta_nome || !dieta_nome.trim()) errors.push('Dieta é obrigatória.');
+  if (!estado_nome || !estado_nome.trim()) errors.push('Estado de conservação é obrigatório.');
+  if (!imagem_url || !imagem_url.trim()) errors.push('Imagem URL é obrigatória.');
+  
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
   }
 
   const normalizedPopulation =
@@ -303,29 +310,34 @@ app.post('/animais', async (req, res) => {
 
     const familia = await client.query(
       'SELECT familia_id FROM familia WHERE nome_familia = $1 LIMIT 1',
-      [familia_nome]
+      [familia_nome.trim()]
     );
     if (familia.rowCount === 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Família não encontrada na base de dados.' });
+      return res.status(400).json({ error: `Família "${familia_nome.trim()}" não encontrada na base de dados.` });
     }
 
     const dieta = await client.query(
       'SELECT dieta_id FROM dieta WHERE nome_dieta = $1 LIMIT 1',
-      [dieta_nome]
+      [dieta_nome.trim()]
     );
     if (dieta.rowCount === 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Dieta não encontrada na base de dados.' });
+      return res.status(400).json({ error: `Dieta "${dieta_nome.trim()}" não encontrada na base de dados.` });
     }
 
     const estado = await client.query(
       'SELECT estado_id FROM estado_conservacao WHERE nome_estado = $1 LIMIT 1',
-      [estado_nome]
+      [estado_nome.trim()]
     );
     if (estado.rowCount === 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Estado de conservação não encontrado na base de dados.' });
+      // Try to get available states for better error message
+      const allStates = await client.query('SELECT nome_estado FROM estado_conservacao ORDER BY estado_id');
+      const availableStates = allStates.rows.map(r => r.nome_estado).join(', ');
+      return res.status(400).json({ 
+        error: `Estado de conservação "${estado_nome.trim()}" não encontrado na base de dados. Estados disponíveis: ${availableStates}` 
+      });
     }
 
     const insertAnimal = await client.query(

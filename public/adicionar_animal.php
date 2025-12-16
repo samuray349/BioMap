@@ -626,29 +626,41 @@
                     <select id="conservation-status" name="conservation-status" class="chip-select conservation-row" aria-label="Estado de conservação"
                         onchange="updateConservationBgColor(this)">
                         <option value="">Selecione o estado de conservação</option>
+                        <option value="Não Avaliada">Não Avaliada</option>
+                        <option value="Dados Insuficientes">Dados Insuficientes</option>
+                        <option value="Pouco Preocupante">Pouco Preocupante</option>
                         <option value="Quase Ameaçada">Quase Ameaçada</option>
                         <option value="Vulnerável">Vulnerável</option>
                         <option value="Em Perigo">Em Perigo</option>
                         <option value="Perigo Crítico">Perigo Crítico</option>
                         <option value="Extinto na Natureza">Extinto na Natureza</option>
+                        <option value="Extinto">Extinto</option>
                     </select>
                     <script>
                         function updateConservationBgColor(select) {
                             const colorMap = {
                                 "": "#d9dee7",
+                                "Não Avaliada": "#d9dee7",
+                                "Dados Insuficientes": "#d9dee7",
+                                "Pouco Preocupante": "#d9dee7",
                                 "Quase Ameaçada": "#e0faac",
                                 "Vulnerável": "#ffd7a0",
                                 "Em Perigo": "#faa973",
                                 "Perigo Crítico": "#fa7878",
-                                "Extinto na Natureza": "#828282"
+                                "Extinto na Natureza": "#828282",
+                                "Extinto": "#828282"
                             };
                             const accentColorMap = {
-                                "": "#6e7a85", // fallback gray
+                                "": "#6e7a85",
+                                "Não Avaliada": "#6e7a85",
+                                "Dados Insuficientes": "#6e7a85",
+                                "Pouco Preocupante": "#6e7a85",
                                 "Quase Ameaçada": "#598d13",
                                 "Vulnerável": "#ff9100",
                                 "Em Perigo": "#df540a",
                                 "Perigo Crítico": "#c60a0a",
-                                "Extinto na Natureza": "#222326"
+                                "Extinto na Natureza": "#222326",
+                                "Extinto": "#222326"
                             };
                             // Set background color
                             select.style.backgroundColor = colorMap[select.value] || "#d9dee7";
@@ -912,11 +924,15 @@
 
         // Conservation status badge classes (UPDATED TO USER REQUEST)
         const conservationClasses = {
+            'Não Avaliada': 'unknown',
+            'Dados Insuficientes': 'unknown',
+            'Pouco Preocupante': 'least-concern',
             'Quase Ameaçada': 'threatened',      // Maps to Green (#99CC33)
             'Vulnerável': 'vulnerable',         // Maps to Yellow (#FFCC00)
             'Em Perigo': 'endangered',          // Maps to Orange (#FF6600)
             'Perigo Crítico': 'critical',       // Maps to Red (#FF0000)
-            'Extinto na Natureza': 'extinct'   // Fallback to Red
+            'Extinto na Natureza': 'extinct',   // Maps to Gray
+            'Extinto': 'extinct'                // Maps to Gray
         };
 
         // Helper function to get or default
