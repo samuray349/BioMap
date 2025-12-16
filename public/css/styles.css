@@ -1766,7 +1766,6 @@ p {
     cursor: pointer;
     color: var(--accent-color, #198754);
     font-weight: 600;
-    text-decoration: underline;
     transition: opacity 0.2s, color 0.2s;
     display: inline;
     pointer-events: auto;
