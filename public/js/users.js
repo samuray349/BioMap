@@ -71,7 +71,7 @@ function renderUserTable(users, tbody) {
         // Use the color from database if available, otherwise use default
         const badgeStyle = user.estado_cor ? `style="background-color: ${user.estado_cor}; color: white;"` : '';
         
-        // Make estatuto cell clickable - current funcao_id: 1 = Admin, 2 = Utilizador
+        // Make estatuto text clickable - current funcao_id: 1 = Admin, 2 = Utilizador
         // Determine current funcao_id from user data
         let currentFuncaoId = user.funcao_id;
         if (!currentFuncaoId) {
@@ -84,7 +84,7 @@ function renderUserTable(users, tbody) {
             <td>${user.nome_utilizador}</td>
             <td>${user.email}</td>
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
-            <td class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</td>
+            <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
             <td><i class="fas fa-clock suspend-icon"></i></td>
             <td><i class="fas fa-ban ban-icon"></i></td>
         `;
@@ -92,9 +92,9 @@ function renderUserTable(users, tbody) {
         tbodyEl.appendChild(row);
     });
     
-    // Add click handlers for estatuto cells after all rows are added
-    tbodyEl.querySelectorAll('.estatuto-cell').forEach(cell => {
-        cell.addEventListener('click', async function(e) {
+    // Add click handlers for estatuto text spans after all rows are added
+    tbodyEl.querySelectorAll('.estatuto-cell').forEach(span => {
+        span.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
             
@@ -129,7 +129,7 @@ function renderUserTable(users, tbody) {
                     throw new Error(result?.error || 'Erro ao atualizar estatuto.');
                 }
                 
-                // Update the cell with new values
+                // Update the span with new values
                 this.textContent = result.estatuto;
                 this.setAttribute('data-current-funcao', newFuncaoId);
                 this.setAttribute('data-new-funcao', currentFuncaoId);
