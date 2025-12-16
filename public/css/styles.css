@@ -1713,6 +1713,11 @@ p {
     font-size: 14px;
 }
 
+/* Ensure only the estatuto text span is clickable, not the entire td */
+.admin-users-table tbody td .estatuto-cell {
+    pointer-events: auto;
+}
+
 .status-badge {
     display: inline-block;
     padding: 6px 12px;
@@ -1763,6 +1768,7 @@ p {
     text-decoration: underline;
     transition: opacity 0.2s, color 0.2s;
     display: inline-block;
+    pointer-events: auto;
 }
 
 .estatuto-cell:hover {
