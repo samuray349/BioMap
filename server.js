@@ -95,6 +95,30 @@ app.get("/users", async (req, res) => {
   }
 });
 
+// Get estado options for user filters (MUST be before /users/:id route)
+app.get('/users/estados', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT nome_estado FROM estado ORDER BY estado_id');
+    const estados = rows.map(row => row.nome_estado);
+    res.json(estados);
+  } catch (error) {
+    console.error('Erro ao buscar estados:', error);
+    res.status(500).send('Erro ao buscar estados');
+  }
+});
+
+// Get estatuto (funcao) options for user filters (MUST be before /users/:id route)
+app.get('/users/estatutos', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT nome_funcao FROM funcao ORDER BY funcao_id');
+    const estatutos = rows.map(row => row.nome_funcao);
+    res.json(estatutos);
+  } catch (error) {
+    console.error('Erro ao buscar estatutos:', error);
+    res.status(500).send('Erro ao buscar estatutos');
+  }
+});
+
 app.get('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -125,30 +149,6 @@ app.get('/users/:id', async (req, res) => {
   } catch (error) {
     console.error('Erro ao executar a query', error);
     res.status(500).send('Erro ao executar a query');
-  }
-});
-
-// Get estado options for user filters
-app.get('/users/estados', async (req, res) => {
-  try {
-    const { rows } = await pool.query('SELECT nome_estado FROM estado ORDER BY estado_id');
-    const estados = rows.map(row => row.nome_estado);
-    res.json(estados);
-  } catch (error) {
-    console.error('Erro ao buscar estados:', error);
-    res.status(500).send('Erro ao buscar estados');
-  }
-});
-
-// Get estatuto (funcao) options for user filters
-app.get('/users/estatutos', async (req, res) => {
-  try {
-    const { rows } = await pool.query('SELECT nome_funcao FROM funcao ORDER BY funcao_id');
-    const estatutos = rows.map(row => row.nome_funcao);
-    res.json(estatutos);
-  } catch (error) {
-    console.error('Erro ao buscar estatutos:', error);
-    res.status(500).send('Erro ao buscar estatutos');
   }
 });
 
