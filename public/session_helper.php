@@ -1,25 +1,89 @@
 <?php
 /**
- * Session Helper - Manages user sessions in PHP
+ * Session Helper - Hybrid Session Management (PHP Sessions + Cookies)
  * 
- * Usage:
+ * Uses both PHP sessions and cookies so data is accessible from both PHP and JavaScript
+ * 
+ * Usage in PHP:
  *   require_once 'session_helper.php';
- *   session_start();
- *   
- *   // Check if user is logged in
  *   if (isUserLoggedIn()) {
  *       $user = getCurrentUser();
- *       echo $user['name'];
  *   }
+ * 
+ * Usage in JavaScript:
+ *   // Read from cookie
+ *   const userData = getCookie('biomap_user');
+ *   const user = userData ? JSON.parse(decodeURIComponent(userData)) : null;
  */
+
+// Session name constant
+define('SESSION_COOKIE_NAME', 'biomap_user');
+define('SESSION_NAME', 'biomap_session');
 
 /**
  * Start session if not already started
  */
 function startSessionIfNotStarted() {
     if (session_status() === PHP_SESSION_NONE) {
+        session_name(SESSION_NAME);
         session_start();
     }
+}
+
+/**
+ * Set user session data (both PHP session and cookie)
+ * @param array $userData User data to store
+ */
+function setUserSession($userData) {
+    startSessionIfNotStarted();
+    
+    // Store in PHP session
+    $_SESSION['biomap_user'] = $userData;
+    
+    // Store in cookie (readable by JavaScript)
+    // Use httpOnly: false so JavaScript can read it
+    // Secure: true in production (requires HTTPS)
+    $cookieData = json_encode($userData);
+    $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+    
+    setcookie(
+        SESSION_COOKIE_NAME,
+        $cookieData,
+        [
+            'expires' => time() + (86400 * 7), // 7 days
+            'path' => '/',
+            'domain' => '',
+            'secure' => $secure,
+            'httponly' => false, // Allow JavaScript to read
+            'samesite' => 'Lax'
+        ]
+    );
+}
+
+/**
+ * Get current logged in user data
+ * Tries PHP session first, then cookie
+ * @return array|null User data or null if not logged in
+ */
+function getCurrentUser() {
+    startSessionIfNotStarted();
+    
+    // Try PHP session first
+    if (isset($_SESSION['biomap_user']) && !empty($_SESSION['biomap_user'])) {
+        return $_SESSION['biomap_user'];
+    }
+    
+    // Fallback to cookie
+    if (isset($_COOKIE[SESSION_COOKIE_NAME])) {
+        $userData = json_decode($_COOKIE[SESSION_COOKIE_NAME], true);
+        if ($userData) {
+            // Sync back to session
+            $_SESSION['biomap_user'] = $userData;
+            return $userData;
+        }
+    }
+    
+    return null;
 }
 
 /**
@@ -27,35 +91,22 @@ function startSessionIfNotStarted() {
  * @return bool
  */
 function isUserLoggedIn() {
-    startSessionIfNotStarted();
-    return isset($_SESSION['biomap_user']) && !empty($_SESSION['biomap_user']);
+    $user = getCurrentUser();
+    return $user !== null && !empty($user);
 }
 
 /**
- * Get current logged in user data
- * @return array|null User data or null if not logged in
- */
-function getCurrentUser() {
-    startSessionIfNotStarted();
-    return $_SESSION['biomap_user'] ?? null;
-}
-
-/**
- * Set user session data
- * @param array $userData User data to store in session
- */
-function setUserSession($userData) {
-    startSessionIfNotStarted();
-    $_SESSION['biomap_user'] = $userData;
-}
-
-/**
- * Clear user session (logout)
+ * Clear user session (logout) - removes both session and cookie
  */
 function clearUserSession() {
     startSessionIfNotStarted();
+    
+    // Clear PHP session
     unset($_SESSION['biomap_user']);
     session_destroy();
+    
+    // Clear cookie
+    setcookie(SESSION_COOKIE_NAME, '', time() - 3600, '/');
 }
 
 /**

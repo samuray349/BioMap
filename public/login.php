@@ -9,6 +9,7 @@
     <link href="css/styles.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
     <script src="js/config.js"></script>
+    <script src="js/session.js"></script>
 </head>
 <body>
     <div id="header-placeholder"></div>
@@ -152,9 +153,33 @@
                         successMessage.style.display = 'block';
                     }
 
-                    // Persist minimal session data for header rendering
+                    // Persist session data for both PHP and JavaScript
                     if (data?.user) {
+                        // Store in localStorage (for JavaScript - keeps existing functionality)
                         localStorage.setItem('biomapUser', JSON.stringify(data.user));
+                        
+                        // Store in cookie (accessible by both PHP and JavaScript)
+                        if (typeof SessionHelper !== 'undefined') {
+                            SessionHelper.setUser(data.user);
+                        } else {
+                            // Fallback: set cookie manually if SessionHelper not loaded
+                            const cookieData = JSON.stringify(data.user);
+                            const expires = new Date();
+                            expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days
+                            document.cookie = `biomap_user=${encodeURIComponent(cookieData)}; expires=${expires.toUTCString()}; path=/`;
+                        }
+                        
+                        // Also set PHP session on server side
+                        fetch('set_session.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ user: data.user })
+                        }).catch(err => {
+                            console.warn('Failed to set PHP session:', err);
+                            // Continue anyway - cookie is set
+                        });
                     }
 
                     setTimeout(() => {
