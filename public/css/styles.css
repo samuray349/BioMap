@@ -1782,13 +1782,6 @@ p {
     pointer-events: auto;
 }
 
-.estatuto-cell:hover {
-    opacity: 0.8;
-}
-
-.estatuto-cell:active {
-    opacity: 0.6;
-}
 
 .admin-pagination-container {
     display: flex;
