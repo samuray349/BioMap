@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
     <script src="js/config.js"></script>
+    <script src="js/session.js"></script>
 </head>
 <body>
     <!-- Header Placeholder -->
@@ -186,7 +187,7 @@
             }
         }
 
-        // Load and render users
+        // Load and render users (excluding current user)
         async function loadUsers() {
             try {
                 const filters = getUserFilters({
@@ -196,7 +197,31 @@
                 });
                 
                 const users = await fetchUsers(filters);
-                renderUserTable(users, tbody);
+                
+                // Get current user ID and filter it out
+                let currentUserId = null;
+                if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
+                    const currentUser = SessionHelper.getCurrentUser();
+                    currentUserId = currentUser ? currentUser.id : null;
+                } else {
+                    // Fallback to localStorage if SessionHelper not available
+                    try {
+                        const storedUser = localStorage.getItem('biomapUser');
+                        if (storedUser) {
+                            const currentUser = JSON.parse(storedUser);
+                            currentUserId = currentUser ? currentUser.id : null;
+                        }
+                    } catch (e) {
+                        console.warn('Could not get current user ID:', e);
+                    }
+                }
+                
+                // Filter out current user from the list
+                const filteredUsers = users.filter(user => {
+                    return currentUserId === null || user.utilizador_id !== currentUserId;
+                });
+                
+                renderUserTable(filteredUsers, tbody);
             } catch (error) {
                 console.error("Erro ao carregar utilizadores:", error);
                 if (tbody) {
