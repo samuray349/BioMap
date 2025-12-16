@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
   <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
 
-  <link rel="stylesheet" href="css/styles.css?v=4">
+  <link rel="stylesheet" href="css/styles.css?v=5">
   <script src="js/config.js"></script>
   <script src="js/session.js"></script>
   <script src="js/script.js?v=2"></script>

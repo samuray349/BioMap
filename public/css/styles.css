@@ -5680,17 +5680,9 @@ body:has(.reset-password-container) .login-container {
   background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%) !important;
 }
 
-.notification.notification-success i {
-  color: #198754 !important;
-}
-
 /* Error notification */
 .notification.notification-error {
   background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%) !important;
-}
-
-.notification.notification-error i {
-  color: #dc3545 !important;
 }
 
 /* Info notification */
@@ -5698,17 +5690,14 @@ body:has(.reset-password-container) .login-container {
   background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%) !important;
 }
 
-.notification.notification-info i {
-  color: #0d6efd !important;
-}
-
 /* Warning notification */
 .notification.notification-warning {
   background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
 }
 
-.notification.notification-warning i {
-  color: #d39e00 !important;
+/* All notification icons use accent color */
+.notification i {
+  color: var(--accent-color) !important;
 }
 
 /* Mobile responsiveness for notifications */
