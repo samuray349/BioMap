@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/config.js"></script>
   <script src="js/session.js"></script>
-  <script src="js/script.js"></script>
+  <script src="js/script.js?v=2"></script>
   
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMap&loading=async">
