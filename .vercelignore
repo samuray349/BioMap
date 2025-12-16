@@ -1,0 +1,23 @@
+# Frontend files - not needed for API deployment
+public/
+
+# PHP dependencies - not needed for Node.js API
+vendor/
+composer.json
+composer.lock
+
+# Documentation and images
+README.md
+Modelo_BD.png
+
+# Development files
+.git/
+.gitignore
+
+# Node modules will be installed by Vercel, but we can exclude it to reduce upload size
+# (Vercel will install dependencies from package.json anyway)
+node_modules/
+
+# Environment files (if any)
+.env*.local
+
