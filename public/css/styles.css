@@ -5649,7 +5649,7 @@ body:has(.reset-password-container) .login-container {
   pointer-events: auto !important;
   max-width: 350px !important;
   min-width: 280px !important;
-  border: 2px solid #198754 !important;
+  border: 2px solid var(--accent-color) !important;
 }
 
 .notification.show {
@@ -5677,22 +5677,26 @@ body:has(.reset-password-container) .login-container {
 
 /* Success notification */
 .notification.notification-success {
-  background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%) !important;
+  background: rgba(230, 225, 225, 0.7) !important;
+  backdrop-filter: blur(10px);
 }
 
 /* Error notification */
 .notification.notification-error {
-  background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%) !important;
+  background: rgba(230, 225, 225, 0.7) !important;
+  backdrop-filter: blur(10px);
 }
 
 /* Info notification */
 .notification.notification-info {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%) !important;
+  background: rgba(230, 225, 225, 0.7) !important;
+  backdrop-filter: blur(10px);
 }
 
 /* Warning notification */
 .notification.notification-warning {
-  background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
+  background: rgba(230, 225, 225, 0.7) !important;
+  backdrop-filter: blur(10px);
 }
 
 /* All notification icons use accent color */
