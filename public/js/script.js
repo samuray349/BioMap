@@ -810,6 +810,31 @@ function initContextMenu() {
     rightClickPosition = e.latLng; 
     contextMenu.style.left = (mouseX + 10) + 'px';
     contextMenu.style.top = (mouseY + 10) + 'px';
+    
+    // Check if user is logged in and hide/show "Alertar animal" option accordingly
+    let isLoggedIn = false;
+    try {
+      if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
+        isLoggedIn = !!SessionHelper.getCurrentUser();
+      }
+      if (!isLoggedIn) {
+        const userData = localStorage.getItem('biomapUser');
+        isLoggedIn = userData ? !!JSON.parse(userData) : false;
+      }
+    } catch (e) {
+      console.error('Error checking login status:', e);
+    }
+    
+    // Hide or show the alert option based on login status
+    if (menuAlert) {
+      menuAlert.style.display = isLoggedIn ? 'block' : 'none';
+      // Also hide the separator if alert is hidden
+      const separator = contextMenu.querySelector('.context-menu-separator');
+      if (separator) {
+        separator.style.display = isLoggedIn ? 'block' : 'none';
+      }
+    }
+    
     contextMenu.classList.add('show');
   });
 
