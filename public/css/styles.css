@@ -1767,6 +1767,7 @@ p {
 
 .estatuto-cell:hover {
     opacity: 0.8;
+    background-color: rgba(25, 135, 84, 0.1);
 }
 
 .estatuto-cell:active {
