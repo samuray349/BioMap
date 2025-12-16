@@ -1,3 +1,7 @@
+<?php
+require_once 'access_control.php';
+checkAccess(ACCESS_ADMIN);
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
