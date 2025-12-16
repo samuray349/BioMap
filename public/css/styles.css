@@ -1761,6 +1761,7 @@ p {
     transform: scale(1.1);
 }
 
+/* Estatuto clickable text styling - h1 element inside td */
 .estatuto-cell {
     cursor: pointer;
     color: var(--accent-color, #198754);
@@ -1770,8 +1771,9 @@ p {
     display: inline-block;
     pointer-events: auto;
     margin: 0;
-    font-size: inherit;
-    line-height: inherit;
+    padding: 0;
+    font-size: 14px !important;
+    line-height: 1.5;
 }
 
 .estatuto-cell:hover {

@@ -92,8 +92,8 @@ function renderUserTable(users, tbody) {
         tbodyEl.appendChild(row);
     });
     
-    // Add click handlers for estatuto text spans after all rows are added
-    tbodyEl.querySelectorAll('.estatuto-cell').forEach(span => {
+    // Add click handlers for estatuto h1 elements after all rows are added
+    tbodyEl.querySelectorAll('.estatuto-cell').forEach(h1 => {
         span.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
