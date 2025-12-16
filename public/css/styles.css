@@ -1782,6 +1782,10 @@ p {
     pointer-events: auto;
 }
 
+.estatuto-cell:hover {
+    color:  #064e2c;
+}
+
 
 .admin-pagination-container {
     display: flex;
