@@ -1266,6 +1266,26 @@
 
                 const base64Image = await fileToDataURL(file);
 
+                // First, upload the image to get a URL
+                setMessage('A fazer upload da imagem...');
+                const uploadResponse = await fetch('upload_image.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        imagem: {
+                            data: base64Image,
+                            originalName: file.name
+                        }
+                    })
+                });
+
+                const uploadResult = await uploadResponse.json();
+                if (!uploadResponse.ok || !uploadResult.success) {
+                    throw new Error(uploadResult?.error || 'Erro ao fazer upload da imagem');
+                }
+
+                // Now send the animal data with the image URL
+                setMessage('A guardar o animal...');
                 const payload = {
                     nome_comum: nome,
                     nome_cientifico: cientifico,
@@ -1276,10 +1296,7 @@
                     dieta_nome: diet,
                     estado_nome: estado,
                     ameacas: threats,
-                    imagem: {
-                        data: base64Image,
-                        originalName: file.name
-                    }
+                    imagem_url: uploadResult.url
                 };
 
                 const apiUrl = window.API_CONFIG?.getUrl('animais') || '/animais';
