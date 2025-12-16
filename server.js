@@ -308,32 +308,38 @@ app.post('/animais', async (req, res) => {
   try {
     await client.query('BEGIN');
 
+    // Use TRIM in the query to handle any trailing spaces in database
     const familia = await client.query(
-      'SELECT familia_id FROM familia WHERE nome_familia = $1 LIMIT 1',
+      'SELECT familia_id FROM familia WHERE TRIM(nome_familia) = TRIM($1) LIMIT 1',
       [familia_nome.trim()]
     );
     if (familia.rowCount === 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: `Família "${familia_nome.trim()}" não encontrada na base de dados.` });
+      const allFamilias = await client.query('SELECT TRIM(nome_familia) as nome_familia FROM familia ORDER BY familia_id');
+      const availableFamilias = allFamilias.rows.map(r => r.nome_familia).join(', ');
+      return res.status(400).json({ error: `Família "${familia_nome.trim()}" não encontrada na base de dados. Famílias disponíveis: ${availableFamilias}` });
     }
 
     const dieta = await client.query(
-      'SELECT dieta_id FROM dieta WHERE nome_dieta = $1 LIMIT 1',
+      'SELECT dieta_id FROM dieta WHERE TRIM(nome_dieta) = TRIM($1) LIMIT 1',
       [dieta_nome.trim()]
     );
     if (dieta.rowCount === 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: `Dieta "${dieta_nome.trim()}" não encontrada na base de dados.` });
+      const allDietas = await client.query('SELECT TRIM(nome_dieta) as nome_dieta FROM dieta ORDER BY dieta_id');
+      const availableDietas = allDietas.rows.map(r => r.nome_dieta).join(', ');
+      return res.status(400).json({ error: `Dieta "${dieta_nome.trim()}" não encontrada na base de dados. Dietas disponíveis: ${availableDietas}` });
     }
 
+    // Use TRIM in the query to handle trailing spaces in database
     const estado = await client.query(
-      'SELECT estado_id FROM estado_conservacao WHERE nome_estado = $1 LIMIT 1',
+      'SELECT estado_id FROM estado_conservacao WHERE TRIM(nome_estado) = TRIM($1) LIMIT 1',
       [estado_nome.trim()]
     );
     if (estado.rowCount === 0) {
       await client.query('ROLLBACK');
       // Try to get available states for better error message
-      const allStates = await client.query('SELECT nome_estado FROM estado_conservacao ORDER BY estado_id');
+      const allStates = await client.query('SELECT TRIM(nome_estado) as nome_estado FROM estado_conservacao ORDER BY estado_id');
       const availableStates = allStates.rows.map(r => r.nome_estado).join(', ');
       return res.status(400).json({ 
         error: `Estado de conservação "${estado_nome.trim()}" não encontrado na base de dados. Estados disponíveis: ${availableStates}` 
