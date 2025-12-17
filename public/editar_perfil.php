@@ -71,7 +71,7 @@ $userId = $user['id'] ?? '';
                     
                     <button type="submit" class="confirm-button">Confirmar Alterações</button>
                     
-                    <a href="perfil.php" class="back-link">&lt; Voltar</a>
+                    <a href="#" id="back-link" class="back-link">&lt; Voltar</a>
                 </form>
             </div>
         </div>
@@ -184,6 +184,9 @@ $userId = $user['id'] ?? '';
                             setCookie('biomap_user', JSON.stringify(user), 7);
                         }
                         
+                        // Update localStorage (needed for header update)
+                        localStorage.setItem('biomapUser', JSON.stringify(user));
+                        
                         // Update PHP session
                         fetch('set_session.php', {
                             method: 'POST',
@@ -206,9 +209,17 @@ $userId = $user['id'] ?? '';
                     if (profileName) profileName.textContent = username;
                     if (profileEmail) profileEmail.textContent = email;
                     
+                    // Update header with new name
+                    if (typeof applyHeaderAuthState === 'function') {
+                        applyHeaderAuthState();
+                    }
+                    
+                    // Determine redirect URL based on funcao_id
+                    const redirectUrl = (user.funcao_id === 1) ? 'perfil_admin.php' : 'perfil.php';
+                    
                     // Redirect after 1.5 seconds
                     setTimeout(() => {
-                        window.location.href = 'perfil.php';
+                        window.location.href = redirectUrl;
                     }, 1500);
                     
                 } catch (error) {
@@ -219,6 +230,23 @@ $userId = $user['id'] ?? '';
                     submitButton.textContent = 'Confirmar Alterações';
                 }
             });
+            
+            // Handle "Voltar" link click - redirect based on funcao_id
+            const backLink = document.getElementById('back-link');
+            if (backLink) {
+                backLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get current user from session
+                    const user = SessionHelper?.getCurrentUser() || JSON.parse(getCookie('biomap_user') || '{}');
+                    
+                    // Determine redirect URL based on funcao_id
+                    const redirectUrl = (user && user.funcao_id === 1) ? 'perfil_admin.php' : 'perfil.php';
+                    
+                    // Redirect
+                    window.location.href = redirectUrl;
+                });
+            }
         });
         
         // Helper function to get cookie (if SessionHelper not loaded)

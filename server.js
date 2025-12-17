@@ -153,6 +153,128 @@ app.get('/users/:id', async (req, res) => {
 });
 
 /* =====================
+   UPDATE USER PASSWORD (Must be before /users/:id to avoid route conflicts)
+===================== */
+app.put('/users/:id/password', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { current_password, new_password } = req.body;
+
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    if (!current_password || !new_password) {
+      return res.status(400).json({ error: 'Password atual e nova password são obrigatórios.' });
+    }
+
+    // Check if user exists and get current password hash
+    const userCheck = await pool.query(
+      'SELECT utilizador_id, password_hash FROM utilizador WHERE utilizador_id = $1',
+      [id]
+    );
+
+    if (userCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Utilizador not found' });
+    }
+
+    // Verify current password
+    const currentPasswordHash = crypto.createHash('sha256').update(current_password).digest('hex');
+    if (currentPasswordHash !== userCheck.rows[0].password_hash) {
+      return res.status(401).json({ error: 'Password atual incorreta.' });
+    }
+
+    // Check if new password is different from current password
+    if (current_password === new_password) {
+      return res.status(400).json({ error: 'A nova password deve ser diferente da password atual.' });
+    }
+
+    // Hash new password
+    const newPasswordHash = crypto.createHash('sha256').update(new_password).digest('hex');
+
+    // Update password
+    await pool.query(
+      'UPDATE utilizador SET password_hash = $1 WHERE utilizador_id = $2',
+      [newPasswordHash, id]
+    );
+
+    return res.status(200).json({
+      message: 'Password atualizada com sucesso.',
+      utilizador_id: parseInt(id)
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar password do utilizador', error);
+    return res.status(500).json({ error: 'Erro ao atualizar password do utilizador.' });
+  }
+});
+
+/* =====================
+   UPDATE USER FUNCAO (Role)
+===================== */
+app.put('/users/:id/funcao', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { funcao_id } = req.body;
+
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    if (!funcao_id || (funcao_id !== 1 && funcao_id !== 2)) {
+      return res.status(400).json({ error: 'funcao_id must be 1 (Admin) or 2 (Utilizador).' });
+    }
+
+    // Check if user exists
+    const userCheck = await pool.query(
+      'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+      [id]
+    );
+
+    if (userCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Utilizador not found' });
+    }
+
+    // Check if funcao exists
+    const funcaoCheck = await pool.query(
+      'SELECT funcao_id FROM funcao WHERE funcao_id = $1',
+      [funcao_id]
+    );
+
+    if (funcaoCheck.rowCount === 0) {
+      return res.status(400).json({ error: 'Funcao not found' });
+    }
+
+    // Update user funcao_id
+    await pool.query(
+      'UPDATE utilizador SET funcao_id = $1 WHERE utilizador_id = $2',
+      [funcao_id, id]
+    );
+
+    // Get updated user data with funcao name
+    const { rows } = await pool.query(
+      `SELECT 
+        u.utilizador_id,
+        u.funcao_id,
+        f.nome_funcao as estatuto
+      FROM utilizador u
+      JOIN funcao f ON u.funcao_id = f.funcao_id
+      WHERE u.utilizador_id = $1`,
+      [id]
+    );
+
+    return res.status(200).json({
+      message: 'Funcao atualizada com sucesso.',
+      utilizador_id: parseInt(id),
+      funcao_id: funcao_id,
+      estatuto: rows[0].estatuto
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar funcao do utilizador', error);
+    return res.status(500).json({ error: 'Erro ao atualizar funcao do utilizador.' });
+  }
+});
+
+/* =====================
    UPDATE USER PROFILE (Nome e Email)
 ===================== */
 app.put('/users/:id', async (req, res) => {
@@ -226,72 +348,6 @@ app.put('/users/:id', async (req, res) => {
   } catch (error) {
     console.error('Erro ao atualizar perfil do utilizador', error);
     return res.status(500).json({ error: 'Erro ao atualizar perfil do utilizador.' });
-  }
-});
-
-/* =====================
-   UPDATE USER FUNCAO (Role)
-===================== */
-app.put('/users/:id/funcao', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { funcao_id } = req.body;
-
-    if (!/^\d+$/.test(id)) {
-      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
-    }
-
-    if (!funcao_id || (funcao_id !== 1 && funcao_id !== 2)) {
-      return res.status(400).json({ error: 'funcao_id must be 1 (Admin) or 2 (Utilizador).' });
-    }
-
-    // Check if user exists
-    const userCheck = await pool.query(
-      'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
-      [id]
-    );
-
-    if (userCheck.rowCount === 0) {
-      return res.status(404).json({ error: 'Utilizador not found' });
-    }
-
-    // Check if funcao exists
-    const funcaoCheck = await pool.query(
-      'SELECT funcao_id FROM funcao WHERE funcao_id = $1',
-      [funcao_id]
-    );
-
-    if (funcaoCheck.rowCount === 0) {
-      return res.status(400).json({ error: 'Funcao not found' });
-    }
-
-    // Update user funcao_id
-    await pool.query(
-      'UPDATE utilizador SET funcao_id = $1 WHERE utilizador_id = $2',
-      [funcao_id, id]
-    );
-
-    // Get updated user data with funcao name
-    const { rows } = await pool.query(
-      `SELECT 
-        u.utilizador_id,
-        u.funcao_id,
-        f.nome_funcao as estatuto
-      FROM utilizador u
-      JOIN funcao f ON u.funcao_id = f.funcao_id
-      WHERE u.utilizador_id = $1`,
-      [id]
-    );
-
-    return res.status(200).json({
-      message: 'Funcao atualizada com sucesso.',
-      utilizador_id: parseInt(id),
-      funcao_id: funcao_id,
-      estatuto: rows[0].estatuto
-    });
-  } catch (error) {
-    console.error('Erro ao atualizar funcao do utilizador', error);
-    return res.status(500).json({ error: 'Erro ao atualizar funcao do utilizador.' });
   }
 });
 
