@@ -1,6 +1,12 @@
 <?php
 require_once 'access_control.php';
 checkAccess(ACCESS_USER);
+
+// Get current user data
+$user = getCurrentUser();
+$userName = $user['name'] ?? '';
+$userEmail = $user['email'] ?? '';
+$userId = $user['id'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -28,8 +34,8 @@ checkAccess(ACCESS_USER);
     <section class="profile-banner">
         <div class="profile-banner-content">
             <div class="profile-info">
-                <h1 class="profile-name">[Nome utilizador]</h1>
-                <p class="profile-email">[Email]</p>
+                <h1 class="profile-name"><?php echo htmlspecialchars($userName); ?></h1>
+                <p class="profile-email"><?php echo htmlspecialchars($userEmail); ?></p>
             </div>
             <div class="profile-picture-container">
                 <div class="profile-picture">
@@ -48,17 +54,20 @@ checkAccess(ACCESS_USER);
                 <form class="edit-profile-form" id="editProfileForm">
                     <div class="form-group">
                         <div class="input-wrapper">
-                            <input type="text" id="username" name="username" required>
-                            <label for="username">Nome Utilizador</label>
+                            <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($userName); ?>" required>
+                            <label for="username" class="<?php echo !empty($userName) ? 'has-value' : ''; ?>">Nome Utilizador</label>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <div class="input-wrapper">
-                            <input type="email" id="email" name="email" required>
-                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($userEmail); ?>" required>
+                            <label for="email" class="<?php echo !empty($userEmail) ? 'has-value' : ''; ?>">Email</label>
                         </div>
                     </div>
+                    
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                    <div id="successMessage" class="success-message" style="display: none;"></div>
                     
                     <button type="submit" class="confirm-button">Confirmar Alterações</button>
                     
@@ -69,6 +78,8 @@ checkAccess(ACCESS_USER);
     </section>
     
     <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/session.js"></script>
     <script src="js/script.js"></script>
     <script>
         // Load header when page loads
@@ -80,15 +91,160 @@ checkAccess(ACCESS_USER);
             // Handle form input labels
             const inputs = document.querySelectorAll('.edit-profile-form input');
             inputs.forEach(input => {
+                // Initialize label state if input has value
+                if (input.value.trim() !== '') {
+                    input.classList.add('has-value');
+                    input.nextElementSibling?.classList.add('has-value');
+                }
+                
                 input.addEventListener('input', function() {
                     if (this.value.trim() !== '') {
                         this.classList.add('has-value');
+                        this.nextElementSibling?.classList.add('has-value');
                     } else {
                         this.classList.remove('has-value');
+                        this.nextElementSibling?.classList.remove('has-value');
                     }
                 });
             });
+            
+            // Handle form submission
+            const form = document.getElementById('editProfileForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const submitButton = form.querySelector('.confirm-button');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Hide previous messages
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                
+                // Get current user from session
+                const user = SessionHelper?.getCurrentUser() || JSON.parse(getCookie('biomap_user') || '{}');
+                if (!user || !user.id) {
+                    errorMessage.textContent = 'Erro: Sessão inválida. Por favor, inicie sessão novamente.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                
+                // Basic validation
+                if (!username || !email) {
+                    errorMessage.textContent = 'Por favor, preencha todos os campos.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    errorMessage.textContent = 'Por favor, insira um email válido.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Disable submit button
+                submitButton.disabled = true;
+                submitButton.textContent = 'A atualizar...';
+                
+                try {
+                    // Get API URL
+                    const apiUrl = window.API_CONFIG?.getUrl(`users/${user.id}`) || `/users/${user.id}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            nome_utilizador: username,
+                            email: email
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data?.error || 'Erro ao atualizar perfil.');
+                    }
+                    
+                    // Update session data
+                    if (user) {
+                        user.name = username;
+                        user.email = email;
+                        
+                        // Update cookie
+                        if (SessionHelper) {
+                            SessionHelper.setUser(user);
+                        } else {
+                            setCookie('biomap_user', JSON.stringify(user), 7);
+                        }
+                        
+                        // Update PHP session
+                        fetch('set_session.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ user: user })
+                        }).catch(err => {
+                            console.warn('Failed to update PHP session:', err);
+                        });
+                    }
+                    
+                    // Show success message
+                    successMessage.textContent = 'Perfil atualizado com sucesso!';
+                    successMessage.style.display = 'block';
+                    
+                    // Update banner
+                    const profileName = document.querySelector('.profile-name');
+                    const profileEmail = document.querySelector('.profile-email');
+                    if (profileName) profileName.textContent = username;
+                    if (profileEmail) profileEmail.textContent = email;
+                    
+                    // Redirect after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.href = 'perfil.php';
+                    }, 1500);
+                    
+                } catch (error) {
+                    errorMessage.textContent = error.message || 'Erro ao atualizar perfil. Por favor, tente novamente.';
+                    errorMessage.style.display = 'block';
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Confirmar Alterações';
+                }
+            });
         });
+        
+        // Helper function to get cookie (if SessionHelper not loaded)
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) {
+                    return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                }
+            }
+            return null;
+        }
+        
+        // Helper function to set cookie (if SessionHelper not loaded)
+        function setCookie(name, value, days = 7) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+        }
     </script>
 </body>
 </html>

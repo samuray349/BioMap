@@ -153,6 +153,83 @@ app.get('/users/:id', async (req, res) => {
 });
 
 /* =====================
+   UPDATE USER PROFILE (Nome e Email)
+===================== */
+app.put('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome_utilizador, email } = req.body;
+
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    if (!nome_utilizador || !nome_utilizador.trim()) {
+      return res.status(400).json({ error: 'Nome utilizador é obrigatório.' });
+    }
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ error: 'Email é obrigatório.' });
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ error: 'Email inválido.' });
+    }
+
+    // Check if user exists
+    const userCheck = await pool.query(
+      'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+      [id]
+    );
+
+    if (userCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Utilizador not found' });
+    }
+
+    // Check if email is already taken by another user
+    const emailCheck = await pool.query(
+      'SELECT utilizador_id FROM utilizador WHERE email = $1 AND utilizador_id != $2',
+      [email.trim(), id]
+    );
+
+    if (emailCheck.rowCount > 0) {
+      return res.status(409).json({ error: 'Email já está em uso por outro utilizador.' });
+    }
+
+    // Update user profile
+    await pool.query(
+      'UPDATE utilizador SET nome_utilizador = $1, email = $2 WHERE utilizador_id = $3',
+      [nome_utilizador.trim(), email.trim(), id]
+    );
+
+    // Get updated user data
+    const { rows } = await pool.query(
+      `SELECT 
+        u.utilizador_id,
+        u.nome_utilizador,
+        u.email,
+        u.funcao_id,
+        u.estado_id
+      FROM utilizador u
+      WHERE u.utilizador_id = $1`,
+      [id]
+    );
+
+    return res.status(200).json({
+      message: 'Perfil atualizado com sucesso.',
+      utilizador_id: parseInt(id),
+      nome_utilizador: rows[0].nome_utilizador,
+      email: rows[0].email
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar perfil do utilizador', error);
+    return res.status(500).json({ error: 'Erro ao atualizar perfil do utilizador.' });
+  }
+});
+
+/* =====================
    UPDATE USER FUNCAO (Role)
 ===================== */
 app.put('/users/:id/funcao', async (req, res) => {
