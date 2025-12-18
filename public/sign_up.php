@@ -132,13 +132,17 @@
                     hasError = true;
                 }
                 if (!password) {
-                    showError(passwordError, 'Insira a password.');
+                    const emptyPasswordMsg = 'Insira a password.';
+                    showError(passwordError, emptyPasswordMsg);
+                    showNotification(emptyPasswordMsg, 'error');
                     hasError = true;
                 } else {
                     // Basic strong password policy: min 8 chars, at least one lowercase, one uppercase and one digit
                     const pwdPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
                     if (!pwdPolicy.test(password)) {
-                        showError(passwordError, 'A password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.');
+                        const passwordErrorMsg = 'A password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.';
+                        showError(passwordError, passwordErrorMsg);
+                        showNotification(passwordErrorMsg, 'error');
                         hasError = true;
                     }
                 }
@@ -239,9 +243,7 @@
                         window.location.href = 'login.php';
                     }, 1200);
                 } catch (error) {
-                    if (typeof showNotification === 'function') {
-                        showNotification(error.message, 'error');
-                    }
+                    showNotification(error.message, 'error');
                     showError(formError, error.message);
                 } finally {
                     setLoading(false);
