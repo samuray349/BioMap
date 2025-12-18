@@ -70,9 +70,9 @@
         </div>
     </main>
     
-    <script src="js/script.js" defer></script>
-    <script src="js/animals.js" defer></script>
-    <script defer>
+    <script src="js/script.js"></script>
+    <script src="js/animals.js"></script>
+    <script>
         // Initialize after scripts are loaded
         async function initSobreNosPage() {
             // Load header
@@ -100,8 +100,8 @@
             }
         }
         
-        // With defer, this script runs after DOM is ready and other scripts are loaded
-        initSobreNosPage();
+        // Wait for window to fully load (ensures all scripts are executed)
+        window.addEventListener('load', initSobreNosPage);
     </script>
 </body>
 </html>

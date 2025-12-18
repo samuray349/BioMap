@@ -351,9 +351,9 @@
             
         </div>
     </main>
-    <script src="js/script.js" defer></script>
-    <script src="js/animals.js" defer></script>
-    <script defer>
+    <script src="js/script.js"></script>
+    <script src="js/animals.js"></script>
+    <script>
         // Arrays para as tags de família e estado de conservação
         let animaisFamilyTags = [];
         let animaisStateTags = [];
@@ -454,8 +454,8 @@
             loadAnimals();
         }
         
-        // With defer, this script runs after DOM is ready and other scripts are loaded
-        initAnimaisPage();
+        // Wait for window to fully load (ensures all scripts are executed)
+        window.addEventListener('load', initAnimaisPage);
       </script>
 </body>
 </html>
