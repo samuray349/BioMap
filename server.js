@@ -487,6 +487,33 @@ app.delete('/users/:id', async (req, res) => {
 /* =====================
    ANIMAIS
 ===================== */
+
+// Get all animal families (MUST be before /animais/:id if such route exists)
+app.get('/animais/familias', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT familia_id, TRIM(nome_familia) as nome_familia FROM familia ORDER BY nome_familia'
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Erro ao buscar famílias de animais:', error);
+    res.status(500).json({ error: 'Erro ao buscar famílias de animais.' });
+  }
+});
+
+// Get all conservation statuses (MUST be before /animais/:id if such route exists)
+app.get('/animais/estados', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT estado_id, TRIM(nome_estado) as nome_estado, hex_cor FROM estado_conservacao ORDER BY estado_id'
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Erro ao buscar estados de conservação:', error);
+    res.status(500).json({ error: 'Erro ao buscar estados de conservação.' });
+  }
+});
+
 app.get('/animais', async (req, res) => {
   try {
     const { search, families, states } = req.query;
