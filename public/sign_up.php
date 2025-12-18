@@ -99,6 +99,56 @@
                 if (target) target.textContent = message;
             }
 
+            // Create error popup similar to confirmation popup in apagar_perfil.php
+            function showErrorPopup(message) {
+                // Create overlay
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                overlay.style.display = 'flex';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+                overlay.style.zIndex = '10000';
+
+                const box = document.createElement('div');
+                box.style.background = '#fff';
+                box.style.padding = '20px';
+                box.style.borderRadius = '8px';
+                box.style.maxWidth = '420px';
+                box.style.width = '90%';
+                box.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+
+                box.innerHTML = `
+                    <h3 style="margin-top:0; color: #e05353;">Erro</h3>
+                    <p style="margin-bottom: 14px;">${message}</p>
+                    <div style="display:flex;gap:8px;justify-content:flex-end;">
+                        <button id="errorOk" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;cursor:pointer;">OK</button>
+                    </div>
+                `;
+
+                overlay.appendChild(box);
+                document.body.appendChild(overlay);
+
+                const okBtn = box.querySelector('#errorOk');
+
+                const closePopup = () => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                };
+
+                okBtn.addEventListener('click', closePopup);
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) {
+                        closePopup();
+                    }
+                });
+            }
+
             function clearErrors() {
                 [nameError, emailError, passwordError, formError].forEach(el => {
                     if (el) el.textContent = '';
@@ -161,9 +211,9 @@
                         throw new Error(checkData?.error || 'Erro ao verificar dados.');
                     }
 
-                    // Check for duplicates and show appropriate alert
+                    // Check for duplicates and show appropriate error popup
                     if (checkData.nameExists && checkData.emailExists) {
-                        alert('Nome e email já existentes');
+                        showErrorPopup('Nome e email já existentes');
                         if (nameError) showError(nameError, 'Este nome já existe');
                         if (emailError) showError(emailError, 'Este email já existe');
                         setLoading(false);
@@ -171,14 +221,14 @@
                     }
 
                     if (checkData.nameExists) {
-                        alert('Este nome já existe');
+                        showErrorPopup('Este nome já existe');
                         if (nameError) showError(nameError, 'Este nome já existe');
                         setLoading(false);
                         return;
                     }
 
                     if (checkData.emailExists) {
-                        alert('Este email já existe');
+                        showErrorPopup('Este email já existe');
                         if (emailError) showError(emailError, 'Este email já existe');
                         setLoading(false);
                         return;
@@ -199,14 +249,14 @@
                     if (!response.ok) {
                         // Handle specific error cases from signup endpoint
                         if (data.nameExists && data.emailExists) {
-                            alert('Nome e email já existentes');
+                            showErrorPopup('Nome e email já existentes');
                             if (nameError) showError(nameError, 'Este nome já existe');
                             if (emailError) showError(emailError, 'Este email já existe');
                         } else if (data.nameExists) {
-                            alert('Este nome já existe');
+                            showErrorPopup('Este nome já existe');
                             if (nameError) showError(nameError, 'Este nome já existe');
                         } else if (data.emailExists) {
-                            alert('Este email já existe');
+                            showErrorPopup('Este email já existe');
                             if (emailError) showError(emailError, 'Este email já existe');
                         } else {
                             throw new Error(data?.error || 'Não foi possível criar a conta.');
@@ -222,6 +272,7 @@
                         window.location.href = 'login.php';
                     }, 1200);
                 } catch (error) {
+                    showErrorPopup(error.message);
                     showError(formError, error.message);
                 } finally {
                     setLoading(false);
