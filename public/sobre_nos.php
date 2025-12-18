@@ -11,6 +11,8 @@
     
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
+    
+    <script src="js/config.js"></script>
 
     <style>
         .family i{
@@ -61,7 +63,9 @@
         
         <div class="cards-grid">
             <!-- Animal cards will be loaded dynamically from API -->
-        </div> <div class="sobre-nos-footer">
+        </div>
+        
+        <div class="sobre-nos-footer">
             <p class="footer-message">
                 A mão humana causou um grande impacto negativo no reino animal, o que levou à extinção de muitas 
                 lindas espécies que residiam no nosso mundo. Eles precisam da nossa ajuda mais do que nunca. 
@@ -85,6 +89,7 @@
             
             // Load and display animal cards
             const cardsGrid = document.querySelector('.cards-grid');
+            
             if (cardsGrid && typeof fetchAnimals === 'function' && typeof renderAnimalCards === 'function') {
                 try {
                     // Load first 4 animals (or all if less than 4)
