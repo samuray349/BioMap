@@ -21,25 +21,25 @@
             
             <form class="login-form" id="signupForm" novalidate>
                 <div class="form-group">
+                    <label for="name" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Nome</label>
                     <div class="input-wrapper">
                         <input type="name" id="name" name="name" required autocomplete="name">
-                        <label for="name">Nome</label>
                     </div>
                     <span class="error-message" id="nameError"></span>
                 </div>
 
                 <div class="form-group">
+                    <label for="email" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
                     <div class="input-wrapper">
                         <input type="email" id="email" name="email" required autocomplete="email">
-                        <label for="email">Email</label>
                     </div>
                     <span class="error-message" id="emailError"></span>
                 </div>
 
                 <div class="form-group">
+                    <label for="password" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Password</label>
                     <div class="input-wrapper password-wrapper">
                         <input type="password" id="password" name="password" required autocomplete="new-password">
-                        <label for="password">Password</label>
                         <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
                             <span class="eye-icon"></span>
                         </button>

@@ -59,9 +59,9 @@ require_funcao_or_redirect([1,2], 'login.php');
                 
                 <form class="edit-profile-form" id="changePasswordForm">
                     <div class="form-group">
+                        <label for="currentPassword" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Password Atual</label>
                         <div class="input-wrapper password-wrapper">
                             <input type="password" id="currentPassword" name="currentPassword" required>
-                            <label for="currentPassword">Password Atual</label>
                             <button type="button" class="password-toggle" aria-label="Toggle password visibility">
                                 <span class="eye-icon"></span>
                             </button>
@@ -69,9 +69,9 @@ require_funcao_or_redirect([1,2], 'login.php');
                     </div>
                     
                     <div class="form-group">
+                        <label for="newPassword" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Nova Password</label>
                         <div class="input-wrapper password-wrapper">
                             <input type="password" id="newPassword" name="newPassword" required>
-                            <label for="newPassword">Nova Password</label>
                             <button type="button" class="password-toggle" aria-label="Toggle password visibility">
                                 <span class="eye-icon"></span>
                             </button>
@@ -79,9 +79,9 @@ require_funcao_or_redirect([1,2], 'login.php');
                     </div>
                     
                     <div class="form-group">
+                        <label for="confirmPassword" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Confirmar Nova Password</label>
                         <div class="input-wrapper password-wrapper">
                             <input type="password" id="confirmPassword" name="confirmPassword" required>
-                            <label for="confirmPassword">Confirmar Nova Password</label>
                             <button type="button" class="password-toggle" aria-label="Toggle password visibility">
                                 <span class="eye-icon"></span>
                             </button>
@@ -252,18 +252,6 @@ require_funcao_or_redirect([1,2], 'login.php');
             if (typeof loadHeader === 'function') {
                 loadHeader();
             }
-            
-            // Handle form input labels
-            const inputs = document.querySelectorAll('.edit-profile-form input');
-            inputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    if (this.value.trim() !== '') {
-                        this.classList.add('has-value');
-                    } else {
-                        this.classList.remove('has-value');
-                    }
-                });
-            });
             
             // Password toggle functionality
             const passwordToggles = document.querySelectorAll('.password-toggle');

@@ -53,16 +53,16 @@ $userId = $user['id'] ?? '';
                 
                 <form class="edit-profile-form" id="editProfileForm">
                     <div class="form-group">
+                        <label for="username" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Nome Utilizador</label>
                         <div class="input-wrapper">
                             <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($userName); ?>" required>
-                            <label for="username" class="<?php echo !empty($userName) ? 'has-value' : ''; ?>">Nome Utilizador</label>
                         </div>
                     </div>
                     
                     <div class="form-group">
+                        <label for="email" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
                         <div class="input-wrapper">
                             <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($userEmail); ?>" required>
-                            <label for="email" class="<?php echo !empty($userEmail) ? 'has-value' : ''; ?>">Email</label>
                         </div>
                     </div>
                     
@@ -87,26 +87,6 @@ $userId = $user['id'] ?? '';
             if (typeof loadHeader === 'function') {
                 loadHeader();
             }
-            
-            // Handle form input labels
-            const inputs = document.querySelectorAll('.edit-profile-form input');
-            inputs.forEach(input => {
-                // Initialize label state if input has value
-                if (input.value.trim() !== '') {
-                    input.classList.add('has-value');
-                    input.nextElementSibling?.classList.add('has-value');
-                }
-                
-                input.addEventListener('input', function() {
-                    if (this.value.trim() !== '') {
-                        this.classList.add('has-value');
-                        this.nextElementSibling?.classList.add('has-value');
-                    } else {
-                        this.classList.remove('has-value');
-                        this.nextElementSibling?.classList.remove('has-value');
-                    }
-                });
-            });
             
             // Handle form submission
             const form = document.getElementById('editProfileForm');
