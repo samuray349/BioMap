@@ -73,8 +73,9 @@
     <script src="js/script.js"></script>
     <script src="js/animals.js"></script>
     <script>
-        // Load header when page loads
-        document.addEventListener('DOMContentLoaded', async function() {
+        // Initialize after scripts are loaded
+        async function initSobreNosPage() {
+            // Load header
             if (typeof loadHeader === 'function') {
                 loadHeader();
             }
@@ -94,10 +95,18 @@
                     });
                 } catch (error) {
                     console.error("Erro ao carregar animais:", error);
-                    cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
+                    if (cardsGrid) cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
                 }
             }
-        });
+        }
+        
+        // Wait for DOM and call init function
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSobreNosPage);
+        } else {
+            // DOM already loaded
+            initSobreNosPage();
+        }
     </script>
 </body>
 </html>

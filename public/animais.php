@@ -354,59 +354,62 @@
     <script src="js/script.js"></script>
     <script src="js/animals.js"></script>
     <script>
-        // Loader
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('page-loader');
-            setTimeout(() => {
-                if (loader) {
-                    loader.classList.add('hidden');
-                    // Optional: Remove loader from DOM after animation
-                    loader.addEventListener('transitionend', () => loader.remove());
-                }
-            }, 300);
-        });
-        loadHeader();
-        highlightCurrentPage();
-      
         // Arrays para as tags de família e estado de conservação
         let animaisFamilyTags = [];
         let animaisStateTags = [];
       
-        const cardsGrid = document.querySelector('.cards-grid');
-        const searchInput = document.getElementById('search-input');
-        
         // Will be populated from API (using functions from script.js)
         let familyOptions = [];
         let stateOptions = [];
-      
-        // Função principal para buscar e renderizar os animais
-        async function loadAnimals() {
-          try {
-              const filters = getAnimalFilters({
-                  searchInput: searchInput,
-                  familyTagsArray: animaisFamilyTags,
-                  stateTagsArray: animaisStateTags
-              });
-              
-              const animals = await fetchAnimals(filters);
-              renderAnimalCards(animals, cardsGrid, {
-                  emptyMessage: 'Nenhum animal encontrado.'
-              });
-          } catch (error) {
-              console.error("Erro ao buscar animais:", error);
-              cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
-          }
-        }
-      
-        document.addEventListener('DOMContentLoaded', async () => {
+        
+        // Initialize after DOM and scripts are loaded
+        async function initAnimaisPage() {
+            // Loader
+            const loader = document.getElementById('page-loader');
+            if (loader) {
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    loader.addEventListener('transitionend', () => loader.remove());
+                }, 300);
+            }
+            
+            // Load header
+            if (typeof loadHeader === 'function') {
+                loadHeader();
+            }
+            if (typeof highlightCurrentPage === 'function') {
+                highlightCurrentPage();
+            }
+            
+            const cardsGrid = document.querySelector('.cards-grid');
+            const searchInput = document.getElementById('search-input');
+            
+            // Função principal para buscar e renderizar os animais
+            async function loadAnimals() {
+                try {
+                    const filters = getAnimalFilters({
+                        searchInput: searchInput,
+                        familyTagsArray: animaisFamilyTags,
+                        stateTagsArray: animaisStateTags
+                    });
+                    
+                    const animals = await fetchAnimals(filters);
+                    renderAnimalCards(animals, cardsGrid, {
+                        emptyMessage: 'Nenhum animal encontrado.'
+                    });
+                } catch (error) {
+                    console.error("Erro ao buscar animais:", error);
+                    if (cardsGrid) cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
+                }
+            }
           
-          // Fetch filter options from API before initializing
-          const [families, states] = await Promise.all([
-              fetchFamilyOptions(),
-              fetchStateOptions()
-          ]);
-          familyOptions = families;
-          stateOptions = states;
+            // Fetch filter options from API before initializing
+            const [families, states] = await Promise.all([
+                fetchFamilyOptions(),
+                fetchStateOptions()
+            ]);
+            familyOptions = families;
+            stateOptions = states;
           
           // Inicializar o listener do input de pesquisa
           if (searchInput) {
@@ -447,9 +450,17 @@
               });
           }
       
-          // Carregar os animais
-          loadAnimals();
-        });
+            // Carregar os animais
+            loadAnimals();
+        }
+        
+        // Wait for DOM and call init function
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAnimaisPage);
+        } else {
+            // DOM already loaded
+            initAnimaisPage();
+        }
       </script>
 </body>
 </html>
