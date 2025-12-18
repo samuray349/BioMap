@@ -213,6 +213,7 @@ $userEmail = $user['email'] ?? '';
                     alert('Erro interno ao processar a request. Veja o console para mais detalhes.');
                 }
             });
+            
         });
     </script>
 </body>
