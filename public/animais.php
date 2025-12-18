@@ -417,6 +417,7 @@
                   loadAnimals();
               });
           }
+          
       
           // Inicializar os filtros
           initAnimalFilters({
