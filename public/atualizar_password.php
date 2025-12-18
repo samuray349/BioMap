@@ -2,6 +2,13 @@
 require_once 'access_control.php';
 checkAccess(ACCESS_USER);
 ?>
+<?php
+// Inject current user info for the page and JS
+$user = getCurrentUser();
+$userId = getUserId();
+$userName = getUserName();
+$userEmail = $user['email'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -28,8 +35,8 @@ checkAccess(ACCESS_USER);
     <section class="profile-banner">
         <div class="profile-banner-content">
             <div class="profile-info">
-                <h1 class="profile-name">[Nome utilizador]</h1>
-                <p class="profile-email">[Email]</p>
+                <h1 class="profile-name"><?php echo htmlspecialchars($userName ?? ''); ?></h1>
+                <p class="profile-email"><?php echo htmlspecialchars($userEmail ?? ''); ?></p>
             </div>
             <div class="profile-picture-container">
                 <div class="profile-picture">
@@ -46,6 +53,7 @@ checkAccess(ACCESS_USER);
                 <h2 class="edit-profile-title">Alterar Password</h2>
                 
                 <form class="edit-profile-form" id="changePasswordForm">
+                    <input type="hidden" id="userId" value="<?php echo htmlspecialchars($userId ?? ''); ?>">
                     <div class="form-group">
                         <div class="input-wrapper password-wrapper">
                             <input type="password" id="currentPassword" name="currentPassword" required>
@@ -120,6 +128,90 @@ checkAccess(ACCESS_USER);
                         icon.classList.remove('show-password');
                     }
                 });
+            });
+
+            // Password verification + update flow
+            const form = document.getElementById('changePasswordForm');
+            const currentPassword = document.getElementById('currentPassword');
+            const newPassword = document.getElementById('newPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const userIdInput = document.getElementById('userId');
+
+            // helper to compute SHA-256 hex
+            async function sha256Hex(message) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(message);
+                const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const uid = userIdInput ? userIdInput.value : null;
+                if (!uid) {
+                    alert('Utilizador não autenticado.');
+                    return;
+                }
+
+                const cur = currentPassword.value.trim();
+                const nw = newPassword.value;
+                const conf = confirmPassword.value;
+
+                if (!cur || !nw || !conf) {
+                    alert('Preencha todas as password.');
+                    return;
+                }
+
+                if (nw !== conf) {
+                    alert('A nova password e a confirmação não coincidem.');
+                    return;
+                }
+
+                // Compute SHA-256 on client for verification
+                try {
+                    const curHash = await sha256Hex(cur);
+
+                    // Verify against server-stored hash
+                    const verifyResp = await fetch('/verify-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ utilizador_id: uid, password_hash: curHash })
+                    });
+
+                    if (!verifyResp.ok) {
+                        const err = await verifyResp.json().catch(() => ({}));
+                        alert('Erro ao verificar password: ' + (err.error || verifyResp.status));
+                        return;
+                    }
+
+                    const verifyJson = await verifyResp.json();
+                    if (!verifyJson.valid) {
+                        alert('Password atual incorreta.');
+                        return;
+                    }
+
+                    // Current password verified; call existing update endpoint (expects plain passwords)
+                    const updateResp = await fetch(`/users/${uid}/password`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ current_password: cur, new_password: nw })
+                    });
+
+                    const updateJson = await updateResp.json().catch(() => ({}));
+                    if (!updateResp.ok) {
+                        alert(updateJson.error || 'Erro ao atualizar password.');
+                        return;
+                    }
+
+                    alert(updateJson.message || 'Password atualizada com sucesso.');
+                    // Redirect back to profile
+                    window.location.href = 'perfil.php';
+                } catch (err) {
+                    console.error('Erro na verificação/atualização da password', err);
+                    alert('Erro interno ao processar a request. Veja o console para mais detalhes.');
+                }
             });
         });
     </script>
