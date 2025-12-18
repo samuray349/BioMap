@@ -462,6 +462,56 @@ checkAccess(ACCESS_ADMIN);
 .btn-details:hover {
     background: var(--accent-hover);
 }
+
+    /* Family searchable select styling - matches chip-select */
+    .family-select-wrapper {
+        position: relative;
+    }
+    
+    .family-search-input {
+        cursor: text;
+    }
+    
+    .family-select-wrapper .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: white;
+        border: 1px solid #d9dee7;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+        padding: 8px 0;
+    }
+    
+    .family-select-wrapper .dropdown-menu.show {
+        display: block;
+    }
+    
+    .family-select-wrapper .dropdown-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-size: 15px;
+        font-weight: 500;
+        color: #0f172a;
+    }
+    
+    .family-select-wrapper .dropdown-item:hover {
+        background-color: #eef2f8;
+    }
+    
+    .family-select-wrapper .dropdown-item:first-child {
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .family-select-wrapper .dropdown-item:last-child {
+        border-radius: 0 0 20px 20px;
+    }
     </style>
 </head>
 <body>
@@ -510,13 +560,9 @@ checkAccess(ACCESS_ADMIN);
                         <p>Selecione a família relacionada com o animal registado.</p>
                     </div>
 
-                    <div class="filter-section">
-                        <label class="filter-label">Família</label>
-                        <div class="tag-input-wrapper">
-                            <input type="text" id="family-input" class="tag-input" placeholder="Pesquisar e selecionar família" autocomplete="off">
-                            <i class="fas fa-chevron-down filter-arrow"></i>
-                            <div class="dropdown-menu" id="family-dropdown"></div>
-                        </div>
+                    <div class="family-select-wrapper" style="position: relative;">
+                        <input type="text" id="family-input" class="chip-select family-search-input" placeholder="Selecione uma família" autocomplete="off">
+                        <div class="dropdown-menu" id="family-dropdown"></div>
                     </div>
                 </section>
 
@@ -795,7 +841,7 @@ checkAccess(ACCESS_ADMIN);
     (async function initFamilyDropdown() {
         const familyInput = document.getElementById('family-input');
         const familyDropdown = document.getElementById('family-dropdown');
-        const wrapper = familyInput ? familyInput.closest('.tag-input-wrapper') : null;
+        const wrapper = familyInput ? familyInput.closest('.family-select-wrapper') : null;
         
         if (!familyInput || !familyDropdown) return;
         
