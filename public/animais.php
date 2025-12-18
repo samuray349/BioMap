@@ -351,9 +351,9 @@
             
         </div>
     </main>
-    <script src="js/script.js"></script>
-    <script src="js/animals.js"></script>
-    <script>
+    <script src="js/script.js" defer></script>
+    <script src="js/animals.js" defer></script>
+    <script defer>
         // Arrays para as tags de família e estado de conservação
         let animaisFamilyTags = [];
         let animaisStateTags = [];
@@ -454,13 +454,8 @@
             loadAnimals();
         }
         
-        // Wait for DOM and call init function
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initAnimaisPage);
-        } else {
-            // DOM already loaded
-            initAnimaisPage();
-        }
+        // With defer, this script runs after DOM is ready and other scripts are loaded
+        initAnimaisPage();
       </script>
 </body>
 </html>
