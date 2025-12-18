@@ -500,17 +500,22 @@ function initMap() {
     const baseHeight = 60;
     
     // Scale factor: smaller icons when zoomed out, larger when zoomed in
-    // Clamp between zoom 8 and 18 for reasonable limits
+    // Use 1.15 for more subtle scaling
     const clampedZoom = Math.max(8, Math.min(18, zoom));
-    const scale = Math.pow(1.2, clampedZoom - baseZoom);
+    const scale = Math.pow(1.15, clampedZoom - baseZoom);
     
     const width = baseWidth * scale;
     const height = baseHeight * scale;
     
-    return {
-      scaledSize: new google.maps.Size(width, height),
-      anchor: new google.maps.Point(width / 2, height)
-    };
+    // Label position: slightly above the marker, scaling with marker size
+    const labelYOffset = -15 * scale; // Scale the gap with the marker size
+    
+  return {
+    scale: scale,
+    scaledSize: new google.maps.Size(width, height),
+    anchor: new google.maps.Point(width / 2, height),
+    labelOrigin: new google.maps.Point(width / 2, labelYOffset)
+  };
   }
 
   // Initialize icon with default size
@@ -518,7 +523,8 @@ function initMap() {
   pawMarkerIcon = {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(pawIconSVG),
     scaledSize: iconSize.scaledSize,
-    anchor: iconSize.anchor
+    anchor: iconSize.anchor,
+    labelOrigin: iconSize.labelOrigin
   };
 
   map = new google.maps.Map(mapElement, {
@@ -619,16 +625,20 @@ function debounce(func, wait) {
 function updateMarkerSizes(zoom) {
   if (!mapMarkers || mapMarkers.length === 0) return;
   
-  // Calculate new icon size
+  // Calculate new icon size with more gradual scaling
   const baseZoom = 12;
   const baseWidth = 45;
   const baseHeight = 60;
   const baseFontSize = 14;
   const clampedZoom = Math.max(8, Math.min(18, zoom));
-  const scale = Math.pow(1.2, clampedZoom - baseZoom);
+  // Use 1.15 for more subtle scaling
+  const scale = Math.pow(1.15, clampedZoom - baseZoom);
   const width = baseWidth * scale;
   const height = baseHeight * scale;
-  const fontSize = baseFontSize * scale;
+  const fontSize = Math.round(baseFontSize * scale);
+  
+  // Label position: slightly above the marker, scaling with marker size
+  const labelYOffset = -15 * scale; // Scale the gap with the marker size
   
   // Get the current paw icon SVG
   const pawIconSVG = `
@@ -645,18 +655,19 @@ function updateMarkerSizes(zoom) {
 </svg>
 `;
   
-  // Update the global icon
+  // Update the global icon with proper label origin
   pawMarkerIcon = {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(pawIconSVG),
     scaledSize: new google.maps.Size(width, height),
-    anchor: new google.maps.Point(width / 2, height)
+    anchor: new google.maps.Point(width / 2, height),
+    labelOrigin: new google.maps.Point(width / 2, labelYOffset)
   };
   
-  // Update all existing markers with new icon size and label font size
+  // Update all existing markers with new icon and label size
   mapMarkers.forEach(marker => {
     marker.setIcon(pawMarkerIcon);
     
-    // Update label font size
+    // Update label with new font size
     const currentLabel = marker.getLabel();
     if (currentLabel) {
       marker.setLabel({
@@ -746,12 +757,12 @@ async function loadAvistamentos() {
         estadoCor: avistamento.estado_cor || '#666'
       };
 
-      // Calculate font size based on current zoom
+      // Calculate label font size based on current zoom
       const baseZoom = 12;
       const baseFontSize = 14;
       const clampedZoom = Math.max(8, Math.min(18, currentZoomLevel));
-      const scale = Math.pow(1.2, clampedZoom - baseZoom);
-      const fontSize = baseFontSize * scale;
+      const scale = Math.pow(1.15, clampedZoom - baseZoom);
+      const fontSize = Math.round(baseFontSize * scale);
       
       const marker = new google.maps.Marker({
         position: position,
