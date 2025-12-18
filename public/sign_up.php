@@ -150,6 +150,7 @@
                 if (hasError) return;
 
                 setLoading(true);
+                
 
                 try {
                     // First check if name or email already exists
