@@ -40,13 +40,25 @@ try {
     // The path might be like /public/animal/filename.jpg or /animal/filename.jpg
     if (preg_match('#/animal/([^/]+)$#', $urlPath, $matches)) {
         $filename = $matches[1];
-        $filePath = __DIR__ . '/animal/' . $filename;
+        
+        // Sanitize filename to prevent directory traversal
+        $filename = basename($filename);
+        
+        $animalDir = __DIR__ . '/animal/';
+        $filePath = $animalDir . $filename;
+        
+        // Ensure animal directory exists
+        if (!is_dir($animalDir)) {
+            // Directory doesn't exist, so image doesn't exist either
+            echo json_encode(['success' => true, 'message' => 'Image directory does not exist (already deleted)']);
+            exit;
+        }
         
         // Security check: ensure the file is within the animal directory
         $realPath = realpath($filePath);
-        $animalDir = realpath(__DIR__ . '/animal/');
+        $realAnimalDir = realpath($animalDir);
         
-        if ($realPath && $animalDir && strpos($realPath, $animalDir) === 0) {
+        if ($realAnimalDir && $realPath && strpos($realPath, $realAnimalDir) === 0) {
             // File exists and is in the correct directory
             if (file_exists($realPath)) {
                 if (unlink($realPath)) {
@@ -60,12 +72,13 @@ try {
                 echo json_encode(['success' => true, 'message' => 'Image file does not exist (already deleted)']);
             }
         } else {
+            // Path doesn't resolve correctly (security issue or file doesn't exist)
             http_response_code(403);
             echo json_encode(['success' => false, 'error' => 'Access denied: invalid file path']);
         }
     } else {
         http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Invalid image URL format']);
+        echo json_encode(['success' => false, 'error' => 'Invalid image URL format. Expected URL containing /animal/']);
     }
 } catch (Exception $e) {
     http_response_code(500);

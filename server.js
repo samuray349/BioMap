@@ -818,8 +818,10 @@ app.delete('/animais/:id', async (req, res) => {
       await client.query('COMMIT');
 
       // After successful DB deletion, try to delete the image file from Hostinger
-      if (imageUrl) {
+      if (imageUrl && imageUrl.trim() !== '') {
         try {
+          console.log(`Attempting to delete image: ${imageUrl}`);
+          
           // Call PHP endpoint to delete the image
           const deleteImageResponse = await fetch('https://biomappt.com/public/delete_image.php', {
             method: 'POST',
@@ -829,17 +831,19 @@ app.delete('/animais/:id', async (req, res) => {
             body: JSON.stringify({ image_url: imageUrl })
           });
 
+          const responseData = await deleteImageResponse.json();
+          
           if (!deleteImageResponse.ok) {
-            const errorData = await deleteImageResponse.json();
-            console.error('Erro ao deletar imagem:', errorData.error || 'Unknown error');
+            console.error('Erro ao deletar imagem:', responseData.error || 'Unknown error', `Status: ${deleteImageResponse.status}`);
           } else {
-            const result = await deleteImageResponse.json();
-            console.log('Image deletion result:', result.message);
+            console.log('Imagem deletada com sucesso:', responseData.message || 'Success');
           }
         } catch (imageError) {
           // Log error but don't fail the request since DB deletion succeeded
-          console.error('Erro ao deletar imagem do animal:', imageError);
+          console.error('Erro ao deletar imagem do animal (network/parse error):', imageError.message || imageError);
         }
+      } else {
+        console.log('Nenhuma imagem para deletar (url_imagem está vazia ou null)');
       }
 
       return res.status(200).json({ message: 'Animal deletado com sucesso.' });
