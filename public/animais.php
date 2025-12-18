@@ -11,7 +11,7 @@
 
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
   <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
-  <script src="js/config.js"></script>
+  <script src="js/config.js?v=<?php echo time(); ?>"></script>
 <style>
     /* ============================================================= */
     /*  ESTILOS ESPECÍFICOS PARA A PÁGINA DE LISTAGEM DE ANIMAIS     */
@@ -351,8 +351,8 @@
             
         </div>
     </main>
-    <script src="js/script.js"></script>
-    <script src="js/animals.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
+    <script src="js/animals.js?v=<?php echo time(); ?>"></script>
     <script>
         // Arrays para as tags de família e estado de conservação
         let animaisFamilyTags = [];
