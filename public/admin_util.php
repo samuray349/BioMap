@@ -192,7 +192,8 @@ checkAccess(ACCESS_ADMIN);
         }
 
         // Load and render users (excluding current user)
-        async function loadUsers() {
+        // Make it globally accessible for the ban/suspend handlers
+        window.loadUsers = async function loadUsers() {
             try {
                 const filters = getUserFilters({
                     searchInput: searchInput,

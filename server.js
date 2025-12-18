@@ -274,6 +274,101 @@ app.put('/users/:id/funcao', async (req, res) => {
 });
 
 /* =====================
+   UPDATE USER ESTADO (Ban/Suspend/Normal)
+   When user is banned (estado_id = 3), delete all their avistamentos
+===================== */
+app.put('/users/:id/estado', async (req, res) => {
+  const client = await pool.connect();
+  
+  try {
+    const { id } = req.params;
+    const { estado_id } = req.body;
+
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    if (!estado_id || ![1, 2, 3].includes(Number(estado_id))) {
+      return res.status(400).json({ error: 'estado_id must be 1 (Normal), 2 (Suspenso), or 3 (Banido).' });
+    }
+
+    try {
+      await client.query('BEGIN');
+
+      // Check if user exists
+      const userCheck = await client.query(
+        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+        [id]
+      );
+
+      if (userCheck.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Utilizador not found' });
+      }
+
+      // Check if estado exists
+      const estadoCheck = await client.query(
+        'SELECT estado_id FROM estado WHERE estado_id = $1',
+        [estado_id]
+      );
+
+      if (estadoCheck.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Estado not found' });
+      }
+
+      // If user is being banned (estado_id = 3), delete all their avistamentos
+      if (Number(estado_id) === 3) {
+        const deleteResult = await client.query(
+          'DELETE FROM avistamento WHERE utilizador_id = $1',
+          [id]
+        );
+        console.log(`Deleted ${deleteResult.rowCount} avistamentos for banned user ${id}`);
+      }
+
+      // Update user estado_id
+      await client.query(
+        'UPDATE utilizador SET estado_id = $1 WHERE utilizador_id = $2',
+        [estado_id, id]
+      );
+
+      // Get updated user data with estado name
+      const { rows } = await client.query(
+        `SELECT 
+          u.utilizador_id,
+          u.estado_id,
+          e.nome_estado,
+          e.hex_cor as estado_cor
+        FROM utilizador u
+        JOIN estado e ON u.estado_id = e.estado_id
+        WHERE u.utilizador_id = $1`,
+        [id]
+      );
+
+      await client.query('COMMIT');
+
+      return res.status(200).json({
+        message: 'Estado atualizado com sucesso.',
+        utilizador_id: parseInt(id),
+        estado_id: Number(estado_id),
+        nome_estado: rows[0].nome_estado,
+        estado_cor: rows[0].estado_cor
+      });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      console.error('Erro ao atualizar estado do utilizador (transaction):', error);
+      return res.status(500).json({ error: 'Erro ao atualizar estado do utilizador.' });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar estado do utilizador (outer):', error);
+    if (client) client.release();
+    return res.status(500).json({ error: 'Erro ao atualizar estado do utilizador.' });
+  }
+});
+
+/* =====================
    UPDATE USER PROFILE (Nome e Email)
 ===================== */
 app.put('/users/:id', async (req, res) => {
@@ -663,7 +758,7 @@ app.post('/animais', async (req, res) => {
 
 /* =====================
    DELETE ANIMAL
-   (Deletes DB row only — images assumed on external storage)
+   (Deletes DB row and image file from server)
 ===================== */
 app.delete('/animais/:id', async (req, res) => {
   const client = await pool.connect();
@@ -688,9 +783,37 @@ app.delete('/animais/:id', async (req, res) => {
         return res.status(404).json({ error: 'Animal not found.' });
       }
 
+      const imageUrl = animalResult.rows[0].url_imagem;
+
+      // Delete from database first
       await client.query('DELETE FROM animal WHERE animal_id = $1', [id]);
 
       await client.query('COMMIT');
+
+      // After successful DB deletion, try to delete the image file from Hostinger
+      if (imageUrl) {
+        try {
+          // Call PHP endpoint to delete the image
+          const deleteImageResponse = await fetch('https://biomappt.com/public/delete_image.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image_url: imageUrl })
+          });
+
+          if (!deleteImageResponse.ok) {
+            const errorData = await deleteImageResponse.json();
+            console.error('Erro ao deletar imagem:', errorData.error || 'Unknown error');
+          } else {
+            const result = await deleteImageResponse.json();
+            console.log('Image deletion result:', result.message);
+          }
+        } catch (imageError) {
+          // Log error but don't fail the request since DB deletion succeeded
+          console.error('Erro ao deletar imagem do animal:', imageError);
+        }
+      }
 
       return res.status(200).json({ message: 'Animal deletado com sucesso.' });
     } catch (error) {
