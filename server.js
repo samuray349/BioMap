@@ -40,40 +40,6 @@ app.get("/health", (req, res) => {
 });
 
 /* =====================
-   VERIFY PASSWORD (client can send a SHA-256 hash to compare)
-   Accepts JSON: { utilizador_id, password_hash }
-   Returns: { valid: true/false }
-   This endpoint is intentionally small and only used by the frontend to
-   verify a client-computed SHA-256 password hash against the stored hash.
-===================== */
-app.post('/verify-password', async (req, res) => {
-  try {
-    const { utilizador_id, password_hash } = req.body;
-
-    if (!utilizador_id || !password_hash) {
-      return res.status(400).json({ error: 'Missing utilizador_id or password_hash' });
-    }
-
-    // Fetch stored hash
-    const { rows } = await pool.query(
-      'SELECT password_hash FROM utilizador WHERE utilizador_id = $1 LIMIT 1',
-      [utilizador_id]
-    );
-
-    if (!rows.length) {
-      return res.status(404).json({ error: 'Utilizador not found' });
-    }
-
-    const storedHash = rows[0].password_hash;
-
-    return res.json({ valid: storedHash === password_hash });
-  } catch (err) {
-    console.error('Erro ao verificar password:', err);
-    return res.status(500).json({ error: 'Erro ao verificar password' });
-  }
-});
-
-/* =====================
    USERS
 ===================== */
 app.get("/users", async (req, res) => {
@@ -104,7 +70,6 @@ app.get("/users", async (req, res) => {
       queryParams.push(`%${search}%`);
       paramCounter += 2;
     }
-
     if (estados) {
       const estadoArray = estados.split(',');
       sqlQuery += ` AND e.nome_estado = ANY($${paramCounter})`;
@@ -382,6 +347,45 @@ app.put('/users/:id', async (req, res) => {
   } catch (error) {
     console.error('Erro ao atualizar perfil do utilizador', error);
     return res.status(500).json({ error: 'Erro ao atualizar perfil do utilizador.' });
+  }
+});
+
+/* =====================
+   DELETE USER
+   Allow a user to delete their own account or an admin to delete any account
+===================== */
+app.delete('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { utilizador_id, funcao_id } = req.body;
+
+    if (!/^[0-9]+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    if (!utilizador_id || !funcao_id) {
+      return res.status(401).json({ error: 'Autenticação necessária.' });
+    }
+
+    // Check target user exists
+    const userCheck = await pool.query('SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1', [id]);
+    if (userCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Utilizador não encontrado.' });
+    }
+
+    const isAdmin = Number(funcao_id) === 1;
+    const isOwner = Number(utilizador_id) === Number(id);
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'Não tem permissão para eliminar este utilizador.' });
+    }
+
+    await pool.query('DELETE FROM utilizador WHERE utilizador_id = $1', [id]);
+
+    return res.status(200).json({ message: 'Utilizador eliminado com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao eliminar utilizador', error);
+    return res.status(500).json({ error: 'Erro ao eliminar utilizador.' });
   }
 });
 

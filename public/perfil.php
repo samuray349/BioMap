@@ -1,6 +1,14 @@
 <?php
 require_once 'access_control.php';
+// Ensure user is logged in (any role)
 checkAccess(ACCESS_USER);
+
+// Redirect admins to the admin profile page
+$currentUser = getCurrentUser();
+if ($currentUser && intval($currentUser['funcao_id'] ?? 2) === 1) {
+    header('Location: perfil_admin.php');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -16,11 +24,17 @@ checkAccess(ACCESS_USER);
 <body>
     <div id="header-placeholder"></div>
 
+    <?php
+    // Show user info in the profile banner
+    $user = getCurrentUser();
+    $profileName = htmlspecialchars($user['name'] ?? '[Nome utilizador]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $profileEmail = htmlspecialchars($user['email'] ?? '[Email]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    ?>
     <section class="profile-banner">
         <div class="profile-banner-content">
             <div class="profile-info">
-                <h1 class="profile-name">[Nome utilizador]</h1>
-                <p class="profile-email">[Email]</p>
+                <h1 class="profile-name"><?= $profileName ?></h1>
+                <p class="profile-email"><?= $profileEmail ?></p>
             </div>
             <div class="profile-picture-container">
                 <div class="profile-picture">

@@ -25,6 +25,13 @@ checkAccess(ACCESS_USER);
     <div id="header-placeholder"></div>
     
     <!-- Delete Account Confirmation Section -->
+    <?php
+    // Determine back page based on user role and expose current user info
+    $user = getCurrentUser();
+    $currentUserId = intval($user['id'] ?? 0);
+    $currentUserFuncao = intval($user['funcao_id'] ?? 2);
+    $backPage = ($currentUserFuncao === 1) ? 'perfil_admin.php' : 'perfil.php';
+    ?>
     <section class="delete-account-section">
         <div class="container">
             <div class="delete-account-card">
@@ -42,21 +49,120 @@ checkAccess(ACCESS_USER);
                 
                 <div class="delete-account-buttons">
                     <button type="button" class="btn-delete-account">Entendo os Riscos, Apagar Conta</button>
-                    <a href="perfil.php" class="btn-back-profile">Voltar ao Perfil</a>
+                    <a href="<?= $backPage ?>" class="btn-back-profile">Voltar ao Perfil</a>
                 </div>
             </div>
         </div>
     </section>
     
     <!-- Scripts -->
+    <script src="js/config.js"></script>
     <script src="js/script.js"></script>
     <script>
-        // Load header when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof loadHeader === 'function') {
-                loadHeader();
-            }
+    // Expose current user id and role to JS
+    const CURRENT_USER_ID = <?= $currentUserId ?>;
+    const CURRENT_USER_FUNCAO = <?= $currentUserFuncao ?>; // 1=admin, 2=user
+
+    // Create a simple modal confirm (Sim / Não)
+    function showConfirmDelete(onConfirm, onCancel) {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = '10000';
+
+        const box = document.createElement('div');
+        box.style.background = '#fff';
+        box.style.padding = '20px';
+        box.style.borderRadius = '8px';
+        box.style.maxWidth = '420px';
+        box.style.width = '90%';
+        box.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+
+        box.innerHTML = `
+            <h3 style="margin-top:0">Confirmar eliminação</h3>
+            <p>Tem a certeza que deseja apagar a sua conta? Esta ação é irreversível.</p>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+                <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
+                <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;">Sim</button>
+            </div>
+        `;
+
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        const yesBtn = box.querySelector('#confirmYes');
+        const noBtn = box.querySelector('#confirmNo');
+
+        yesBtn.addEventListener('click', () => {
+            onConfirm();
+            document.body.removeChild(overlay);
         });
+
+        noBtn.addEventListener('click', () => {
+            if (onCancel) onCancel();
+            document.body.removeChild(overlay);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof loadHeader === 'function') loadHeader();
+
+        const deleteBtn = document.querySelector('.btn-delete-account');
+        const backLink = document.querySelector('.btn-back-profile');
+
+        // Ensure back link goes to correct profile page (already set server-side) --- no extra action needed
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                showConfirmDelete(async function onConfirm() {
+                    // Perform deletion
+                    try {
+                        deleteBtn.disabled = true;
+                        deleteBtn.textContent = 'A eliminar...';
+
+                        const endpointPath = `users/${CURRENT_USER_ID}`;
+                        const apiUrl = window.API_CONFIG?.getUrl(endpointPath) || `/${endpointPath}`;
+
+                        const resp = await fetch(apiUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ utilizador_id: CURRENT_USER_ID, funcao_id: CURRENT_USER_FUNCAO })
+                        });
+
+                        const data = await resp.json().catch(() => ({}));
+
+                        if (!resp.ok) {
+                            const msg = (resp.status === 401 || resp.status === 403) ? (data?.error || 'Não autorizado.') : (data?.error || 'Erro ao eliminar conta.');
+                            alert(msg);
+                            deleteBtn.disabled = false;
+                            deleteBtn.textContent = 'Entendo os Riscos, Apagar Conta';
+                            return;
+                        }
+
+                        // Success - redirect to index
+                        window.location.href = 'index.php';
+                    } catch (err) {
+                        console.error('Erro ao eliminar conta:', err);
+                        alert('Erro ao eliminar conta. Tente novamente mais tarde.');
+                        deleteBtn.disabled = false;
+                        deleteBtn.textContent = 'Entendo os Riscos, Apagar Conta';
+                    }
+                }, function onCancel() {
+                    // No-op on cancel
+                });
+            });
+        }
+    });
     </script>
 </body>
 </html>

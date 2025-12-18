@@ -2,13 +2,6 @@
 require_once 'access_control.php';
 checkAccess(ACCESS_USER);
 ?>
-<?php
-// Inject current user info for the page and JS
-$user = getCurrentUser();
-$userId = getUserId();
-$userName = getUserName();
-$userEmail = $user['email'] ?? '';
-?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -26,6 +19,8 @@ $userEmail = $user['email'] ?? '';
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
+    <script src="js/config.js"></script>
+    <script src="js/session.js"></script>
 </head>
 <body>
     <!-- Header Placeholder -->
@@ -35,8 +30,17 @@ $userEmail = $user['email'] ?? '';
     <section class="profile-banner">
         <div class="profile-banner-content">
             <div class="profile-info">
-                <h1 class="profile-name"><?php echo htmlspecialchars($userName ?? ''); ?></h1>
-                <p class="profile-email"><?php echo htmlspecialchars($userEmail ?? ''); ?></p>
+                <?php
+                // Embed current user info (access_control already required session_helper)
+                $currentUser = getCurrentUser();
+                $displayName = htmlspecialchars($currentUser['name'] ?? '[Nome utilizador]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $displayEmail = htmlspecialchars($currentUser['email'] ?? '[Email]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $currentUserId = intval($currentUser['id'] ?? 0);
+                // funcao_id: 1 = admin, 2 = utilizador (fallback to 2)
+                $currentUserFuncao = intval($currentUser['funcao_id'] ?? 2);
+                ?>
+                <h1 class="profile-name"><?= $displayName ?></h1>
+                <p class="profile-email"><?= $displayEmail ?></p>
             </div>
             <div class="profile-picture-container">
                 <div class="profile-picture">
@@ -53,7 +57,6 @@ $userEmail = $user['email'] ?? '';
                 <h2 class="edit-profile-title">Alterar Password</h2>
                 
                 <form class="edit-profile-form" id="changePasswordForm">
-                    <input type="hidden" id="userId" value="<?php echo htmlspecialchars($userId ?? ''); ?>">
                     <div class="form-group">
                         <div class="input-wrapper password-wrapper">
                             <input type="password" id="currentPassword" name="currentPassword" required>
@@ -85,8 +88,17 @@ $userEmail = $user['email'] ?? '';
                     </div>
                     
                     <button type="submit" class="confirm-button">Confirmar Alterações</button>
+                    <div class="error-message" id="formError" role="alert" style="display:none;margin-top:10px"></div>
+                    <div class="success-message" id="successMessage" style="display:none;margin-top:10px">
+                        <div class="success-icon">✓</div>
+                        <h3>Password atualizada com sucesso!</h3>
+                        <p>Redirecionando...</p>
+                    </div>
                     
-                    <a href="perfil.php" class="back-link">&lt; Voltar</a>
+                    <?php
+                    $backPage = ($currentUserFuncao === 1) ? 'perfil_admin.php' : 'perfil.php';
+                    ?>
+                    <a href="<?= $backPage ?>" class="back-link">&lt; Voltar</a>
                 </form>
             </div>
         </div>
@@ -95,6 +107,148 @@ $userEmail = $user['email'] ?? '';
     <!-- Scripts -->
     <script src="js/script.js"></script>
     <script>
+    // Provide the current user id and role to JS safely
+    const CURRENT_USER_ID = <?= $currentUserId ?>;
+    const CURRENT_USER_FUNCAO = <?= $currentUserFuncao ?>; // 1=admin, 2=user
+
+        (function() {
+            // Helper elements
+            const form = document.getElementById('changePasswordForm');
+            const currentPasswordInput = document.getElementById('currentPassword');
+            const newPasswordInput = document.getElementById('newPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const formError = document.getElementById('formError');
+            const successMessage = document.getElementById('successMessage');
+            const submitButton = form.querySelector('.confirm-button');
+
+            function showError(message) {
+                if (formError) {
+                    formError.textContent = message;
+                    formError.style.display = 'block';
+                } else {
+                    alert(message);
+                }
+            }
+
+            function clearError() {
+                if (formError) {
+                    formError.textContent = '';
+                    formError.style.display = 'none';
+                }
+            }
+
+            function setLoading(isLoading) {
+                if (submitButton) {
+                    submitButton.disabled = isLoading;
+                    submitButton.textContent = isLoading ? 'A processar...' : 'Confirmar Alterações';
+                }
+            }
+
+            form?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                clearError();
+
+                const currentPassword = currentPasswordInput.value || '';
+                const newPassword = newPasswordInput.value || '';
+                const confirmPassword = confirmPasswordInput.value || '';
+
+                if (!currentPassword.trim()) {
+                    showError('Insira a password atual.');
+                    return;
+                }
+
+                if (!newPassword) {
+                    showError('Insira a nova password.');
+                    return;
+                }
+
+                // Confirm passwords match
+                if (newPassword !== confirmPassword) {
+                    showError('A nova password e a confirmação não coincidem.');
+                    // Additionally send a browser alert for immediate attention
+                    alert('A nova password e a confirmação não coincidem.');
+                    confirmPasswordInput.focus();
+                    return;
+                }
+
+                // New password should not be the same as current password
+                if (currentPassword && currentPassword === newPassword) {
+                    showError('A nova password deve ser diferente da password atual.');
+                    alert('A nova password deve ser diferente da password atual.');
+                    newPasswordInput.focus();
+                    return;
+                }
+
+                // Basic strong password policy: min 8 chars, at least one lowercase, one uppercase and one digit
+                const pwdPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+                if (!pwdPolicy.test(newPassword)) {
+                    showError('A nova password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.');
+                    alert('A nova password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.');
+                    newPasswordInput.focus();
+                    return;
+                }
+
+                if (!CURRENT_USER_ID || CURRENT_USER_ID <= 0) {
+                    showError('Erro: utilizador não identificado. Por favor inicie sessão novamente.');
+                    return;
+                }
+
+                setLoading(true);
+
+                try {
+                    const endpointPath = `users/${CURRENT_USER_ID}/password`;
+                    const apiUrl = window.API_CONFIG?.getUrl(endpointPath) || `/${endpointPath}`;
+
+                    const resp = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+                    });
+
+                    const data = await resp.json().catch(() => ({}));
+
+                    if (!resp.ok) {
+                        // If server indicates unauthorized (wrong current password) show a clear message
+                        if (resp.status === 401) {
+                            const errMsg = 'Password errada.';
+                            showError(errMsg);
+                            // Immediate attention for the user
+                            alert(errMsg);
+                            if (currentPasswordInput) currentPasswordInput.focus();
+                            return;
+                        }
+
+                        // Show server-sent error message when available
+                        const msg = data?.error || data?.message || 'Erro ao atualizar password.';
+                        showError(msg);
+                        return;
+                    }
+
+                    // Success
+                    if (successMessage) successMessage.style.display = 'block';
+
+                    // Clear sensitive inputs
+                    currentPasswordInput.value = '';
+                    newPasswordInput.value = '';
+                    confirmPasswordInput.value = '';
+
+                    // Optionally update local cookie/session user data if password change affects session
+                    setTimeout(() => {
+                        const redirectTo = (CURRENT_USER_FUNCAO === 1) ? 'perfil_admin.php' : 'perfil.php';
+                        window.location.href = redirectTo;
+                    }, 900);
+
+                } catch (err) {
+                    console.error('Erro ao chamar API de alterar password', err);
+                    showError('Erro de rede ao tentar atualizar a password.');
+                } finally {
+                    setLoading(false);
+                }
+            });
+        })();
+
         // Load header when page loads
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof loadHeader === 'function') {
@@ -129,91 +283,6 @@ $userEmail = $user['email'] ?? '';
                     }
                 });
             });
-
-            // Password verification + update flow
-            const form = document.getElementById('changePasswordForm');
-            const currentPassword = document.getElementById('currentPassword');
-            const newPassword = document.getElementById('newPassword');
-            const confirmPassword = document.getElementById('confirmPassword');
-            const userIdInput = document.getElementById('userId');
-
-            // helper to compute SHA-256 hex
-            async function sha256Hex(message) {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(message);
-                const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            }
-
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                const uid = userIdInput ? userIdInput.value : null;
-                if (!uid) {
-                    alert('Utilizador não autenticado.');
-                    return;
-                }
-
-                const cur = currentPassword.value.trim();
-                const nw = newPassword.value;
-                const conf = confirmPassword.value;
-
-                if (!cur || !nw || !conf) {
-                    alert('Preencha todas as password.');
-                    return;
-                }
-
-                if (nw !== conf) {
-                    alert('A nova password e a confirmação não coincidem.');
-                    return;
-                }
-
-                // Compute SHA-256 on client for verification
-                try {
-                    const curHash = await sha256Hex(cur);
-
-                    // Verify against server-stored hash
-                    const verifyResp = await fetch('/verify-password', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ utilizador_id: uid, password_hash: curHash })
-                    });
-
-                    if (!verifyResp.ok) {
-                        const err = await verifyResp.json().catch(() => ({}));
-                        alert('Erro ao verificar password: ' + (err.error || verifyResp.status));
-                        return;
-                    }
-
-                    const verifyJson = await verifyResp.json();
-                    if (!verifyJson.valid) {
-                        alert('Password atual incorreta.');
-                        return;
-                    }
-
-                    // Current password verified; call existing update endpoint (expects plain passwords)
-                    const updateResp = await fetch(`/users/${uid}/password`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ current_password: cur, new_password: nw })
-                    });
-
-                    const updateJson = await updateResp.json().catch(() => ({}));
-                    if (!updateResp.ok) {
-                        alert(updateJson.error || 'Erro ao atualizar password.');
-                        return;
-                    }
-
-                    alert(updateJson.message || 'Password atualizada com sucesso.');
-                    // Redirect back to profile
-                    window.location.href = 'perfil.php';
-                } catch (err) {
-                    console.error('Erro na verificação/atualização da password', err);
-                    alert('Erro interno ao processar a request. Veja o console para mais detalhes.');
-                }
-            });
-            
         });
     </script>
 </body>

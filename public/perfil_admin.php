@@ -1,6 +1,20 @@
 <?php
+// We need to redirect users based on their role rather than rely solely on the global access helper
 require_once 'access_control.php';
-checkAccess(ACCESS_ADMIN);
+
+// If not logged in, use the standard access control to redirect to login
+$currentUser = getCurrentUser();
+if (!$currentUser) {
+    // Not logged in - redirect to login
+    header('Location: login.php');
+    exit();
+}
+
+// If logged in but not admin, redirect to regular perfil page
+if (intval($currentUser['funcao_id'] ?? 2) !== 1) {
+    header('Location: perfil.php');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -17,11 +31,17 @@ checkAccess(ACCESS_ADMIN);
 <body class="admin-dashboard-page">
     <div id="header-placeholder"></div>
 
+    <?php
+    // Display current admin user info
+    $user = getCurrentUser();
+    $profileName = htmlspecialchars($user['name'] ?? '[Nome utilizador]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $profileEmail = htmlspecialchars($user['email'] ?? '[Email]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    ?>
     <section class="profile-banner">
         <div class="profile-banner-content">
             <div class="profile-info">
-                <h1 class="profile-name">[Nome utilizador]</h1>
-                <p class="profile-email">[Email]</p>
+                <h1 class="profile-name"><?= $profileName ?></h1>
+                <p class="profile-email"><?= $profileEmail ?></p>
             </div>
             <div class="profile-picture-container">
                 <div class="profile-picture">
