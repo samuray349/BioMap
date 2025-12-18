@@ -18,7 +18,7 @@ checkAccess(ACCESS_ADMIN);
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
-    <script src="js/config.js"></script>
+    <script src="js/config.js?v=<?php echo time(); ?>"></script>
 </head>
 <body>
     <!-- Header Placeholder -->
@@ -133,16 +133,9 @@ checkAccess(ACCESS_ADMIN);
     </main>
     
     <!-- Scripts -->
-    <script src="js/script.js"></script>
-    <script src="js/animals.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
+    <script src="js/animals.js?v=<?php echo time(); ?>"></script>
     <script>
-        // Load header when page loads
-        document.addEventListener('DOMContentLoaded', function () {
-            if (typeof loadHeader === 'function') {
-                loadHeader();
-            }
-        });
-
         // Tag arrays specific to admin_animal.php
         let adminFamilyTags = [];
         let adminStateTags = [];
@@ -360,6 +353,11 @@ checkAccess(ACCESS_ADMIN);
         }
 
         async function initAdminAnimalFilters() {
+            // Load header
+            if (typeof loadHeader === 'function') {
+                loadHeader();
+            }
+            
             // Fetch filter options from API before initializing
             const [families, states] = await Promise.all([
                 fetchFamilyOptions(),
@@ -426,12 +424,24 @@ checkAccess(ACCESS_ADMIN);
             loadAnimals();
         }
 
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initAdminAnimalFilters);
-        } else {
+        // Wait for all external scripts to load before initializing
+        function waitForScriptsAndInit() {
+            if (typeof fetchFamilyOptions !== 'function' || 
+                typeof fetchStateOptions !== 'function' || 
+                typeof getAnimalFilters !== 'function' ||
+                typeof fetchAnimals !== 'function' ||
+                typeof renderAnimalCards !== 'function' ||
+                typeof initAnimalFilters !== 'function' ||
+                typeof clearAnimalFilters !== 'function' ||
+                typeof loadHeader !== 'function') {
+                setTimeout(waitForScriptsAndInit, 100);
+                return;
+            }
             initAdminAnimalFilters();
         }
+        
+        // Initialize when window fully loads (all scripts included)
+        window.addEventListener('load', waitForScriptsAndInit);
     </script>
 </body>
 </html>
