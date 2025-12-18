@@ -14,7 +14,7 @@ checkAccess(ACCESS_ADMIN);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
-    <script src="js/config.js"></script>
+    <script src="js/config.js?v=<?php echo time(); ?>"></script>
     <style>
         .preview-section {
             max-width: 1200px;
@@ -507,83 +507,16 @@ checkAccess(ACCESS_ADMIN);
                 <section class="add-section taxonomy-section">
                     <div class="section-heading">
                         <h2>Família</h2>
-                        <p>Selecione as famílias e ordens relacionadas com o animal registado.</p>
+                        <p>Selecione a família relacionada com o animal registado.</p>
                     </div>
 
-                    <div class="taxonomy-group">
-                        <span class="taxonomy-label">Mamíferos</span>
-                        <select id="familia-mamiferos" name="familia-mamiferos" class="chip-select" aria-label="Família Mamíferos">
-                            <option value="">Selecione uma família</option>
-                            <option value="Antilocapridae">Antilocapridae</option>
-                            <option value="Bovidae">Bovidae</option>
-                            <option value="Canidae">Canidae</option>
-                            <option value="Camelidae">Camelidae</option>
-                            <option value="Cervidae">Cervidae</option>
-                            <option value="Dasipodidae">Dasipodidae</option>
-                            <option value="Didelphidae">Didelphidae</option>
-                            <option value="Felidae">Felidae</option>
-                            <option value="Herpestidae">Herpestidae</option>
-                            <option value="Hominidae">Hominidae</option>
-                            <option value="Leporidae">Leporidae</option>
-                            <option value="Megadermatidae">Megadermatidae</option>
-                            <option value="Mustelidae">Mustelidae</option>
-                            <option value="Otariidae">Otariidae</option>
-                            <option value="Phocidae">Phocidae</option>
-                            <option value="Procyonidae">Procyonidae</option>
-                            <option value="Rodentia">Rodentia</option>
-                            <option value="Sciuridae">Sciuridae</option>
-                            <option value="Suidae">Suidae</option>
-                            <option value="Tapiridae">Tapiridae</option>
-                            <option value="Ursidae">Ursidae</option>
-                            <option value="Viverridae">Viverridae</option>
-                            <option value="Xenarthra">Xenarthra</option>
-                        </select>
-                    </div>
-
-                    <div class="taxonomy-group">
-                        <span class="taxonomy-label">Aves</span>
-                        <select id="familia-aves" name="familia-aves" class="chip-select" aria-label="Família Aves">
-                            <option value="">Selecione uma família</option>
-                            <option value="Accipitridae">Accipitridae</option>
-                            <option value="Ardeidae">Ardeidae</option>
-                            <option value="Cathartidae">Cathartidae</option>
-                            <option value="Columbidae">Columbidae</option>
-                            <option value="Falconidae">Falconidae</option>
-                            <option value="Phasianidae">Phasianidae</option>
-                            <option value="Psittacidae">Psittacidae</option>
-                            <option value="Strigidae">Strigidae</option>
-                            <option value="Trochilidae">Trochilidae</option>
-                            <option value="Tytonidae">Tytonidae</option>
-                        </select>
-                    </div>
-
-                    <div class="taxonomy-group">
-                        <span class="taxonomy-label">Répteis e Anfíbios</span>
-                        <select id="familia-repteis" name="familia-repteis" class="chip-select" aria-label="Família Répteis e Anfíbios">
-                            <option value="">Selecione uma família</option>
-                            <option value="Boidae">Boidae</option>
-                            <option value="Cheloniidae">Cheloniidae</option>
-                            <option value="Crocodylidae">Crocodylidae</option>
-                            <option value="Elapidae">Elapidae</option>
-                            <option value="Iguanidae">Iguanidae</option>
-                            <option value="Viperidae">Viperidae</option>
-                            <option value="Bufonidae">Bufonidae</option>
-                            <option value="Hylidae">Hylidae</option>
-                            <option value="Ranidae">Ranidae</option>
-                            <option value="Testudinidae">Testudinidae</option>
-                        </select>
-                    </div>
-
-                    <div class="taxonomy-group">
-                        <span class="taxonomy-label">Peixes</span>
-                        <select id="familia-peixes" name="familia-peixes" class="chip-select" aria-label="Família Peixes">
-                            <option value="">Selecione uma família</option>
-                            <option value="Cyprinidae">Cyprinidae</option>
-                            <option value="Characidae">Characidae</option>
-                            <option value="Cichlidae">Cichlidae</option>
-                            <option value="Serranidae">Serranidae</option>
-                            <option value="Siluridae">Siluridae</option>
-                        </select>
+                    <div class="filter-section">
+                        <label class="filter-label">Família</label>
+                        <div class="tag-input-wrapper">
+                            <input type="text" id="family-input" class="tag-input" placeholder="Pesquisar e selecionar família" autocomplete="off">
+                            <i class="fas fa-chevron-down filter-arrow"></i>
+                            <div class="dropdown-menu" id="family-dropdown"></div>
+                        </div>
                     </div>
                 </section>
 
@@ -853,10 +786,127 @@ checkAccess(ACCESS_ADMIN);
             </section>
     </main>
 
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
 <script>
     loadHeader();
     highlightCurrentPage();
+
+    // Initialize single-select searchable family dropdown
+    (async function initFamilyDropdown() {
+        const familyInput = document.getElementById('family-input');
+        const familyDropdown = document.getElementById('family-dropdown');
+        const wrapper = familyInput ? familyInput.closest('.tag-input-wrapper') : null;
+        
+        if (!familyInput || !familyDropdown) return;
+        
+        let familyOptions = [];
+        
+        // Fetch family options from API
+        try {
+            if (typeof fetchFamilyOptions === 'function') {
+                familyOptions = await fetchFamilyOptions();
+            } else {
+                console.error('fetchFamilyOptions function not available');
+                return;
+            }
+        } catch (error) {
+            console.error('Error fetching family options:', error);
+            return;
+        }
+        
+        // Function to render dropdown based on search term
+        function renderDropdown() {
+            const searchTerm = familyInput.value.toLowerCase().trim();
+            const currentValue = familyInput.value.trim();
+            
+            // Filter options based on search term
+            const filteredOptions = familyOptions.filter(opt => 
+                opt.toLowerCase().includes(searchTerm)
+            );
+            
+            familyDropdown.innerHTML = '';
+            
+            if (filteredOptions.length === 0 && searchTerm) {
+                const noResults = document.createElement('div');
+                noResults.className = 'dropdown-item';
+                noResults.textContent = 'Nenhum resultado encontrado';
+                noResults.style.cursor = 'default';
+                noResults.style.color = '#999';
+                familyDropdown.appendChild(noResults);
+                familyDropdown.classList.add('show');
+            } else if (filteredOptions.length > 0 || searchTerm === '') {
+                const optionsToShow = filteredOptions.length > 0 ? filteredOptions : familyOptions;
+                optionsToShow.forEach(option => {
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.textContent = option;
+                    // Highlight if this option is currently selected
+                    if (currentValue === option) {
+                        item.style.fontWeight = '600';
+                        item.style.backgroundColor = '#f0f0f0';
+                    }
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        familyInput.value = option;
+                        familyDropdown.classList.remove('show');
+                        // Trigger updateFamily
+                        if (typeof updateFamily === 'function') {
+                            updateFamily();
+                        }
+                        // Trigger input event for form validation
+                        familyInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+                    familyDropdown.appendChild(item);
+                });
+                familyDropdown.classList.add('show');
+            } else {
+                familyDropdown.classList.remove('show');
+            }
+        }
+        
+        // Show dropdown on focus
+        familyInput.addEventListener('focus', () => {
+            renderDropdown();
+        });
+        
+        // Show dropdown on input
+        familyInput.addEventListener('input', () => {
+            renderDropdown();
+        });
+        
+        // Show dropdown when clicking wrapper
+        if (wrapper) {
+            wrapper.addEventListener('click', (e) => {
+                if (e.target !== familyInput && !familyDropdown.contains(e.target)) {
+                    familyInput.focus();
+                    renderDropdown();
+                }
+            });
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (wrapper && !wrapper.contains(e.target)) {
+                familyDropdown.classList.remove('show');
+            }
+        });
+        
+        // Keyboard navigation
+        familyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' && familyDropdown.classList.contains('show')) {
+                e.preventDefault();
+                const firstItem = familyDropdown.querySelector('.dropdown-item:not([style*="cursor: default"])');
+                if (firstItem) firstItem.focus();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const firstItem = familyDropdown.querySelector('.dropdown-item:not([style*="cursor: default"])');
+                if (firstItem) firstItem.click();
+            } else if (e.key === 'Escape') {
+                familyDropdown.classList.remove('show');
+                familyInput.blur();
+            }
+        });
+    })();
 
     // Dynamic Preview System
     (function setupDynamicPreviews() {
@@ -967,21 +1017,8 @@ checkAccess(ACCESS_ADMIN);
 
         // Update family
         function updateFamily() {
-            const selects = [
-                document.getElementById('familia-mamiferos'),
-                document.getElementById('familia-aves'),
-                document.getElementById('familia-repteis'),
-                document.getElementById('familia-peixes')
-            ];
-            
-            let selectedFamily = '';
-            for (const select of selects) {
-                if (select && select.value) {
-                    selectedFamily = select.value;
-                    break;
-                }
-            }
-
+            const familyInput = document.getElementById('family-input');
+            const selectedFamily = familyInput ? familyInput.value.trim() : '';
             const familyScientific = getValueOrDefault(selectedFamily, defaults.familyScientific);
             const familyDisplay = familyDisplayNames[familyScientific] || familyScientific || defaults.family;
 
@@ -989,27 +1026,6 @@ checkAccess(ACCESS_ADMIN);
             if (previewElements.familyMain) previewElements.familyMain.textContent = familyScientific || defaults.familyScientific;
         }
 
-        // Allow only one taxonomy group at a time; clear to unlock all
-        function enforceSingleTaxonomySelection() {
-            const taxonomyIds = ['familia-mamiferos', 'familia-aves', 'familia-repteis', 'familia-peixes'];
-            const selects = taxonomyIds
-                .map(id => document.getElementById(id))
-                .filter(Boolean);
-
-            const selected = selects.find(sel => sel.value);
-            const hasSelection = Boolean(selected);
-
-            selects.forEach(sel => {
-                if (!sel) return;
-                if (hasSelection && sel !== selected) {
-                    sel.disabled = true;
-                    sel.classList.add('taxonomy-disabled');
-                } else {
-                    sel.disabled = false;
-                    sel.classList.remove('taxonomy-disabled');
-                }
-            });
-        }
 
         // Update diet
         function updateDiet() {
@@ -1140,13 +1156,12 @@ checkAccess(ACCESS_ADMIN);
         document.getElementById('fact')?.addEventListener('input', updateFact);
         document.getElementById('description')?.addEventListener('input', updateDescription);
 
-        // Family selects
-        ['familia-mamiferos', 'familia-aves', 'familia-repteis', 'familia-peixes'].forEach(id => {
-            document.getElementById(id)?.addEventListener('change', () => {
-                updateFamily();
-                enforceSingleTaxonomySelection();
-            });
-        });
+        // Family input (single-select searchable dropdown)
+        const familyInput = document.getElementById('family-input');
+        if (familyInput) {
+            familyInput.addEventListener('input', updateFamily);
+            familyInput.addEventListener('change', updateFamily);
+        }
 
         // Threat inputs
         for (let i = 1; i <= 5; i++) {
@@ -1188,16 +1203,12 @@ checkAccess(ACCESS_ADMIN);
             // Reset conservation status background
             const conservationSelect = document.getElementById('conservation-status');
             if (conservationSelect) updateConservationBgColor(conservationSelect);
-
-            // Re-enable taxonomy selects
-            enforceSingleTaxonomySelection();
         });
 
         // Initialize all previews on load
         updateAnimalName();
         updateScientificName();
         updateFamily();
-        enforceSingleTaxonomySelection();
         updateDiet();
         updateConservationStatus();
         updatePopulation();
@@ -1232,12 +1243,8 @@ checkAccess(ACCESS_ADMIN);
         };
 
         const getSelectedFamily = () => {
-            const selectors = ['familia-mamiferos', 'familia-aves', 'familia-repteis', 'familia-peixes'];
-            for (const id of selectors) {
-                const sel = document.getElementById(id);
-                if (sel && sel.value) return sel.value;
-            }
-            return '';
+            const familyInput = document.getElementById('family-input');
+            return familyInput ? familyInput.value.trim() : '';
         };
 
         const getThreats = () => {

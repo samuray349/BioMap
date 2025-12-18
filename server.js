@@ -820,30 +820,52 @@ app.delete('/animais/:id', async (req, res) => {
       // After successful DB deletion, try to delete the image file from Hostinger
       if (imageUrl && imageUrl.trim() !== '') {
         try {
-          console.log(`Attempting to delete image: ${imageUrl}`);
+          console.log(`[DELETE IMAGE] Attempting to delete image: ${imageUrl}`);
           
-          // Call PHP endpoint to delete the image
-          const deleteImageResponse = await fetch('https://biomappt.com/public/delete_image.php', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ image_url: imageUrl })
-          });
-
-          const responseData = await deleteImageResponse.json();
+          // Call PHP endpoint to delete the image with timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
           
-          if (!deleteImageResponse.ok) {
-            console.error('Erro ao deletar imagem:', responseData.error || 'Unknown error', `Status: ${deleteImageResponse.status}`);
-          } else {
-            console.log('Imagem deletada com sucesso:', responseData.message || 'Success');
+          try {
+            const deleteImageResponse = await fetch('https://biomappt.com/public/delete_image.php', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ image_url: imageUrl }),
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            let responseData;
+            try {
+              responseData = await deleteImageResponse.json();
+            } catch (parseError) {
+              const textResponse = await deleteImageResponse.text();
+              console.error('[DELETE IMAGE] Failed to parse JSON response:', textResponse);
+              throw new Error(`Invalid JSON response: ${textResponse.substring(0, 100)}`);
+            }
+            
+            if (!deleteImageResponse.ok) {
+              console.error('[DELETE IMAGE] Error deleting image:', responseData.error || 'Unknown error', `Status: ${deleteImageResponse.status}`);
+            } else {
+              console.log('[DELETE IMAGE] Image deleted successfully:', responseData.message || 'Success');
+            }
+          } catch (fetchError) {
+            clearTimeout(timeoutId);
+            if (fetchError.name === 'AbortError') {
+              console.error('[DELETE IMAGE] Request timeout after 10 seconds');
+            } else {
+              throw fetchError; // Re-throw to be caught by outer catch
+            }
           }
         } catch (imageError) {
           // Log error but don't fail the request since DB deletion succeeded
-          console.error('Erro ao deletar imagem do animal (network/parse error):', imageError.message || imageError);
+          console.error('[DELETE IMAGE] Error deleting image (network/parse error):', imageError.message || imageError);
         }
       } else {
-        console.log('Nenhuma imagem para deletar (url_imagem está vazia ou null)');
+        console.log('[DELETE IMAGE] No image to delete (url_imagem is empty or null)');
       }
 
       return res.status(200).json({ message: 'Animal deletado com sucesso.' });

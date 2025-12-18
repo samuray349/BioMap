@@ -26,18 +26,32 @@ try {
         exit;
     }
     
-    $imageUrl = $input['image_url'];
+    $imageUrl = trim($input['image_url']);
+    
+    // Log the received URL for debugging (remove in production if needed)
+    error_log("Delete image request received for URL: " . $imageUrl);
     
     // Extract the file path from the URL
-    // URL format: https://biomappt.com/public/animal/img_abc123.jpg
-    // We need to get: animal/img_abc123.jpg
+    // URL format could be:
+    // - https://biomappt.com/public/animal/filename.jpg
+    // - https://biomappt.com/animal/filename.jpg
+    // - /public/animal/filename.jpg (relative)
     
     // Parse the URL to get the path
     $parsedUrl = parse_url($imageUrl);
     $urlPath = $parsedUrl['path'] ?? '';
     
+    // If URL doesn't have a scheme, it might be a relative path
+    if (empty($parsedUrl['scheme']) && !empty($imageUrl)) {
+        // Assume it's a path starting with /
+        $urlPath = $imageUrl;
+    }
+    
+    error_log("Parsed path: " . $urlPath);
+    
     // Extract the filename from the path
     // The path might be like /public/animal/filename.jpg or /animal/filename.jpg
+    // Match any path ending with /animal/filename (with or without extension)
     if (preg_match('#/animal/([^/]+)$#', $urlPath, $matches)) {
         $filename = $matches[1];
         
@@ -54,27 +68,44 @@ try {
             exit;
         }
         
-        // Security check: ensure the file is within the animal directory
+        // Security check: ensure the file path is within the animal directory
+        // First check if file exists
+        if (!file_exists($filePath)) {
+            // File doesn't exist, but that's okay - maybe it was already deleted
+            error_log("File does not exist (already deleted?): " . $filePath);
+            echo json_encode(['success' => true, 'message' => 'Image file does not exist (already deleted)']);
+            exit;
+        }
+        
+        // Now verify the file is actually in the animal directory (security check)
         $realPath = realpath($filePath);
         $realAnimalDir = realpath($animalDir);
         
+        error_log("Attempting to delete file: " . $filePath);
+        error_log("Real path: " . ($realPath ? $realPath : 'NULL'));
+        error_log("Animal dir: " . ($realAnimalDir ? $realAnimalDir : 'NULL'));
+        
         if ($realAnimalDir && $realPath && strpos($realPath, $realAnimalDir) === 0) {
-            // File exists and is in the correct directory
-            if (file_exists($realPath)) {
-                if (unlink($realPath)) {
-                    echo json_encode(['success' => true, 'message' => 'Image deleted successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['success' => false, 'error' => 'Failed to delete image file']);
-                }
+            // File exists and is in the correct directory - safe to delete
+            if (unlink($realPath)) {
+                error_log("File deleted successfully: " . $realPath);
+                echo json_encode(['success' => true, 'message' => 'Image deleted successfully']);
             } else {
-                // File doesn't exist, but that's okay - maybe it was already deleted
-                echo json_encode(['success' => true, 'message' => 'Image file does not exist (already deleted)']);
+                error_log("Failed to unlink file: " . $realPath);
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Failed to delete image file', 'path' => $realPath]);
             }
         } else {
-            // Path doesn't resolve correctly (security issue or file doesn't exist)
+            // Path doesn't resolve correctly (security issue)
+            error_log("Security check failed. RealPath: " . ($realPath ?: 'NULL') . ", RealAnimalDir: " . ($realAnimalDir ?: 'NULL'));
             http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Access denied: invalid file path']);
+            echo json_encode([
+                'success' => false, 
+                'error' => 'Access denied: invalid file path',
+                'filePath' => $filePath,
+                'realPath' => $realPath ?: 'null',
+                'animalDir' => $realAnimalDir ?: 'null'
+            ]);
         }
     } else {
         http_response_code(400);
