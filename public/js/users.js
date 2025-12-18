@@ -7,6 +7,7 @@
  * @param {Array<string>} filters.estatutos - Array de nomes de estatutos (funções) para filtrar
  * @returns {Promise<Array>} Array de objetos de utilizadores
  */
+
 async function fetchUsers(filters = {}) {
     try {
         const params = new URLSearchParams();
