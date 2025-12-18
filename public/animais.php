@@ -364,6 +364,19 @@
         
         // Initialize after DOM and scripts are loaded
         async function initAnimaisPage() {
+            // Wait for required functions to be available
+            if (typeof fetchFamilyOptions !== 'function' || 
+                typeof fetchStateOptions !== 'function' || 
+                typeof getAnimalFilters !== 'function' ||
+                typeof fetchAnimals !== 'function' ||
+                typeof renderAnimalCards !== 'function' ||
+                typeof initAnimalFilters !== 'function' ||
+                typeof clearAnimalFilters !== 'function') {
+                console.log('Waiting for scripts to load...');
+                setTimeout(initAnimaisPage, 50);
+                return;
+            }
+            
             // Loader
             const loader = document.getElementById('page-loader');
             if (loader) {
