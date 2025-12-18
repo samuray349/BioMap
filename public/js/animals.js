@@ -173,7 +173,7 @@ function renderAnimalTable(animals, tbody) {
             <td>${animal.nome_comum}</td>
             <td>${animal.nome_familia}</td>
             <td><span class="${badgeClass}" style="background-color: ${animal.estado_cor || '#ccc'}; color: white;">${animal.nome_estado}</span></td>
-            <td><i class="fas fa-sync-alt update-icon"></i></td>
+            <td><i class="fas fa-sync-alt update-icon" data-animal-id="${animal.animal_id}" style="cursor: pointer;"></i></td>
             <td><i class="fas fa-ban ban-icon" data-animal-id="${animal.animal_id}" style="cursor: pointer;"></i></td>
         `;
         

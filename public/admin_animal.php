@@ -132,6 +132,91 @@ checkAccess(ACCESS_ADMIN);
         </div>
     </main>
     
+    <!-- Update Animal Modal -->
+    <div id="update-animal-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>Atualizar Animal</h2>
+                <button class="modal-close" id="close-update-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="update-animal-form" class="update-animal-form">
+                <input type="hidden" id="update-animal-id" name="animal_id">
+                
+                <div class="form-grid two-columns">
+                    <div class="input-field">
+                        <label for="update-nome-comum">Nome Animal</label>
+                        <input type="text" id="update-nome-comum" name="nome_comum" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="update-nome-cientifico">Nome Científico</label>
+                        <input type="text" id="update-nome-cientifico" name="nome_cientifico" required>
+                    </div>
+                </div>
+
+                <div class="input-field">
+                    <label for="update-descricao">Descrição</label>
+                    <textarea id="update-descricao" name="descricao" rows="4" required></textarea>
+                </div>
+
+                <div class="input-field">
+                    <label for="update-facto">Facto Interessante</label>
+                    <input type="text" id="update-facto" name="facto_interessante">
+                </div>
+
+                <div class="input-field">
+                    <label for="update-populacao">População Estimada</label>
+                    <input type="text" id="update-populacao" name="populacao_estimada" placeholder="Ex: 1 200 indivíduos">
+                </div>
+
+                <div class="input-field">
+                    <label for="update-family-input">Família</label>
+                    <div class="family-select-wrapper" style="position: relative;">
+                        <input type="text" id="update-family-input" class="chip-select family-search-input" placeholder="Pesquisar e selecionar família" autocomplete="off">
+                        <div class="dropdown-menu" id="update-family-dropdown"></div>
+                    </div>
+                </div>
+
+                <div class="input-field">
+                    <label for="update-dieta">Dieta</label>
+                    <select id="update-dieta" name="dieta_nome" class="chip-select" required>
+                        <option value="">Selecione a dieta</option>
+                        <option value="Carnívoro">Carnívoro</option>
+                        <option value="Herbívoro">Herbívoro</option>
+                        <option value="Omnívoro">Omnívoro</option>
+                    </select>
+                </div>
+
+                <div class="input-field">
+                    <label for="update-estado">Estado de Conservação</label>
+                    <select id="update-estado" name="estado_nome" class="chip-select" required>
+                        <option value="">Selecione o estado</option>
+                        <option value="Pouco Preocupante">Pouco Preocupante</option>
+                        <option value="Quase Ameaçada">Quase Ameaçada</option>
+                        <option value="Vulnerável">Vulnerável</option>
+                        <option value="Em Perigo">Em Perigo</option>
+                        <option value="Perigo Crítico">Perigo Crítico</option>
+                        <option value="Extinto na Natureza">Extinto na Natureza</option>
+                        <option value="Extinto">Extinto</option>
+                        <option value="Dados Insuficientes">Dados Insuficientes</option>
+                        <option value="Não Avaliada">Não Avaliada</option>
+                    </select>
+                </div>
+
+                <div class="input-field">
+                    <label for="update-ameacas">Ameaças (separadas por vírgula)</label>
+                    <input type="text" id="update-ameacas" name="ameacas" placeholder="Ex: Caça ilegal, Perda de habitat">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="ghost-btn" id="cancel-update-btn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Atualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <!-- Scripts -->
     <script src="js/script.js?v=<?php echo time(); ?>"></script>
     <script src="js/animals.js?v=<?php echo time(); ?>"></script>
@@ -188,6 +273,8 @@ checkAccess(ACCESS_ADMIN);
             
             // Add delete button handlers
             attachDeleteHandlers();
+            // Add update button handlers
+            attachUpdateHandlers();
         }
 
         // Update pagination UI
@@ -352,6 +439,206 @@ checkAccess(ACCESS_ADMIN);
             });
         }
 
+        function attachUpdateHandlers() {
+            const updateIcons = document.querySelectorAll('.update-icon[data-animal-id]');
+            updateIcons.forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const animalId = icon.getAttribute('data-animal-id');
+                    if (animalId) {
+                        openUpdateModal(parseInt(animalId));
+                    }
+                });
+            });
+        }
+
+        async function openUpdateModal(animalId) {
+            const modal = document.getElementById('update-animal-modal');
+            if (!modal) return;
+
+            try {
+                // Fetch animal data
+                const apiUrl = getApiUrl(`animaisDesc/${animalId}`);
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('Erro ao carregar dados do animal');
+                
+                const animal = await response.json();
+                
+                // Populate form
+                document.getElementById('update-animal-id').value = animal.animal_id;
+                document.getElementById('update-nome-comum').value = animal.nome_comum || '';
+                document.getElementById('update-nome-cientifico').value = animal.nome_cientifico || '';
+                document.getElementById('update-descricao').value = animal.descricao || '';
+                document.getElementById('update-facto').value = animal.facto_interessante || '';
+                document.getElementById('update-populacao').value = animal.populacao_estimada || '';
+                document.getElementById('update-dieta').value = animal.nome_dieta || '';
+                document.getElementById('update-estado').value = animal.nome_estado || '';
+                
+                // Handle ameacas (threats) - convert array to comma-separated string
+                const ameacasValue = animal.ameacas && Array.isArray(animal.ameacas) 
+                    ? animal.ameacas.join(', ') 
+                    : (animal.ameacas || '');
+                document.getElementById('update-ameacas').value = ameacasValue;
+                
+                // Set family input value
+                const familyInput = document.getElementById('update-family-input');
+                if (familyInput && animal.nome_familia) {
+                    familyInput.value = animal.nome_familia;
+                }
+                
+                // Initialize family dropdown if not already initialized
+                initUpdateFamilyDropdown();
+                
+                // Show modal
+                modal.style.display = 'flex';
+            } catch (error) {
+                console.error('Erro ao abrir modal de atualização:', error);
+                alert('Erro ao carregar dados do animal.');
+            }
+        }
+
+        function closeUpdateModal() {
+            const modal = document.getElementById('update-animal-modal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.getElementById('update-animal-form').reset();
+            }
+        }
+
+        // Initialize family dropdown for update modal
+        let updateFamilyDropdownInitialized = false;
+        async function initUpdateFamilyDropdown() {
+            if (updateFamilyDropdownInitialized) return;
+            
+            const familyInput = document.getElementById('update-family-input');
+            const familyDropdown = document.getElementById('update-family-dropdown');
+            const wrapper = familyInput ? familyInput.closest('.family-select-wrapper') : null;
+            
+            if (!familyInput || !familyDropdown) return;
+            
+            try {
+                let familyOptions = [];
+                if (typeof fetchFamilyOptions === 'function') {
+                    familyOptions = await fetchFamilyOptions();
+                }
+                
+                function renderDropdown() {
+                    const searchTerm = familyInput.value.toLowerCase().trim();
+                    const filteredOptions = familyOptions.filter(opt => 
+                        opt.toLowerCase().includes(searchTerm)
+                    );
+                    
+                    familyDropdown.innerHTML = '';
+                    
+                    if (filteredOptions.length === 0 && searchTerm) {
+                        const noResults = document.createElement('div');
+                        noResults.className = 'dropdown-item';
+                        noResults.textContent = 'Nenhum resultado encontrado';
+                        noResults.style.cursor = 'default';
+                        noResults.style.color = '#999';
+                        familyDropdown.appendChild(noResults);
+                        familyDropdown.classList.add('show');
+                    } else if (filteredOptions.length > 0 || searchTerm === '') {
+                        const optionsToShow = filteredOptions.length > 0 ? filteredOptions : familyOptions;
+                        optionsToShow.forEach(option => {
+                            const item = document.createElement('div');
+                            item.className = 'dropdown-item';
+                            item.textContent = option;
+                            if (familyInput.value.trim() === option) {
+                                item.style.fontWeight = '600';
+                                item.style.backgroundColor = '#f0f0f0';
+                            }
+                            item.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                familyInput.value = option;
+                                familyDropdown.classList.remove('show');
+                            });
+                            familyDropdown.appendChild(item);
+                        });
+                        familyDropdown.classList.add('show');
+                    } else {
+                        familyDropdown.classList.remove('show');
+                    }
+                }
+                
+                familyInput.addEventListener('focus', renderDropdown);
+                familyInput.addEventListener('input', renderDropdown);
+                
+                if (wrapper) {
+                    wrapper.addEventListener('click', (e) => {
+                        if (e.target !== familyInput && !familyDropdown.contains(e.target)) {
+                            familyInput.focus();
+                            renderDropdown();
+                        }
+                    });
+                }
+                
+                document.addEventListener('click', (e) => {
+                    if (wrapper && !wrapper.contains(e.target)) {
+                        familyDropdown.classList.remove('show');
+                    }
+                });
+                
+                updateFamilyDropdownInitialized = true;
+            } catch (error) {
+                console.error('Erro ao inicializar dropdown de família:', error);
+            }
+        }
+
+        // Handle update form submission
+        async function handleUpdateAnimal(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const animalId = document.getElementById('update-animal-id').value;
+            const formData = new FormData(form);
+            
+            // Get form values
+            const updateData = {
+                nome_comum: document.getElementById('update-nome-comum').value.trim(),
+                nome_cientifico: document.getElementById('update-nome-cientifico').value.trim(),
+                descricao: document.getElementById('update-descricao').value.trim(),
+                facto_interessante: document.getElementById('update-facto').value.trim(),
+                populacao_estimada: document.getElementById('update-populacao').value.trim(),
+                familia_nome: document.getElementById('update-family-input').value.trim(),
+                dieta_nome: document.getElementById('update-dieta').value.trim(),
+                estado_nome: document.getElementById('update-estado').value.trim(),
+                ameacas: document.getElementById('update-ameacas').value.split(',').map(t => t.trim()).filter(t => t)
+            };
+            
+            // Validate required fields
+            if (!updateData.nome_comum || !updateData.nome_cientifico || !updateData.descricao || 
+                !updateData.familia_nome || !updateData.dieta_nome || !updateData.estado_nome) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            try {
+                const apiUrl = getApiUrl(`animais/${animalId}`);
+                const response = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Erro ao atualizar animal');
+                }
+                
+                // Success - close modal and reload animals
+                closeUpdateModal();
+                await loadAnimals();
+                alert('Animal atualizado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao atualizar animal:', error);
+                alert(error.message || 'Erro ao atualizar animal.');
+            }
+        }
+
         async function initAdminAnimalFilters() {
             // Load header
             if (typeof loadHeader === 'function') {
@@ -423,6 +710,34 @@ checkAccess(ACCESS_ADMIN);
             // Initial load
             loadAnimals();
         }
+
+        // Modal event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('update-animal-modal');
+            const closeBtn = document.getElementById('close-update-modal');
+            const cancelBtn = document.getElementById('cancel-update-btn');
+            const updateForm = document.getElementById('update-animal-form');
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeUpdateModal);
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeUpdateModal);
+            }
+            
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeUpdateModal();
+                    }
+                });
+            }
+            
+            if (updateForm) {
+                updateForm.addEventListener('submit', handleUpdateAnimal);
+            }
+        });
 
         // Wait for all external scripts to load before initializing
         function waitForScriptsAndInit() {

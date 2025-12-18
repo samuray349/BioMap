@@ -784,6 +784,162 @@ app.post('/animais', async (req, res) => {
 });
 
 /* =====================
+   UPDATE ANIMAL
+   (Updates animal info, excluding image)
+===================== */
+app.put('/animais/:id', async (req, res) => {
+  const {
+    nome_comum,
+    nome_cientifico,
+    descricao,
+    facto_interessante,
+    populacao_estimada,
+    familia_nome,
+    dieta_nome,
+    estado_nome,
+    ameacas = []
+  } = req.body || {};
+
+  const { id } = req.params;
+
+  if (!/^\d+$/.test(id)) {
+    return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+  }
+
+  // Validate all required fields and collect errors
+  const errors = [];
+  if (!nome_comum || !nome_comum.trim()) errors.push('Nome comum é obrigatório.');
+  if (!nome_cientifico || !nome_cientifico.trim()) errors.push('Nome científico é obrigatório.');
+  if (!descricao || !descricao.trim()) errors.push('Descrição é obrigatória.');
+  if (!familia_nome || !familia_nome.trim()) errors.push('Família é obrigatória.');
+  if (!dieta_nome || !dieta_nome.trim()) errors.push('Dieta é obrigatória.');
+  if (!estado_nome || !estado_nome.trim()) errors.push('Estado de conservação é obrigatório.');
+  
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  const normalizedPopulation =
+    typeof populacao_estimada === 'number'
+      ? populacao_estimada
+      : Number(String(populacao_estimada || '').replace(/[^\d]/g, '')) || null;
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Check if animal exists
+    const animalCheck = await client.query(
+      'SELECT animal_id FROM animal WHERE animal_id = $1',
+      [id]
+    );
+    if (animalCheck.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Animal não encontrado.' });
+    }
+
+    // Use TRIM in the query to handle any trailing spaces in database
+    const familia = await client.query(
+      'SELECT familia_id FROM familia WHERE TRIM(nome_familia) = TRIM($1) LIMIT 1',
+      [familia_nome.trim()]
+    );
+    if (familia.rowCount === 0) {
+      await client.query('ROLLBACK');
+      const allFamilias = await client.query('SELECT TRIM(nome_familia) as nome_familia FROM familia ORDER BY familia_id');
+      const availableFamilias = allFamilias.rows.map(r => r.nome_familia).join(', ');
+      return res.status(400).json({ error: `Família "${familia_nome.trim()}" não encontrada na base de dados. Famílias disponíveis: ${availableFamilias}` });
+    }
+
+    const dieta = await client.query(
+      'SELECT dieta_id FROM dieta WHERE TRIM(nome_dieta) = TRIM($1) LIMIT 1',
+      [dieta_nome.trim()]
+    );
+    if (dieta.rowCount === 0) {
+      await client.query('ROLLBACK');
+      const allDietas = await client.query('SELECT TRIM(nome_dieta) as nome_dieta FROM dieta ORDER BY dieta_id');
+      const availableDietas = allDietas.rows.map(r => r.nome_dieta).join(', ');
+      return res.status(400).json({ error: `Dieta "${dieta_nome.trim()}" não encontrada na base de dados. Dietas disponíveis: ${availableDietas}` });
+    }
+
+    // Use TRIM in the query to handle trailing spaces in database
+    const estado = await client.query(
+      'SELECT estado_id FROM estado_conservacao WHERE TRIM(nome_estado) = TRIM($1) LIMIT 1',
+      [estado_nome.trim()]
+    );
+    if (estado.rowCount === 0) {
+      await client.query('ROLLBACK');
+      const allStates = await client.query('SELECT TRIM(nome_estado) as nome_estado FROM estado_conservacao ORDER BY estado_id');
+      const availableStates = allStates.rows.map(r => r.nome_estado).join(', ');
+      return res.status(400).json({ 
+        error: `Estado de conservação "${estado_nome.trim()}" não encontrado na base de dados. Estados disponíveis: ${availableStates}` 
+      });
+    }
+
+    // Update animal (excluding image URL)
+    await client.query(
+      `UPDATE animal SET
+        nome_comum = $1,
+        nome_cientifico = $2,
+        descricao = $3,
+        facto_interessante = $4,
+        populacao_estimada = $5,
+        dieta_id = $6,
+        familia_id = $7,
+        estado_id = $8
+      WHERE animal_id = $9`,
+      [
+        nome_comum,
+        nome_cientifico,
+        descricao,
+        facto_interessante || '',
+        normalizedPopulation,
+        dieta.rows[0].dieta_id,
+        familia.rows[0].familia_id,
+        estado.rows[0].estado_id,
+        id
+      ]
+    );
+
+    // Handle ameacas (threats) - delete existing and insert new
+    await client.query('DELETE FROM ameaca WHERE animal_id = $1', [id]);
+    
+    if (Array.isArray(ameacas) && ameacas.length > 0) {
+      const ameacaValues = ameacas
+        .filter(a => a && typeof a === 'string' && a.trim())
+        .map(a => a.trim());
+      
+      if (ameacaValues.length > 0) {
+        const insertAmeacas = ameacaValues.map((_, index) => {
+          const paramIndex = index * 2 + 1;
+          return `($${paramIndex}, $${paramIndex + 1})`;
+        }).join(', ');
+        
+        const insertParams = [];
+        ameacaValues.forEach(ameaca => {
+          insertParams.push(id, ameaca);
+        });
+        
+        await client.query(
+          `INSERT INTO ameaca (animal_id, nome_ameaca) VALUES ${insertAmeacas}`,
+          insertParams
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+
+    return res.status(200).json({ message: 'Animal atualizado com sucesso.' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Erro ao atualizar animal:', error);
+    return res.status(500).json({ error: 'Erro ao atualizar animal.' });
+  } finally {
+    client.release();
+  }
+});
+
+/* =====================
    DELETE ANIMAL
    (Deletes DB row and image file from server)
 ===================== */

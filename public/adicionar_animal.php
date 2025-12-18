@@ -466,6 +466,7 @@ checkAccess(ACCESS_ADMIN);
     /* Family searchable select styling - matches chip-select */
     .family-select-wrapper {
         position: relative;
+        margin-top: 0;
     }
     
     .family-search-input {
@@ -560,7 +561,7 @@ checkAccess(ACCESS_ADMIN);
                         <p>Selecione a família relacionada com o animal registado.</p>
                     </div>
 
-                    <div class="family-select-wrapper" style="position: relative;">
+                    <div class="family-select-wrapper">
                         <input type="text" id="family-input" class="chip-select family-search-input" placeholder="Selecione uma família" autocomplete="off">
                         <div class="dropdown-menu" id="family-dropdown"></div>
                     </div>
