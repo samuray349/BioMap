@@ -214,8 +214,8 @@ $userId = $user['id'] ?? '';
                         applyHeaderAuthState();
                     }
                     
-                    // Determine redirect URL based on funcao_id
-                    const redirectUrl = (user.funcao_id === 1) ? 'perfil_admin.php' : 'perfil.php';
+                    // Redirect to canonical profile page
+                    const redirectUrl = 'perfil.php';
                     
                     // Redirect after 1.5 seconds
                     setTimeout(() => {
@@ -240,8 +240,8 @@ $userId = $user['id'] ?? '';
                     // Get current user from session
                     const user = SessionHelper?.getCurrentUser() || JSON.parse(getCookie('biomap_user') || '{}');
                     
-                    // Determine redirect URL based on funcao_id
-                    const redirectUrl = (user && user.funcao_id === 1) ? 'perfil_admin.php' : 'perfil.php';
+                    // Back to canonical profile page
+                    const redirectUrl = 'perfil.php';
                     
                     // Redirect
                     window.location.href = redirectUrl;

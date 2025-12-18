@@ -1,6 +1,7 @@
 <?php
-require_once 'access_control.php';
-checkAccess(ACCESS_USER);
+require_once 'status_check.php';
+// Allow both admin and regular users
+require_funcao_or_redirect([1,2], 'login.php');
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -26,11 +27,12 @@ checkAccess(ACCESS_USER);
     
     <!-- Delete Account Confirmation Section -->
     <?php
-    // Determine back page based on user role and expose current user info
-    $user = getCurrentUser();
+    // Determine back page based on API-synced role and expose current user info
+    $user = $STATUS_CHECK['user'] ?? null;
     $currentUserId = intval($user['id'] ?? 0);
     $currentUserFuncao = intval($user['funcao_id'] ?? 2);
-    $backPage = ($currentUserFuncao === 1) ? 'perfil_admin.php' : 'perfil.php';
+    // Canonical profile page
+    $backPage = 'perfil.php';
     ?>
     <section class="delete-account-section">
         <div class="container">
@@ -149,7 +151,20 @@ checkAccess(ACCESS_USER);
                             return;
                         }
 
-                        // Success - redirect to index
+                        // Success - clear PHP session and local client session, then redirect to index
+                        try {
+                            // Call server-side PHP logout to clear PHP session/cookie
+                            await fetch('logout_server.php', { method: 'POST' }).catch(() => {});
+                        } catch (e) {
+                            // ignore
+                        }
+
+                        // Clear client-side session helpers if available
+                        if (typeof SessionHelper !== 'undefined' && SessionHelper.clearUser) {
+                            SessionHelper.clearUser();
+                        }
+                        try { localStorage.removeItem('biomapUser'); } catch(e) {}
+
                         window.location.href = 'index.php';
                     } catch (err) {
                         console.error('Erro ao eliminar conta:', err);

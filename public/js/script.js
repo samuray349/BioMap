@@ -1234,7 +1234,7 @@ const headerTemplate = `
         <div class="account-menu-separator" id="sep-create"></div>
         <div class="account-menu-item" id="menu-profile"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil.php">Perfil</a></div>
         <div class="account-menu-separator" id="sep-profile"></div>
-        <div class="account-menu-item" id="menu-profile-admin"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil_admin.php">Perfil</a></div>
+  <div class="account-menu-item" id="menu-profile-admin"><a style="text-decoration: none;color: #333;font-weight:600;" href="perfil.php">Perfil</a></div>
         <div class="account-menu-separator" id="sep-logout"></div>
         <div class="account-menu-item" id="menu-logout"><a style="text-decoration: none;color: #333;font-weight:600;" href="logout.php">Terminar Sessão</a></div>
       </div>
@@ -1317,16 +1317,15 @@ function applyHeaderAuthState() {
     userNameElement.style.display = 'none';
   }
 
+  // Both admin and regular users are directed to the canonical profile page
   if (Number(user.funcao_id) === 2) {
     show(profileItem); show(sepProfile);
-    hide(sepProfile);
     hide(adminItem);
     userNameElement.href = 'perfil.php';
-    userNameElement
   } else if (Number(user.funcao_id) === 1) {
     hide(profileItem); hide(sepProfile);
     show(adminItem);
-    userNameElement.href = 'perfil_admin.php';
+    userNameElement.href = 'perfil.php';
   } else {
     hide(profileItem); hide(sepProfile);
     hide(adminItem);

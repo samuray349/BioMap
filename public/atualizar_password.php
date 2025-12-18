@@ -1,6 +1,7 @@
 <?php
-require_once 'access_control.php';
-checkAccess(ACCESS_USER);
+require_once 'status_check.php';
+// Allow both admin and regular users to access this page
+require_funcao_or_redirect([1,2], 'login.php');
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -31,8 +32,8 @@ checkAccess(ACCESS_USER);
         <div class="profile-banner-content">
             <div class="profile-info">
                 <?php
-                // Embed current user info (access_control already required session_helper)
-                $currentUser = getCurrentUser();
+                // Use API-synced user info from status_check
+                $currentUser = $STATUS_CHECK['user'] ?? null;
                 $displayName = htmlspecialchars($currentUser['name'] ?? '[Nome utilizador]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 $displayEmail = htmlspecialchars($currentUser['email'] ?? '[Email]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 $currentUserId = intval($currentUser['id'] ?? 0);
@@ -95,10 +96,7 @@ checkAccess(ACCESS_USER);
                         <p>Redirecionando...</p>
                     </div>
                     
-                    <?php
-                    $backPage = ($currentUserFuncao === 1) ? 'perfil_admin.php' : 'perfil.php';
-                    ?>
-                    <a href="<?= $backPage ?>" class="back-link">&lt; Voltar</a>
+                    <a href="perfil.php" class="back-link">&lt; Voltar</a>
                 </form>
             </div>
         </div>
@@ -236,8 +234,8 @@ checkAccess(ACCESS_USER);
 
                     // Optionally update local cookie/session user data if password change affects session
                     setTimeout(() => {
-                        const redirectTo = (CURRENT_USER_FUNCAO === 1) ? 'perfil_admin.php' : 'perfil.php';
-                        window.location.href = redirectTo;
+                        // Redirect to canonical profile page
+                        window.location.href = 'perfil.php';
                     }, 900);
 
                 } catch (err) {

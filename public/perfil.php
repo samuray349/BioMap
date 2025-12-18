@@ -1,14 +1,7 @@
 <?php
-require_once 'access_control.php';
-// Ensure user is logged in (any role)
-checkAccess(ACCESS_USER);
-
-// Redirect admins to the admin profile page
-$currentUser = getCurrentUser();
-if ($currentUser && intval($currentUser['funcao_id'] ?? 2) === 1) {
-    header('Location: perfil_admin.php');
-    exit();
-}
+require_once 'status_check.php';
+// Ensure this page is only accessible to regular users (funcao_id === 2)
+require_funcao_or_redirect(2, 'login.php');
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -25,8 +18,8 @@ if ($currentUser && intval($currentUser['funcao_id'] ?? 2) === 1) {
     <div id="header-placeholder"></div>
 
     <?php
-    // Show user info in the profile banner
-    $user = getCurrentUser();
+    // Show user info in the profile banner (source: STATUS_CHECK from API)
+    $user = $STATUS_CHECK['user'] ?? null;
     $profileName = htmlspecialchars($user['name'] ?? '[Nome utilizador]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $profileEmail = htmlspecialchars($user['email'] ?? '[Email]', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     ?>

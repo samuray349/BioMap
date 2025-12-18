@@ -51,7 +51,7 @@ $ADMIN_PAGES = [
     'admin_animal.php',
     'adicionar_animal.php',
     'adicionar_fundacao.php',
-    'perfil_admin.php'
+    // 'perfil_admin.php' removed — perfil.php is canonical
 ];
 
 /**
