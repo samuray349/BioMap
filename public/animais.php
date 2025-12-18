@@ -364,19 +364,6 @@
         
         // Initialize after DOM and scripts are loaded
         async function initAnimaisPage() {
-            // Wait for required functions to be available
-            if (typeof fetchFamilyOptions !== 'function' || 
-                typeof fetchStateOptions !== 'function' || 
-                typeof getAnimalFilters !== 'function' ||
-                typeof fetchAnimals !== 'function' ||
-                typeof renderAnimalCards !== 'function' ||
-                typeof initAnimalFilters !== 'function' ||
-                typeof clearAnimalFilters !== 'function') {
-                console.log('Waiting for scripts to load...');
-                setTimeout(initAnimaisPage, 50);
-                return;
-            }
-            
             // Loader
             const loader = document.getElementById('page-loader');
             if (loader) {
@@ -467,8 +454,29 @@
             loadAnimals();
         }
         
-        // Wait for window to fully load (ensures all scripts are executed)
-        window.addEventListener('load', initAnimaisPage);
+        // Check if functions are loaded, then initialize
+        function waitForScriptsAndInit() {
+            if (typeof fetchFamilyOptions !== 'function' || 
+                typeof fetchStateOptions !== 'function' || 
+                typeof getAnimalFilters !== 'function' ||
+                typeof fetchAnimals !== 'function' ||
+                typeof renderAnimalCards !== 'function' ||
+                typeof initAnimalFilters !== 'function' ||
+                typeof clearAnimalFilters !== 'function') {
+                // Retry after a short delay
+                setTimeout(waitForScriptsAndInit, 100);
+                return;
+            }
+            // All functions loaded, initialize the page
+            initAnimaisPage();
+        }
+        
+        // Start checking after DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForScriptsAndInit);
+        } else {
+            waitForScriptsAndInit();
+        }
       </script>
 </body>
 </html>
