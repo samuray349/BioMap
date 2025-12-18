@@ -1,7 +1,8 @@
 <?php
 require_once 'status_check.php';
-// Ensure this page is only accessible to regular users (funcao_id === 2)
-require_funcao_or_redirect(2, 'login.php');
+// Allow both admins (1) and regular users (2) to access the canonical profile page.
+// The page will render role-appropriate actions based on funcao_id.
+require_funcao_or_redirect([1,2], 'login.php');
 ?>
 <!DOCTYPE html>
 <html lang="pt">
