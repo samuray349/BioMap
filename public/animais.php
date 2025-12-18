@@ -375,16 +375,9 @@
         const cardsGrid = document.querySelector('.cards-grid');
         const searchInput = document.getElementById('search-input');
         
-        // Opções para os dropdowns
-        const familyOptions = [
-          "Felidae", "Canidae", "Ursidae", "Mustelidae", 
-          "Cervidae", "Suidae", "Leporidae", "Sciuridae",
-          "Accipitridae", "Bovidae", "Lacertidae"
-        ];
-        
-        const stateOptions = [
-          "Não Avaliada","Dados Insuficientes","Pouco Preocupante","Quase Ameaçada","Vulnerável","Em Perigo","Perigo Crítico","Extinto na Natureza","Extinto"
-        ];
+        // Will be populated from API (using functions from script.js)
+        let familyOptions = [];
+        let stateOptions = [];
       
         // Função principal para buscar e renderizar os animais
         async function loadAnimals() {
@@ -405,7 +398,15 @@
           }
         }
       
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+          
+          // Fetch filter options from API before initializing
+          const [families, states] = await Promise.all([
+              fetchFamilyOptions(),
+              fetchStateOptions()
+          ]);
+          familyOptions = families;
+          stateOptions = states;
           
           // Inicializar o listener do input de pesquisa
           if (searchInput) {

@@ -5,7 +5,105 @@ let rightClickPosition = null; // Store this globally to pass to the alert menu
 let mapMarkers = []; // Store all map markers for dynamic updates
 let pawMarkerIcon = null; // Will be initialized in initMap() after Google Maps API loads
 
-// Notification System
+// ==========================================
+// GENERALIZED UTILITY FUNCTIONS
+// ==========================================
+
+/**
+ * Get API URL with fallback
+ * @param {string} endpoint - API endpoint path
+ * @returns {string} Full API URL
+ */
+function getApiUrl(endpoint) {
+    return window.API_CONFIG?.getUrl(endpoint) || `/${endpoint}`;
+}
+
+/**
+ * Get current user from session (tries SessionHelper first, then localStorage)
+ * @returns {Object|null} User object or null if not logged in
+ */
+function getCurrentUser() {
+    try {
+        // Try SessionHelper first (cookie-based)
+        if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
+            const user = SessionHelper.getCurrentUser();
+            if (user) return user;
+        }
+        
+        // Fallback to localStorage
+        const userData = localStorage.getItem('biomapUser');
+        if (userData) {
+            return JSON.parse(userData);
+        }
+    } catch (error) {
+        console.error('Error getting current user:', error);
+    }
+    return null;
+}
+
+/**
+ * Check if user is logged in
+ * @returns {boolean} True if user is logged in
+ */
+function isLoggedIn() {
+    const user = getCurrentUser();
+    return user !== null && user.id != null;
+}
+
+/**
+ * Check if current user is an admin
+ * @returns {boolean} True if user is admin (funcao_id === 1)
+ */
+function isAdmin() {
+    const user = getCurrentUser();
+    return user !== null && Number(user.funcao_id) === 1;
+}
+
+/**
+ * Check if current user matches a specific user ID
+ * @param {number} userId - User ID to check against
+ * @returns {boolean} True if current user matches the given ID
+ */
+function isCurrentUser(userId) {
+    const user = getCurrentUser();
+    return user !== null && Number(user.id) === Number(userId);
+}
+
+/**
+ * Fetch all animal families from the API
+ * @returns {Promise<Array<string>>} Array of family names
+ */
+async function fetchFamilyOptions() {
+    try {
+        const apiUrl = getApiUrl('animais/familias');
+        const response = await fetch(apiUrl);
+        const families = await response.json();
+        return families.map(f => f.nome_familia);
+    } catch (error) {
+        console.error('Erro ao buscar famílias:', error);
+        return [];
+    }
+}
+
+/**
+ * Fetch all conservation status options from the API
+ * @returns {Promise<Array<string>>} Array of conservation status names
+ */
+async function fetchStateOptions() {
+    try {
+        const apiUrl = getApiUrl('animais/estados');
+        const response = await fetch(apiUrl);
+        const states = await response.json();
+        return states.map(s => s.nome_estado);
+    } catch (error) {
+        console.error('Erro ao buscar estados de conservação:', error);
+        return [];
+    }
+}
+
+// ==========================================
+// NOTIFICATION SYSTEM
+// ==========================================
 function showNotification(message, type = 'success') {
   const container = document.getElementById('notification-container');
   if (!container) return;
@@ -167,15 +265,9 @@ const SpeciesPanel = {
     }
 
     // Get current user
-    const userData = localStorage.getItem('biomapUser');
-    let user = null;
-    try {
-      user = userData ? JSON.parse(userData) : null;
-    } catch (e) {
-      user = null;
-    }
-
-    if (!user || !user.id) {
+    const user = getCurrentUser();
+    
+    if (!isLoggedIn()) {
       alert('Por favor, inicie sessão para eliminar avistamentos.');
       return;
     }
@@ -186,7 +278,7 @@ const SpeciesPanel = {
     }
 
     try {
-      const apiUrl = window.API_CONFIG?.getUrl(`api/alerts/${this.currentAvistamentoId}`) || `/api/alerts/${this.currentAvistamentoId}`;
+      const apiUrl = getApiUrl(`api/alerts/${this.currentAvistamentoId}`);
       const response = await fetch(apiUrl, {
         method: 'DELETE',
         headers: {
@@ -331,21 +423,10 @@ const SpeciesPanel = {
   updateMenuVisibility(details) {
     if (!this.elements.menu) return;
 
-    // Get current user from localStorage
-    const userData = localStorage.getItem('biomapUser');
-    let user = null;
-    try {
-      user = userData ? JSON.parse(userData) : null;
-    } catch (e) {
-      user = null;
-    }
-
     // Show menu only if:
     // 1. User is logged in
     // 2. User is admin (funcao_id === 1) OR user is the creator of the avistamento
-    const isAdmin = user && Number(user.funcao_id) === 1;
-    const isCreator = user && details.utilizador_id && Number(user.id) === Number(details.utilizador_id);
-    const canManage = isAdmin || isCreator;
+    const canManage = isAdmin() || isCurrentUser(details.utilizador_id);
 
     if (canManage) {
       this.elements.menu.style.display = 'block';
@@ -427,19 +508,23 @@ function initMap() {
   // Load and display avistamentos dynamically
   loadAvistamentos();
 
-  const familyOptions = [
-    "Felidae", "Canidae", "Ursidae", "Mustelidae", 
-    "Cervidae", "Suidae", "Leporidae", "Sciuridae",
-    "Rodentia", "Chiroptera", "Carnivora", "Artiodactyla"
-  ];
-  
-  const stateOptions = [
-    "Não Avaliada", "Dados Insuficientes", "Pouco Preocupante", "Quase Ameaçada",
-    "Vulnerável", "Em Perigo", "Perigo Crítico", "Extinto na Natureza", "Extinto"
-  ];
+  // Fetch filter options from API and initialize dropdowns
+  (async () => {
+    try {
+      const [familyOptions, stateOptions] = await Promise.all([
+        fetchFamilyOptions(),
+        fetchStateOptions()
+      ]);
 
-  initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", familyTags, familyOptions);
-  initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, stateOptions);
+      initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", familyTags, familyOptions);
+      initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, stateOptions);
+    } catch (error) {
+      console.error('Erro ao carregar opções de filtros:', error);
+      // Fallback to empty arrays if API fails
+      initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", familyTags, []);
+      initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, []);
+    }
+  })();
 
   // Set up filter change listeners to update map markers
   const searchInput = document.getElementById('search-input');
@@ -522,7 +607,7 @@ async function loadAvistamentos() {
     }
 
     // Fetch avistamentos from API
-    const apiUrl = window.API_CONFIG?.getUrl(`api/alerts?${params.toString()}`) || `/api/alerts?${params.toString()}`;
+    const apiUrl = getApiUrl(`api/alerts?${params.toString()}`);
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -811,27 +896,14 @@ function initContextMenu() {
     contextMenu.style.left = (mouseX + 10) + 'px';
     contextMenu.style.top = (mouseY + 10) + 'px';
     
-    // Check if user is logged in and hide/show "Alertar animal" option accordingly
-    let isLoggedIn = false;
-    try {
-      if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
-        isLoggedIn = !!SessionHelper.getCurrentUser();
-      }
-      if (!isLoggedIn) {
-        const userData = localStorage.getItem('biomapUser');
-        isLoggedIn = userData ? !!JSON.parse(userData) : false;
-      }
-    } catch (e) {
-      console.error('Error checking login status:', e);
-    }
-    
     // Hide or show the alert option based on login status
     if (menuAlert) {
-      menuAlert.style.display = isLoggedIn ? 'block' : 'none';
+      const userLoggedIn = isLoggedIn();
+      menuAlert.style.display = userLoggedIn ? 'block' : 'none';
       // Also hide the separator if alert is hidden
       const separator = contextMenu.querySelector('.context-menu-separator');
       if (separator) {
-        separator.style.display = isLoggedIn ? 'block' : 'none';
+        separator.style.display = userLoggedIn ? 'block' : 'none';
       }
     }
     
@@ -853,22 +925,7 @@ function initContextMenu() {
   if (menuAlert) {
     menuAlert.addEventListener('click', () => {
       // Check if user is logged in before allowing alert creation
-      let user = null;
-      try {
-        // Try SessionHelper first
-        if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
-          user = SessionHelper.getCurrentUser();
-        }
-        // Fallback to localStorage
-        if (!user) {
-          const userData = localStorage.getItem('biomapUser');
-          user = userData ? JSON.parse(userData) : null;
-        }
-      } catch (e) {
-        console.error('Error checking user session:', e);
-      }
-
-      if (!user || !user.id) {
+      if (!isLoggedIn()) {
         showNotification('Por favor, inicie sessão para criar um alerta.', 'error');
         contextMenu.classList.remove('show');
         // Optionally redirect to login after a short delay
@@ -933,18 +990,6 @@ function initAlertAnimalMenu() {
   let popupFamilyTags = [];
   let popupStateTags = [];
 
-  // Options (Same as animais.php) - using scientific names to match database
-  const familyOptions = [
-    "Felidae", "Canidae", "Ursidae", "Mustelidae", 
-    "Cervidae", "Suidae", "Leporidae", "Sciuridae",
-    "Accipitridae", "Bovidae", "Lacertidae", "Psittacidae"
-  ];
-  
-  const stateOptions = [
-    "Não Avaliada", "Dados Insuficientes", "Pouco Preocupante", "Quase Ameaçada",
-    "Vulnerável", "Em Perigo", "Perigo Crítico", "Extinto na Natureza", "Extinto"
-  ];
-
   let selectedAnimal = null;
 
   // --- Load and Render Animals ---
@@ -1002,11 +1047,25 @@ function initAlertAnimalMenu() {
     }
   }
 
-  // Initialize Tags using existing helper function
-  if (typeof initTagInputWithDropdown === 'function') {
-    initTagInputWithDropdown("popup-family-input", "popup-family-tags", "popup-family-dropdown", popupFamilyTags, familyOptions);
-    initTagInputWithDropdown("popup-state-input", "popup-state-tags", "popup-state-dropdown", popupStateTags, stateOptions);
-  }
+  // Initialize Tags using existing helper function - fetch options from API first
+  (async () => {
+    if (typeof initTagInputWithDropdown === 'function') {
+      try {
+        const [familyOptions, stateOptions] = await Promise.all([
+          fetchFamilyOptions(),
+          fetchStateOptions()
+        ]);
+
+        initTagInputWithDropdown("popup-family-input", "popup-family-tags", "popup-family-dropdown", popupFamilyTags, familyOptions);
+        initTagInputWithDropdown("popup-state-input", "popup-state-tags", "popup-state-dropdown", popupStateTags, stateOptions);
+      } catch (error) {
+        console.error('Erro ao carregar opções de filtros do popup:', error);
+        // Fallback to empty arrays if API fails
+        initTagInputWithDropdown("popup-family-input", "popup-family-tags", "popup-family-dropdown", popupFamilyTags, []);
+        initTagInputWithDropdown("popup-state-input", "popup-state-tags", "popup-state-dropdown", popupStateTags, []);
+      }
+    }
+  })();
 
   // --- Event Listeners for Filtering ---
   if (searchInput) {
@@ -1098,16 +1157,10 @@ function initAlertAnimalMenu() {
         return;
       }
 
-      // Get user from localStorage
-      const userData = localStorage.getItem('biomapUser');
-      let user = null;
-      try {
-        user = userData ? JSON.parse(userData) : null;
-      } catch (e) {
-        console.error('Error parsing user data:', e);
-      }
-
-      if (!user || !user.id) {
+      // Get user
+      const user = getCurrentUser();
+      
+      if (!isLoggedIn()) {
         alert('Por favor, inicie sessão para criar um alerta.');
         return;
       }
@@ -1135,7 +1188,7 @@ function initAlertAnimalMenu() {
       submitButton.textContent = 'A enviar...';
 
       try {
-        const apiUrl = window.API_CONFIG?.getUrl('api/alerts') || '/api/alerts';
+        const apiUrl = getApiUrl('api/alerts');
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
@@ -1268,14 +1321,7 @@ function highlightCurrentPage() {
 
 // --- Dynamic header visibility by user role ---
 function applyHeaderAuthState() {
-  const raw = localStorage.getItem('biomapUser');
-  console.log(raw);
-  let user = null;
-  try {
-    user = raw ? JSON.parse(raw) : null;
-  } catch {
-    user = null;
-  }
+  const user = getCurrentUser();
 
   const loginItem = document.getElementById('menu-login');
   const createItem = document.getElementById('menu-create-account');
@@ -1318,14 +1364,14 @@ function applyHeaderAuthState() {
   }
 
   // Both admin and regular users are directed to the canonical profile page
-  if (Number(user.funcao_id) === 2) {
-    show(profileItem); show(sepProfile);
-    hide(adminItem);
-    userNameElement.href = 'perfil.php';
-  } else if (Number(user.funcao_id) === 1) {
+  if (isAdmin()) {
     hide(profileItem); hide(sepProfile);
     show(adminItem);
-    userNameElement.href = 'perfil.php';
+    if (userNameElement) userNameElement.href = 'perfil.php';
+  } else if (Number(user.funcao_id) === 2) {
+    show(profileItem); show(sepProfile);
+    hide(adminItem);
+    if (userNameElement) userNameElement.href = 'perfil.php';
   } else {
     hide(profileItem); hide(sepProfile);
     hide(adminItem);

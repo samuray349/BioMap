@@ -22,7 +22,7 @@ async function fetchUsers(filters = {}) {
             params.append('estatutos', filters.estatutos.join(','));
         }
         
-        const apiUrl = window.API_CONFIG?.getUrl(`users?${params.toString()}`) || `/users?${params.toString()}`;
+        const apiUrl = getApiUrl(`users?${params.toString()}`);
         const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -115,7 +115,7 @@ function renderUserTable(users, tbody) {
             this.style.opacity = '0.6';
             
             try {
-                const apiUrl = window.API_CONFIG?.getUrl(`users/${userId}/funcao`) || `/users/${userId}/funcao`;
+                const apiUrl = getApiUrl(`users/${userId}/funcao`);
                 const response = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {
@@ -164,7 +164,7 @@ function renderUserTable(users, tbody) {
             }
             
             try {
-                const apiUrl = window.API_CONFIG?.getUrl(`users/${userId}/estado`) || `/users/${userId}/estado`;
+                const apiUrl = getApiUrl(`users/${userId}/estado`);
                 const response = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {
@@ -211,7 +211,7 @@ function renderUserTable(users, tbody) {
             }
             
             try {
-                const apiUrl = window.API_CONFIG?.getUrl(`users/${userId}/estado`) || `/users/${userId}/estado`;
+                const apiUrl = getApiUrl(`users/${userId}/estado`);
                 const response = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {

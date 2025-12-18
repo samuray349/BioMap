@@ -147,16 +147,9 @@ checkAccess(ACCESS_ADMIN);
         let adminFamilyTags = [];
         let adminStateTags = [];
 
-        const familyOptions = [
-            "Felidae", "Canidae", "Ursidae", "Mustelidae",
-            "Cervidae", "Suidae", "Leporidae", "Sciuridae",
-            "Accipitridae", "Bovidae", "Lacertidae", "Psittacidae"
-        ];
-
-        const stateOptions = [
-            "Não Avaliada", "Dados Insuficientes", "Pouco Preocupante", "Quase Ameaçada",
-            "Vulnerável", "Em Perigo", "Perigo Crítico", "Extinto na Natureza", "Extinto"
-        ];
+        // Will be populated from API (using functions from script.js)
+        let familyOptions = [];
+        let stateOptions = [];
 
         const tbody = document.querySelector('.admin-animals-table tbody');
         const searchInput = document.getElementById('search-input');
@@ -366,7 +359,15 @@ checkAccess(ACCESS_ADMIN);
             });
         }
 
-        function initAdminAnimalFilters() {
+        async function initAdminAnimalFilters() {
+            // Fetch filter options from API before initializing
+            const [families, states] = await Promise.all([
+                fetchFamilyOptions(),
+                fetchStateOptions()
+            ]);
+            familyOptions = families;
+            stateOptions = states;
+
             // Initialize filters
             initAnimalFilters({
                 familyInputId: "family-input",
