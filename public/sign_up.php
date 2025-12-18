@@ -128,9 +128,16 @@
                     showError(emailError, 'Insira um email válido.');
                     hasError = true;
                 }
-                if (!password || password.length < 6) {
-                    showError(passwordError, 'A password deve ter pelo menos 6 caracteres.');
+                if (!password) {
+                    showError(passwordError, 'Insira a password.');
                     hasError = true;
+                } else {
+                    // Basic strong password policy: min 8 chars, at least one lowercase, one uppercase and one digit
+                    const pwdPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+                    if (!pwdPolicy.test(password)) {
+                        showError(passwordError, 'A password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.');
+                        hasError = true;
+                    }
                 }
 
                 if (hasError) return;
@@ -138,6 +145,46 @@
                 setLoading(true);
 
                 try {
+                    // First check if name or email already exists
+                    const checkApiUrl = window.API_CONFIG?.getUrl('api/check-user') || '/api/check-user';
+                    const checkResponse = await fetch(checkApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ name, email })
+                    });
+
+                    const checkData = await checkResponse.json();
+
+                    if (!checkResponse.ok) {
+                        throw new Error(checkData?.error || 'Erro ao verificar dados.');
+                    }
+
+                    // Check for duplicates and show appropriate alert
+                    if (checkData.nameExists && checkData.emailExists) {
+                        alert('Nome e email já existentes');
+                        if (nameError) showError(nameError, 'Este nome já existe');
+                        if (emailError) showError(emailError, 'Este email já existe');
+                        setLoading(false);
+                        return;
+                    }
+
+                    if (checkData.nameExists) {
+                        alert('Este nome já existe');
+                        if (nameError) showError(nameError, 'Este nome já existe');
+                        setLoading(false);
+                        return;
+                    }
+
+                    if (checkData.emailExists) {
+                        alert('Este email já existe');
+                        if (emailError) showError(emailError, 'Este email já existe');
+                        setLoading(false);
+                        return;
+                    }
+
+                    // If no duplicates, proceed with signup
                     const apiUrl = window.API_CONFIG?.getUrl('api/signup') || '/api/signup';
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -150,7 +197,21 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        throw new Error(data?.error || 'Não foi possível criar a conta.');
+                        // Handle specific error cases from signup endpoint
+                        if (data.nameExists && data.emailExists) {
+                            alert('Nome e email já existentes');
+                            if (nameError) showError(nameError, 'Este nome já existe');
+                            if (emailError) showError(emailError, 'Este email já existe');
+                        } else if (data.nameExists) {
+                            alert('Este nome já existe');
+                            if (nameError) showError(nameError, 'Este nome já existe');
+                        } else if (data.emailExists) {
+                            alert('Este email já existe');
+                            if (emailError) showError(emailError, 'Este email já existe');
+                        } else {
+                            throw new Error(data?.error || 'Não foi possível criar a conta.');
+                        }
+                        return;
                     }
 
                     if (successMessage) {

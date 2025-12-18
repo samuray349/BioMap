@@ -860,6 +860,48 @@ app.delete('/animais/:id', async (req, res) => {
 /* =====================
    AUTH
 ===================== */
+// Check if user name or email already exists
+app.post('/api/check-user', async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    if (!name && !email) {
+      return res.status(400).json({ error: 'Nome ou email é obrigatório.' });
+    }
+
+    let nameExists = false;
+    let emailExists = false;
+
+    if (name) {
+      const nameCheck = await pool.query(
+        'SELECT utilizador_id FROM utilizador WHERE nome_utilizador = $1',
+        [name.trim()]
+      );
+      nameExists = nameCheck.rowCount > 0;
+    }
+
+    if (email) {
+      const emailCheck = await pool.query(
+        'SELECT utilizador_id FROM utilizador WHERE email = $1',
+        [email.trim()]
+      );
+      emailExists = emailCheck.rowCount > 0;
+    }
+
+    return res.status(200).json({
+      nameExists,
+      emailExists
+    });
+  } catch (error) {
+    console.error('Erro ao verificar utilizador', {
+      message: error?.message,
+      code: error?.code,
+      detail: error?.detail,
+    });
+    return res.status(500).json({ error: 'Erro ao verificar utilizador.' });
+  }
+});
+
 app.post('/api/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -868,13 +910,31 @@ app.post('/api/signup', async (req, res) => {
       return res.status(400).json({ error: 'Nome, email e password são obrigatórios.' });
     }
 
-    const existingUser = await pool.query(
-      'SELECT utilizador_id FROM utilizador WHERE email = $1',
-      [email]
+    // Check if name already exists
+    const existingName = await pool.query(
+      'SELECT utilizador_id FROM utilizador WHERE nome_utilizador = $1',
+      [name.trim()]
     );
 
-    if (existingUser.rowCount > 0) {
-      return res.status(409).json({ error: 'Email já registado. Inicie sessão ou utilize outro email.' });
+    // Check if email already exists
+    const existingEmail = await pool.query(
+      'SELECT utilizador_id FROM utilizador WHERE email = $1',
+      [email.trim()]
+    );
+
+    const nameExists = existingName.rowCount > 0;
+    const emailExists = existingEmail.rowCount > 0;
+
+    if (nameExists && emailExists) {
+      return res.status(409).json({ error: 'Nome e email já existentes', nameExists: true, emailExists: true });
+    }
+
+    if (nameExists) {
+      return res.status(409).json({ error: 'Este nome já existe', nameExists: true, emailExists: false });
+    }
+
+    if (emailExists) {
+      return res.status(409).json({ error: 'Este email já existe', nameExists: false, emailExists: true });
     }
 
     const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
@@ -892,7 +952,7 @@ app.post('/api/signup', async (req, res) => {
       RETURNING utilizador_id
     `;
 
-    const { rows } = await pool.query(insertQuery, [name, email, passwordHash]);
+    const { rows } = await pool.query(insertQuery, [name.trim(), email.trim(), passwordHash]);
 
     return res.status(201).json({
       message: 'Utilizador criado com sucesso.',
