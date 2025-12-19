@@ -536,8 +536,9 @@ checkAccess(ACCESS_ADMIN);
                 }
                 
                 // Handle ameacas (threats) - populate 5 separate inputs
+                // Reverse the array to fix the order issue (first should be first, not last)
                 const ameacasArray = animal.ameacas && Array.isArray(animal.ameacas) 
-                    ? animal.ameacas 
+                    ? [...animal.ameacas].reverse() 
                     : [];
                 
                 for (let i = 1; i <= 5; i++) {
@@ -739,16 +740,20 @@ checkAccess(ACCESS_ADMIN);
                 
                 console.log('Update successful:', result);
                 
-                // Success - close modal and reload animals
+                // Success - close modal immediately and show notification
                 closeUpdateModal();
-                await loadAnimals();
                 
-                // Show success notification
+                // Show success notification immediately
                 if (typeof showNotification === 'function') {
                     showNotification('Animal atualizado com sucesso!', 'success');
                 } else {
                     alert('Animal atualizado com sucesso!');
                 }
+                
+                // Reload animals in background (don't wait for it)
+                loadAnimals().catch(err => {
+                    console.error('Error reloading animals:', err);
+                });
             } catch (error) {
                 console.error('Erro ao atualizar animal:', error);
                 console.error('Error stack:', error.stack);
