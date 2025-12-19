@@ -81,11 +81,11 @@ function renderUserTable(users, tbody) {
         }
         const newFuncaoId = currentFuncaoId === 1 ? 2 : 1;
         
-        // If the user's displayed estado is 'banido' show a green verify (unban) icon instead of ban
-        const nomeEstadoLower = (user.nome_estado || '').toLowerCase().trim();
-        const isBanned = nomeEstadoLower === 'banido';
-        const banCellHtml = isBanned
-            ? `<td><i class="fa-solid fa-check unban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer; color: #198754;" title="Desbanir utilizador"></i></td>`
+        // If the user's estado_id is different from 1 (non-normal) show a green verify icon
+        const estadoIdNum = user.estado_id ? parseInt(user.estado_id) : NaN;
+        const isNonNormal = !Number.isNaN(estadoIdNum) && estadoIdNum !== 1;
+        const banCellHtml = isNonNormal
+            ? `<td><i class="fa-solid fa-check unban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer; color: #198754;" title="Definir como Normal"></i></td>`
             : `<td><i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i></td>`;
 
         row.innerHTML = `
