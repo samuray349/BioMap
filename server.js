@@ -655,9 +655,9 @@ app.post('/animais', async (req, res) => {
   if (!estado_nome || !estado_nome.trim()) errors.push('Estado de conservação é obrigatório.');
   if (!imagem_url || !imagem_url.trim()) errors.push('Imagem URL é obrigatória.');
   
-  // Validate ameacas (threats) - maximum 5 allowed
-  if (Array.isArray(ameacas) && ameacas.length > 5) {
-    errors.push('Máximo de 5 ameaças permitidas.');
+  // Validate ameacas (threats) - must be exactly 5
+  if (!Array.isArray(ameacas) || ameacas.length !== 5) {
+    errors.push('Deve fornecer exatamente 5 ameaças.');
   }
   
   if (errors.length > 0) {
@@ -814,9 +814,9 @@ app.put('/animais/:id', async (req, res) => {
   if (!dieta_nome || !dieta_nome.trim()) errors.push('Dieta é obrigatória.');
   if (!estado_nome || !estado_nome.trim()) errors.push('Estado de conservação é obrigatório.');
   
-  // Validate ameacas (threats) - maximum 5 allowed
-  if (Array.isArray(ameacas) && ameacas.length > 5) {
-    errors.push('Máximo de 5 ameaças permitidas.');
+  // Validate ameacas (threats) - must be exactly 5
+  if (!Array.isArray(ameacas) || ameacas.length !== 5) {
+    errors.push('Deve fornecer exatamente 5 ameaças.');
   }
   
   if (errors.length > 0) {

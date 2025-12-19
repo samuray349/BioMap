@@ -1358,6 +1358,17 @@ checkAccess(ACCESS_ADMIN);
                     }
                     return;
                 }
+                
+                // Validate ameaças - must be exactly 5
+                const threatsCount = threats.length;
+                if (threatsCount !== 5) {
+                    const errorMessage = `Erro no formulário: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''}.`;
+                    setMessage(''); // Clear loading message
+                    if (typeof showNotification === 'function') {
+                        showNotification(errorMessage, 'error');
+                    }
+                    return;
+                }
 
                 const base64Image = await fileToDataURL(file);
 
@@ -1407,7 +1418,7 @@ checkAccess(ACCESS_ADMIN);
                 if (!response.ok) {
                     const errorMsg = result?.error || 'Erro desconhecido';
                     const errorDetails = result?.details ? ` Detalhes: ${result.details}` : '';
-                    throw new Error(`Erro ao guardar o animal na base de dados: ${errorMsg}${errorDetails}`);
+                    throw new Error(`${errorDetails}`);
                 }
 
                 // Clear the loading message
