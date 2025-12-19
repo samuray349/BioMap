@@ -5743,6 +5743,7 @@ body:has(.reset-password-container) .login-container {
   backdrop-filter: blur(4px);
 }
 
+
 .modal-content {
   background: #ffffffe6;
   border-radius: 16px;
