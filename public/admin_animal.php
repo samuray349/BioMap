@@ -146,32 +146,32 @@ checkAccess(ACCESS_ADMIN);
                 
                 <div class="form-grid two-columns">
                     <div class="input-field">
-                        <label for="update-nome-comum">Nome Animal</label>
+                        <label for="update-nome-comum" style="color: var(--accent-color);">Nome Animal</label>
                         <input type="text" id="update-nome-comum" name="nome_comum" required>
                     </div>
                     <div class="input-field">
-                        <label for="update-nome-cientifico">Nome Científico</label>
+                        <label for="update-nome-cientifico" style="color: var(--accent-color);">Nome Científico</label>
                         <input type="text" id="update-nome-cientifico" name="nome_cientifico" required>
                     </div>
                 </div>
 
                 <div class="input-field">
-                    <label for="update-descricao">Descrição</label>
+                    <label for="update-descricao" style="color: var(--accent-color);">Descrição</label>
                     <textarea id="update-descricao" name="descricao" rows="4" required></textarea>
                 </div>
 
                 <div class="input-field">
-                    <label for="update-facto">Facto Interessante</label>
+                    <label for="update-facto" style="color: var(--accent-color);">Facto Interessante</label>
                     <input type="text" id="update-facto" name="facto_interessante">
                 </div>
 
                 <div class="input-field">
-                    <label for="update-populacao">População Estimada</label>
+                    <label for="update-populacao" style="color: var(--accent-color);">População Estimada</label>
                     <input type="text" id="update-populacao" name="populacao_estimada" placeholder="Ex: 1 200 indivíduos">
                 </div>
 
                 <div class="input-field">
-                    <label for="update-family-input">Família</label>
+                    <label for="update-family-input" style="color: var(--accent-color);">Família</label>
                     <div class="family-select-wrapper" style="position: relative;">
                         <input type="text" id="update-family-input" class="chip-select family-search-input" placeholder="Pesquisar e selecionar família" autocomplete="off">
                         <div class="dropdown-menu" id="update-family-dropdown"></div>
@@ -179,7 +179,7 @@ checkAccess(ACCESS_ADMIN);
                 </div>
 
                 <div class="input-field">
-                    <label for="update-dieta">Dieta</label>
+                    <label for="update-dieta" style="color: var(--accent-color);">Dieta</label>
                     <select id="update-dieta" name="dieta_nome" class="chip-select" required>
                         <option value="">Selecione a dieta</option>
                         <option value="Carnívoro">Carnívoro</option>
@@ -189,7 +189,7 @@ checkAccess(ACCESS_ADMIN);
                 </div>
 
                 <div class="input-field">
-                    <label for="update-estado">Estado de Conservação</label>
+                    <label for="update-estado" style="color: var(--accent-color);">Estado de Conservação</label>
                     <select id="update-estado" name="estado_nome" class="chip-select" required>
                         <option value="">Selecione o estado</option>
                         <option value="Pouco Preocupante">Pouco Preocupante</option>
@@ -206,23 +206,23 @@ checkAccess(ACCESS_ADMIN);
 
                 <div class="form-grid two-columns">
                     <div class="input-field">
-                        <label for="update-threat-1">Ameaça 1</label>
+                        <label for="update-threat-1" style="color: var(--accent-color);">Ameaça 1</label>
                         <input type="text" id="update-threat-1" name="ameaca_1" placeholder="Ex: Desflorestação, caça ilegal...">
                     </div>
                     <div class="input-field">
-                        <label for="update-threat-2">Ameaça 2</label>
+                        <label for="update-threat-2" style="color: var(--accent-color);">Ameaça 2</label>
                         <input type="text" id="update-threat-2" name="ameaca_2">
                     </div>
                     <div class="input-field">
-                        <label for="update-threat-3">Ameaça 3</label>
+                        <label for="update-threat-3" style="color: var(--accent-color);">Ameaça 3</label>
                         <input type="text" id="update-threat-3" name="ameaca_3">
                     </div>
                     <div class="input-field">
-                        <label for="update-threat-4">Ameaça 4</label>
+                        <label for="update-threat-4" style="color: var(--accent-color);">Ameaça 4</label>
                         <input type="text" id="update-threat-4" name="ameaca_4">
                     </div>
                     <div class="input-field">
-                        <label for="update-threat-5">Ameaça 5</label>
+                        <label for="update-threat-5" style="color: var(--accent-color);">Ameaça 5</label>
                         <input type="text" id="update-threat-5" name="ameaca_5">
                     </div>
                 </div>
@@ -557,6 +557,12 @@ checkAccess(ACCESS_ADMIN);
                 
                 // Initialize family dropdown if not already initialized
                 initUpdateFamilyDropdown();
+                
+                // Reset scroll position to top
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    modalContent.scrollTop = 0;
+                }
                 
                 // Show modal
                 modal.style.display = 'flex';
