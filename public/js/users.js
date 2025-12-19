@@ -72,6 +72,9 @@ function renderUserTable(users, tbody) {
         // Use the color from database if available, otherwise use default
         const badgeStyle = user.estado_cor ? `style="background-color: ${user.estado_cor}; color: white;"` : '';
         
+        // Determine if user is banned: prefer explicit estado_id, fallback to nome_estado
+        const isBanned = (typeof user.estado_id !== 'undefined' && Number(user.estado_id) === 3) || (user.nome_estado && user.nome_estado.toLowerCase().includes('banid'));
+        
         // Make estatuto text clickable - current funcao_id: 1 = Admin, 2 = Utilizador
         // Determine current funcao_id from user data
         let currentFuncaoId = user.funcao_id;
@@ -88,7 +91,7 @@ function renderUserTable(users, tbody) {
             <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
             <td><i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i></td>
             ` + (
-                user.estado_id === 3
+                isBanned
                 ? `<td><i class="fa-solid fa-check ban-icon unban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer; color: #198754;" title="Desbanir utilizador"></i></td>`
                 : `<td><i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i></td>`
             ) + `
