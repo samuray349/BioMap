@@ -1301,7 +1301,10 @@ checkAccess(ACCESS_ADMIN);
             const threats = [];
             for (let i = 1; i <= 5; i++) {
                 const value = document.getElementById(`threat-${i}`)?.value?.trim();
-                if (value) threats.push(value);
+                // Only include non-empty threats
+                if (value) {
+                    threats.push(value);
+                }
             }
             return threats;
         };
@@ -1359,10 +1362,11 @@ checkAccess(ACCESS_ADMIN);
                     return;
                 }
                 
-                // Validate ameaças - must be exactly 5
-                const threatsCount = threats.length;
+                // Validate ameaças - must be exactly 5 non-empty threats
+                const nonEmptyThreats = threats.filter(t => t && t.trim().length > 0);
+                const threatsCount = nonEmptyThreats.length;
                 if (threatsCount !== 5) {
-                    const errorMessage = `Erro no formulário: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''}.`;
+                    const errorMessage = `Erro no formulário: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}.`;
                     setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
                         showNotification(errorMessage, 'error');
@@ -1416,9 +1420,8 @@ checkAccess(ACCESS_ADMIN);
                 const result = await response.json();
 
                 if (!response.ok) {
-                    const errorMsg = result?.error || 'Erro desconhecido';
-                    const errorDetails = result?.details ? ` Detalhes: ${result.details}` : '';
-                    throw new Error(`${errorDetails}`);
+                    const errorMsg = result?.error || 'Erro ao guardar o animal na base de dados.';
+                    throw new Error(errorMsg);
                 }
 
                 // Clear the loading message

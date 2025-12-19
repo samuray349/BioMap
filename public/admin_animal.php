@@ -729,6 +729,19 @@ checkAccess(ACCESS_ADMIN);
                 return;
             }
             
+            // Validate ameacas (threats) - must be exactly 5 non-empty threats
+            const nonEmptyThreats = updateData.ameacas.filter(t => t && t.trim().length > 0);
+            const threatsCount = nonEmptyThreats.length;
+            if (threatsCount !== 5) {
+                const errorMessage = `Erro no formulário de atualização: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}.`;
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMessage, 'error');
+                } else {
+                    alert(errorMessage);
+                }
+                return;
+            }
+            
             try {
                 const apiUrl = getApiUrl(`animais/${animalId}`);
                 
