@@ -655,6 +655,11 @@ app.post('/animais', async (req, res) => {
   if (!estado_nome || !estado_nome.trim()) errors.push('Estado de conservação é obrigatório.');
   if (!imagem_url || !imagem_url.trim()) errors.push('Imagem URL é obrigatória.');
   
+  // Validate ameacas (threats) - maximum 5 allowed
+  if (Array.isArray(ameacas) && ameacas.length > 5) {
+    errors.push('Máximo de 5 ameaças permitidas.');
+  }
+  
   if (errors.length > 0) {
     return res.status(400).json({ error: errors.join(' ') });
   }
@@ -676,9 +681,7 @@ app.post('/animais', async (req, res) => {
     );
     if (familia.rowCount === 0) {
       await client.query('ROLLBACK');
-      const allFamilias = await client.query('SELECT TRIM(nome_familia) as nome_familia FROM familia ORDER BY familia_id');
-      const availableFamilias = allFamilias.rows.map(r => r.nome_familia).join(', ');
-      return res.status(400).json({ error: `Família "${familia_nome.trim()}" não encontrada na base de dados. Famílias disponíveis: ${availableFamilias}` });
+      return res.status(400).json({ error: `Família "${familia_nome.trim()}" não encontrada na base de dados. Por favor, selecione uma família válida.` });
     }
 
     const dieta = await client.query(
@@ -687,9 +690,7 @@ app.post('/animais', async (req, res) => {
     );
     if (dieta.rowCount === 0) {
       await client.query('ROLLBACK');
-      const allDietas = await client.query('SELECT TRIM(nome_dieta) as nome_dieta FROM dieta ORDER BY dieta_id');
-      const availableDietas = allDietas.rows.map(r => r.nome_dieta).join(', ');
-      return res.status(400).json({ error: `Dieta "${dieta_nome.trim()}" não encontrada na base de dados. Dietas disponíveis: ${availableDietas}` });
+      return res.status(400).json({ error: `Dieta "${dieta_nome.trim()}" não encontrada na base de dados. Por favor, selecione uma dieta válida.` });
     }
 
     // Use TRIM in the query to handle trailing spaces in database
@@ -699,11 +700,8 @@ app.post('/animais', async (req, res) => {
     );
     if (estado.rowCount === 0) {
       await client.query('ROLLBACK');
-      // Try to get available states for better error message
-      const allStates = await client.query('SELECT TRIM(nome_estado) as nome_estado FROM estado_conservacao ORDER BY estado_id');
-      const availableStates = allStates.rows.map(r => r.nome_estado).join(', ');
       return res.status(400).json({ 
-        error: `Estado de conservação "${estado_nome.trim()}" não encontrado na base de dados. Estados disponíveis: ${availableStates}` 
+        error: `Estado de conservação "${estado_nome.trim()}" não encontrado na base de dados. Por favor, selecione um estado válido.` 
       });
     }
 
@@ -816,6 +814,11 @@ app.put('/animais/:id', async (req, res) => {
   if (!dieta_nome || !dieta_nome.trim()) errors.push('Dieta é obrigatória.');
   if (!estado_nome || !estado_nome.trim()) errors.push('Estado de conservação é obrigatório.');
   
+  // Validate ameacas (threats) - maximum 5 allowed
+  if (Array.isArray(ameacas) && ameacas.length > 5) {
+    errors.push('Máximo de 5 ameaças permitidas.');
+  }
+  
   if (errors.length > 0) {
     return res.status(400).json({ error: errors.join(' ') });
   }
@@ -847,9 +850,7 @@ app.put('/animais/:id', async (req, res) => {
     );
     if (familia.rowCount === 0) {
       await client.query('ROLLBACK');
-      const allFamilias = await client.query('SELECT TRIM(nome_familia) as nome_familia FROM familia ORDER BY familia_id');
-      const availableFamilias = allFamilias.rows.map(r => r.nome_familia).join(', ');
-      return res.status(400).json({ error: `Família "${familia_nome.trim()}" não encontrada na base de dados. Famílias disponíveis: ${availableFamilias}` });
+      return res.status(400).json({ error: `Família "${familia_nome.trim()}" não encontrada na base de dados. Por favor, selecione uma família válida.` });
     }
 
     const dieta = await client.query(
@@ -858,9 +859,7 @@ app.put('/animais/:id', async (req, res) => {
     );
     if (dieta.rowCount === 0) {
       await client.query('ROLLBACK');
-      const allDietas = await client.query('SELECT TRIM(nome_dieta) as nome_dieta FROM dieta ORDER BY dieta_id');
-      const availableDietas = allDietas.rows.map(r => r.nome_dieta).join(', ');
-      return res.status(400).json({ error: `Dieta "${dieta_nome.trim()}" não encontrada na base de dados. Dietas disponíveis: ${availableDietas}` });
+      return res.status(400).json({ error: `Dieta "${dieta_nome.trim()}" não encontrada na base de dados. Por favor, selecione uma dieta válida.` });
     }
 
     // Use TRIM in the query to handle trailing spaces in database
@@ -870,10 +869,8 @@ app.put('/animais/:id', async (req, res) => {
     );
     if (estado.rowCount === 0) {
       await client.query('ROLLBACK');
-      const allStates = await client.query('SELECT TRIM(nome_estado) as nome_estado FROM estado_conservacao ORDER BY estado_id');
-      const availableStates = allStates.rows.map(r => r.nome_estado).join(', ');
       return res.status(400).json({ 
-        error: `Estado de conservação "${estado_nome.trim()}" não encontrado na base de dados. Estados disponíveis: ${availableStates}` 
+        error: `Estado de conservação "${estado_nome.trim()}" não encontrado na base de dados. Por favor, selecione um estado válido.` 
       });
     }
 

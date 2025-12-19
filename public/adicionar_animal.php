@@ -1343,7 +1343,7 @@ checkAccess(ACCESS_ADMIN);
                 
                 if (missingFields.length > 0) {
                     const errorMessage = `Campos obrigatórios em falta no formulário: ${missingFields.join(', ')}.`;
-                    setMessage(errorMessage, 'error');
+                    setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
                         showNotification(errorMessage, 'error');
                     }
@@ -1352,7 +1352,7 @@ checkAccess(ACCESS_ADMIN);
                 
                 if (!file) {
                     const errorMessage = 'Erro no formulário: Selecione uma imagem para o animal.';
-                    setMessage(errorMessage, 'error');
+                    setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
                         showNotification(errorMessage, 'error');
                     }
@@ -1410,6 +1410,14 @@ checkAccess(ACCESS_ADMIN);
                     throw new Error(`Erro ao guardar o animal na base de dados: ${errorMsg}${errorDetails}`);
                 }
 
+                // Clear the loading message
+                setMessage('');
+                
+                // Show success notification
+                if (typeof showNotification === 'function') {
+                    showNotification('Animal criado com sucesso!', 'success');
+                }
+                
                 // Show success animation
                 showSuccessAnimation();
 
@@ -1420,7 +1428,7 @@ checkAccess(ACCESS_ADMIN);
             } catch (error) {
                 console.error('Erro ao submeter animal', error);
                 const errorMessage = error?.message || 'Erro ao submeter o animal. Verifique a sua ligação à internet e tente novamente.';
-                setMessage(errorMessage, 'error');
+                setMessage(''); // Clear loading message
                 if (typeof showNotification === 'function') {
                     showNotification(errorMessage, 'error');
                 }
