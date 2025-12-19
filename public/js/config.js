@@ -1,10 +1,31 @@
 /**
  * API Configuration
- * Change API_BASE_URL to switch between localhost and Vercel deployment
+ * Auto-detects environment and uses appropriate API URL
  */
 
-// Set to empty string for localhost, or your Vercel URL for production
-const API_BASE_URL = 'https://bio-map-xi.vercel.app';
+// Auto-detect environment
+function detectApiBaseUrl() {
+    // Check if we're on localhost
+    if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || 
+                           hostname === '127.0.0.1' || 
+                           hostname === '' ||
+                           hostname.startsWith('192.168.') ||
+                           hostname.startsWith('10.') ||
+                           hostname.endsWith('.local');
+        
+        if (isLocalhost) {
+            // Use local Node.js server
+            return 'http://localhost:3000';
+        }
+    }
+    
+    // Production: use Vercel API
+    return 'https://bio-map-xi.vercel.app';
+}
+
+const API_BASE_URL = detectApiBaseUrl();
 
 // Helper function to build API URLs
 function getApiUrl(endpoint) {
@@ -19,4 +40,9 @@ if (typeof window !== 'undefined') {
         BASE_URL: API_BASE_URL,
         getUrl: getApiUrl
     };
+    
+    // Log API configuration for debugging (only in development)
+    if (API_BASE_URL.includes('localhost')) {
+        console.log('API Configuration: Using localhost API at', API_BASE_URL);
+    }
 }

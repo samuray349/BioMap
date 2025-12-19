@@ -17,7 +17,7 @@ checkAccess(ACCESS_ADMIN);
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="js/config.js?v=<?php echo time(); ?>"></script>
 </head>
 <body>
@@ -133,8 +133,8 @@ checkAccess(ACCESS_ADMIN);
     </main>
     
     <!-- Update Animal Modal -->
-    <div id="update-animal-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+    <div id="update-animal-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 10000;">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto; background: #ffffffe6; border-radius: 16px; padding: 32px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); width: 90%; position: relative; margin: 20px;">
             <div class="modal-header">
                 <h2>Atualizar Animal</h2>
                 <button class="modal-close" id="close-update-modal">
@@ -546,6 +546,8 @@ checkAccess(ACCESS_ADMIN);
                 
                 // Show modal
                 modal.style.display = 'flex';
+                // Prevent body scroll when modal is open
+                document.body.style.overflow = 'hidden';
             } catch (error) {
                 console.error('Erro ao abrir modal de atualização:', error);
                 alert('Erro ao carregar dados do animal.');
@@ -557,6 +559,8 @@ checkAccess(ACCESS_ADMIN);
             if (modal) {
                 modal.style.display = 'none';
                 document.getElementById('update-animal-form').reset();
+                // Restore body scroll
+                document.body.style.overflow = '';
             }
         }
 
@@ -679,6 +683,9 @@ checkAccess(ACCESS_ADMIN);
             
             try {
                 const apiUrl = getApiUrl(`animais/${animalId}`);
+                console.log('Updating animal at:', apiUrl);
+                console.log('Update data:', updateData);
+                
                 const response = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {
@@ -687,13 +694,28 @@ checkAccess(ACCESS_ADMIN);
                     body: JSON.stringify(updateData)
                 });
                 
-                const result = await response.json();
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                // Try to parse JSON, but handle non-JSON responses
+                let result;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text);
+                    throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+                }
                 
                 if (!response.ok) {
                     const errorMsg = result.error || 'Erro ao atualizar animal';
                     const details = result.details ? `\n\nDetalhes: ${result.details}` : '';
+                    console.error('API Error:', errorMsg, details);
                     throw new Error(errorMsg + details);
                 }
+                
+                console.log('Update successful:', result);
                 
                 // Success - close modal and reload animals
                 closeUpdateModal();
@@ -701,7 +723,9 @@ checkAccess(ACCESS_ADMIN);
                 alert('Animal atualizado com sucesso!');
             } catch (error) {
                 console.error('Erro ao atualizar animal:', error);
-                alert(error.message || 'Erro ao atualizar animal.');
+                console.error('Error stack:', error.stack);
+                const errorMessage = error.message || 'Erro ao atualizar animal. Verifique a consola para mais detalhes.';
+                alert(errorMessage);
             }
         }
 
