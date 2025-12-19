@@ -5744,13 +5744,16 @@ body:has(.reset-password-container) .login-container {
 }
 
 .modal-content {
-  background: white;
+  background: #ffffffe6;
   border-radius: 16px;
   padding: 32px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
+  margin: 20px;
 }
 
 .modal-header {
@@ -5854,6 +5857,69 @@ body:has(.reset-password-container) .login-container {
   border-color: #198754;
   box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
   outline: none;
+}
+
+/* Ensure modal inputs match the form styling */
+.update-animal-form .input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.update-animal-form .input-field label {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.update-animal-form .input-field input,
+.update-animal-form .input-field select {
+  border: 1px solid #d9dee7;
+  border-radius: 16px;
+  padding: 16px 18px;
+  font-size: 15px;
+  background-color: #fbfcfe;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.update-animal-form .input-field input::placeholder {
+  color: #94a3b8;
+}
+
+.update-animal-form .input-field input:focus,
+.update-animal-form .input-field select:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+  outline: none;
+  background-color: #ffffff;
+}
+
+.update-animal-form .chip-select {
+  width: 100%;
+}
+
+/* Modal responsive styles */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    padding: 24px;
+    max-height: 95vh;
+  }
+  
+  .update-animal-form .form-grid.two-columns {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .modal-actions .ghost-btn,
+  .modal-actions .btn-primary {
+    width: 100%;
+  }
 }
 
 /* Family searchable select in modal - matches chip-select */

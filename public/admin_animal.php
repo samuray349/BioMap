@@ -204,9 +204,27 @@ checkAccess(ACCESS_ADMIN);
                     </select>
                 </div>
 
-                <div class="input-field">
-                    <label for="update-ameacas">Ameaças (separadas por vírgula)</label>
-                    <input type="text" id="update-ameacas" name="ameacas" placeholder="Ex: Caça ilegal, Perda de habitat">
+                <div class="form-grid two-columns">
+                    <div class="input-field">
+                        <label for="update-threat-1">Ameaça 1</label>
+                        <input type="text" id="update-threat-1" name="ameaca_1" placeholder="Ex: Desflorestação, caça ilegal...">
+                    </div>
+                    <div class="input-field">
+                        <label for="update-threat-2">Ameaça 2</label>
+                        <input type="text" id="update-threat-2" name="ameaca_2">
+                    </div>
+                    <div class="input-field">
+                        <label for="update-threat-3">Ameaça 3</label>
+                        <input type="text" id="update-threat-3" name="ameaca_3">
+                    </div>
+                    <div class="input-field">
+                        <label for="update-threat-4">Ameaça 4</label>
+                        <input type="text" id="update-threat-4" name="ameaca_4">
+                    </div>
+                    <div class="input-field">
+                        <label for="update-threat-5">Ameaça 5</label>
+                        <input type="text" id="update-threat-5" name="ameaca_5">
+                    </div>
                 </div>
 
                 <div class="modal-actions">
@@ -457,12 +475,28 @@ checkAccess(ACCESS_ADMIN);
             if (!modal) return;
 
             try {
-                // Fetch animal data
-                const apiUrl = getApiUrl(`animaisDesc/${animalId}`);
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error('Erro ao carregar dados do animal');
+                // Fetch animal data and conservation statuses
+                const [animalResponse, estadosResponse] = await Promise.all([
+                    fetch(getApiUrl(`animaisDesc/${animalId}`)),
+                    fetch(getApiUrl('animais/estados'))
+                ]);
                 
-                const animal = await response.json();
+                if (!animalResponse.ok) throw new Error('Erro ao carregar dados do animal');
+                
+                const animal = await animalResponse.json();
+                const estados = estadosResponse.ok ? await estadosResponse.json() : [];
+                
+                // Populate conservation status dropdown from API
+                const estadoSelect = document.getElementById('update-estado');
+                if (estadoSelect && estados.length > 0) {
+                    estadoSelect.innerHTML = '<option value="">Selecione o estado</option>';
+                    estados.forEach(estado => {
+                        const option = document.createElement('option');
+                        option.value = estado.nome_estado.trim();
+                        option.textContent = estado.nome_estado.trim();
+                        estadoSelect.appendChild(option);
+                    });
+                }
                 
                 // Populate form
                 document.getElementById('update-animal-id').value = animal.animal_id;
@@ -472,13 +506,34 @@ checkAccess(ACCESS_ADMIN);
                 document.getElementById('update-facto').value = animal.facto_interessante || '';
                 document.getElementById('update-populacao').value = animal.populacao_estimada || '';
                 document.getElementById('update-dieta').value = animal.nome_dieta || '';
-                document.getElementById('update-estado').value = animal.nome_estado || '';
                 
-                // Handle ameacas (threats) - convert array to comma-separated string
-                const ameacasValue = animal.ameacas && Array.isArray(animal.ameacas) 
-                    ? animal.ameacas.join(', ') 
-                    : (animal.ameacas || '');
-                document.getElementById('update-ameacas').value = ameacasValue;
+                // Set conservation status - trim to handle any trailing spaces
+                const estadoValue = (animal.nome_estado || '').trim();
+                if (estadoSelect && estadoValue) {
+                    // Try to find matching option (case-insensitive, handle spaces)
+                    const options = Array.from(estadoSelect.options);
+                    const matchingOption = options.find(opt => 
+                        opt.value.trim().toLowerCase() === estadoValue.toLowerCase()
+                    );
+                    if (matchingOption) {
+                        estadoSelect.value = matchingOption.value;
+                    } else {
+                        // If no exact match, try to set it anyway
+                        estadoSelect.value = estadoValue;
+                    }
+                }
+                
+                // Handle ameacas (threats) - populate 5 separate inputs
+                const ameacasArray = animal.ameacas && Array.isArray(animal.ameacas) 
+                    ? animal.ameacas 
+                    : [];
+                
+                for (let i = 1; i <= 5; i++) {
+                    const threatInput = document.getElementById(`update-threat-${i}`);
+                    if (threatInput) {
+                        threatInput.value = ameacasArray[i - 1] || '';
+                    }
+                }
                 
                 // Set family input value
                 const familyInput = document.getElementById('update-family-input');
@@ -603,7 +658,16 @@ checkAccess(ACCESS_ADMIN);
                 familia_nome: document.getElementById('update-family-input').value.trim(),
                 dieta_nome: document.getElementById('update-dieta').value.trim(),
                 estado_nome: document.getElementById('update-estado').value.trim(),
-                ameacas: document.getElementById('update-ameacas').value.split(',').map(t => t.trim()).filter(t => t)
+                ameacas: (() => {
+                    const threats = [];
+                    for (let i = 1; i <= 5; i++) {
+                        const threatInput = document.getElementById(`update-threat-${i}`);
+                        if (threatInput && threatInput.value.trim()) {
+                            threats.push(threatInput.value.trim());
+                        }
+                    }
+                    return threats;
+                })()
             };
             
             // Validate required fields
@@ -626,7 +690,9 @@ checkAccess(ACCESS_ADMIN);
                 const result = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(result.error || 'Erro ao atualizar animal');
+                    const errorMsg = result.error || 'Erro ao atualizar animal';
+                    const details = result.details ? `\n\nDetalhes: ${result.details}` : '';
+                    throw new Error(errorMsg + details);
                 }
                 
                 // Success - close modal and reload animals

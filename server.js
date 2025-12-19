@@ -901,39 +901,63 @@ app.put('/animais/:id', async (req, res) => {
       ]
     );
 
-    // Handle ameacas (threats) - delete existing and insert new
-    await client.query('DELETE FROM ameaca WHERE animal_id = $1', [id]);
-    
-    if (Array.isArray(ameacas) && ameacas.length > 0) {
-      const ameacaValues = ameacas
-        .filter(a => a && typeof a === 'string' && a.trim())
-        .map(a => a.trim());
+    // Handle ameacas (threats) - delete existing relationships and insert new
+    try {
+      await client.query('DELETE FROM animal_ameaca WHERE animal_id = $1', [id]);
       
-      if (ameacaValues.length > 0) {
-        const insertAmeacas = ameacaValues.map((_, index) => {
-          const paramIndex = index * 2 + 1;
-          return `($${paramIndex}, $${paramIndex + 1})`;
-        }).join(', ');
-        
-        const insertParams = [];
-        ameacaValues.forEach(ameaca => {
-          insertParams.push(id, ameaca);
-        });
-        
-        await client.query(
-          `INSERT INTO ameaca (animal_id, nome_ameaca) VALUES ${insertAmeacas}`,
-          insertParams
+      if (Array.isArray(ameacas) && ameacas.length > 0) {
+        const uniqueThreats = Array.from(
+          new Set(
+            ameacas
+              .map((t) => (t || '').trim())
+              .filter((t) => t.length > 0)
+              .slice(0, 5)
+          )
         );
+
+        for (const threat of uniqueThreats) {
+          let threatId;
+          const existing = await client.query('SELECT ameaca_id FROM ameaca WHERE descricao = $1 LIMIT 1', [
+            threat
+          ]);
+          if (existing.rowCount > 0) {
+            threatId = existing.rows[0].ameaca_id;
+          } else {
+            const inserted = await client.query(
+              'INSERT INTO ameaca (descricao) VALUES ($1) RETURNING ameaca_id',
+              [threat]
+            );
+            threatId = inserted.rows[0].ameaca_id;
+          }
+
+          await client.query(
+            'INSERT INTO animal_ameaca (animal_id, ameaca_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+            [id, threatId]
+          );
+        }
       }
+    } catch (ameacaError) {
+      console.error('Erro ao processar ameacas:', ameacaError);
+      throw new Error(`Erro ao processar ameacas: ${ameacaError.message}`);
     }
 
     await client.query('COMMIT');
 
     return res.status(200).json({ message: 'Animal atualizado com sucesso.' });
   } catch (error) {
-    await client.query('ROLLBACK');
+    await client.query('ROLLBACK').catch(rollbackError => {
+      console.error('Erro ao fazer rollback:', rollbackError);
+    });
     console.error('Erro ao atualizar animal:', error);
-    return res.status(500).json({ error: 'Erro ao atualizar animal.' });
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
+    return res.status(500).json({ 
+      error: 'Erro ao atualizar animal.',
+      details: error.message 
+    });
   } finally {
     client.release();
   }
