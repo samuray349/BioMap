@@ -437,9 +437,21 @@ checkAccess(ACCESS_ADMIN);
                 
                 // Reload animals
                 await loadAnimals();
+                
+                // Show success notification
+                if (typeof showNotification === 'function') {
+                    showNotification('Animal eliminado com sucesso!', 'success');
+                } else {
+                    alert('Animal eliminado com sucesso!');
+                }
             } catch (error) {
                 console.error('Erro ao deletar animal:', error);
-                alert(error?.message || 'Erro ao deletar animal.');
+                const errorMessage = error?.message || 'Erro ao deletar animal.';
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMessage, 'error');
+                } else {
+                    alert(errorMessage);
+                }
             }
         }
 
@@ -550,7 +562,12 @@ checkAccess(ACCESS_ADMIN);
                 document.body.style.overflow = 'hidden';
             } catch (error) {
                 console.error('Erro ao abrir modal de atualização:', error);
-                alert('Erro ao carregar dados do animal.');
+                const errorMessage = 'Erro ao carregar dados do animal.';
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMessage, 'error');
+                } else {
+                    alert(errorMessage);
+                }
             }
         }
 
@@ -677,7 +694,12 @@ checkAccess(ACCESS_ADMIN);
             // Validate required fields
             if (!updateData.nome_comum || !updateData.nome_cientifico || !updateData.descricao || 
                 !updateData.familia_nome || !updateData.dieta_nome || !updateData.estado_nome) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
+                const validationMessage = 'Por favor, preencha todos os campos obrigatórios.';
+                if (typeof showNotification === 'function') {
+                    showNotification(validationMessage, 'error');
+                } else {
+                    alert(validationMessage);
+                }
                 return;
             }
             
@@ -720,12 +742,22 @@ checkAccess(ACCESS_ADMIN);
                 // Success - close modal and reload animals
                 closeUpdateModal();
                 await loadAnimals();
-                alert('Animal atualizado com sucesso!');
+                
+                // Show success notification
+                if (typeof showNotification === 'function') {
+                    showNotification('Animal atualizado com sucesso!', 'success');
+                } else {
+                    alert('Animal atualizado com sucesso!');
+                }
             } catch (error) {
                 console.error('Erro ao atualizar animal:', error);
                 console.error('Error stack:', error.stack);
                 const errorMessage = error.message || 'Erro ao atualizar animal. Verifique a consola para mais detalhes.';
-                alert(errorMessage);
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMessage, 'error');
+                } else {
+                    alert(errorMessage);
+                }
             }
         }
 
@@ -848,6 +880,9 @@ checkAccess(ACCESS_ADMIN);
         // Initialize when window fully loads (all scripts included)
         window.addEventListener('load', waitForScriptsAndInit);
     </script>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
 </body>
 </html>
 
