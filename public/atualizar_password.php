@@ -123,8 +123,10 @@ require_funcao_or_redirect([1,2], 'login.php');
                 if (formError) {
                     formError.textContent = message;
                     formError.style.display = 'block';
-                } else {
-                    alert(message);
+                }
+                // Also show notification
+                if (typeof showNotification === 'function') {
+                    showNotification(message, 'error');
                 }
             }
 
@@ -163,8 +165,6 @@ require_funcao_or_redirect([1,2], 'login.php');
                 // Confirm passwords match
                 if (newPassword !== confirmPassword) {
                     showError('A nova password e a confirmação não coincidem.');
-                    // Additionally send a browser alert for immediate attention
-                    alert('A nova password e a confirmação não coincidem.');
                     confirmPasswordInput.focus();
                     return;
                 }
@@ -172,7 +172,6 @@ require_funcao_or_redirect([1,2], 'login.php');
                 // New password should not be the same as current password
                 if (currentPassword && currentPassword === newPassword) {
                     showError('A nova password deve ser diferente da password atual.');
-                    alert('A nova password deve ser diferente da password atual.');
                     newPasswordInput.focus();
                     return;
                 }
@@ -181,7 +180,6 @@ require_funcao_or_redirect([1,2], 'login.php');
                 const pwdPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
                 if (!pwdPolicy.test(newPassword)) {
                     showError('A nova password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.');
-                    alert('A nova password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.');
                     newPasswordInput.focus();
                     return;
                 }
@@ -212,8 +210,6 @@ require_funcao_or_redirect([1,2], 'login.php');
                         if (resp.status === 401) {
                             const errMsg = 'Password errada.';
                             showError(errMsg);
-                            // Immediate attention for the user
-                            alert(errMsg);
                             if (currentPasswordInput) currentPasswordInput.focus();
                             return;
                         }
@@ -271,6 +267,9 @@ require_funcao_or_redirect([1,2], 'login.php');
             });
         });
     </script>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
 </body>
 </html>
 

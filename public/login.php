@@ -98,6 +98,10 @@
 
             function showError(target, message) {
                 if (target) target.textContent = message;
+                // Also show notification for errors
+                if (typeof showNotification === 'function') {
+                    showNotification(message, 'error');
+                }
             }
 
             function clearErrors() {
@@ -186,7 +190,8 @@
                         window.location.href = 'index.php';
                     }, 800);
                 } catch (error) {
-                    showError(formError, error.message);
+                    const errorMsg = error.message || 'Não foi possível iniciar sessão.';
+                    showError(formError, errorMsg);
                 } finally {
                     setLoading(false);
                 }
@@ -197,5 +202,8 @@
             loadHeader();
         }
     </script>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
 </body>
 </html>
