@@ -51,6 +51,7 @@ app.get("/users", async (req, res) => {
         u.utilizador_id, 
         u.nome_utilizador, 
         u.email,
+        u.estado_id,
         e.nome_estado,
         e.hex_cor as estado_cor,
         f.nome_funcao as estatuto,
