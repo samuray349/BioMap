@@ -536,9 +536,10 @@ checkAccess(ACCESS_ADMIN);
                 }
                 
                 // Handle ameacas (threats) - populate 5 separate inputs
-                // Reverse the array to fix the order issue (first should be first, not last)
+                // The array comes from API in correct order (as shown in animal_desc.php)
+                // but appears backwards in the form, so we reverse it when populating
                 const ameacasArray = animal.ameacas && Array.isArray(animal.ameacas) 
-                    ? [...animal.ameacas]
+                    ? [...animal.ameacas].reverse()
                     : [];
                 
                 for (let i = 1; i <= 5; i++) {
@@ -688,7 +689,9 @@ checkAccess(ACCESS_ADMIN);
                             threats.push(threatInput.value.trim());
                         }
                     }
-                    return threats;
+                    // Reverse the array to match the order expected by the API
+                    // (since we reversed when populating, we need to reverse when reading)
+                    return threats.reverse();
                 })()
             };
             
@@ -706,8 +709,6 @@ checkAccess(ACCESS_ADMIN);
             
             try {
                 const apiUrl = getApiUrl(`animais/${animalId}`);
-                console.log('Updating animal at:', apiUrl);
-                console.log('Update data:', updateData);
                 
                 const response = await fetch(apiUrl, {
                     method: 'PUT',
@@ -717,9 +718,6 @@ checkAccess(ACCESS_ADMIN);
                     body: JSON.stringify(updateData)
                 });
                 
-                console.log('Response status:', response.status);
-                console.log('Response ok:', response.ok);
-                
                 // Try to parse JSON, but handle non-JSON responses
                 let result;
                 const contentType = response.headers.get('content-type');
@@ -727,18 +725,14 @@ checkAccess(ACCESS_ADMIN);
                     result = await response.json();
                 } else {
                     const text = await response.text();
-                    console.error('Non-JSON response:', text);
                     throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
                 }
                 
                 if (!response.ok) {
                     const errorMsg = result.error || 'Erro ao atualizar animal';
                     const details = result.details ? `\n\nDetalhes: ${result.details}` : '';
-                    console.error('API Error:', errorMsg, details);
                     throw new Error(errorMsg + details);
                 }
-                
-                console.log('Update successful:', result);
                 
                 // Success - close modal immediately and show notification
                 closeUpdateModal();
@@ -756,8 +750,7 @@ checkAccess(ACCESS_ADMIN);
                 });
             } catch (error) {
                 console.error('Erro ao atualizar animal:', error);
-                console.error('Error stack:', error.stack);
-                const errorMessage = error.message || 'Erro ao atualizar animal. Verifique a consola para mais detalhes.';
+                const errorMessage = error.message || 'Erro ao atualizar animal.';
                 if (typeof showNotification === 'function') {
                     showNotification(errorMessage, 'error');
                 } else {

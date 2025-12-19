@@ -596,11 +596,10 @@ app.get('/animaisDesc/:id', async (req, res) => {
     `;
 
     let sqlQueryAmeacas = `
-      SELECT a.descricao, a.ameaca_id
+      SELECT a.descricao
       FROM ameaca a 
       JOIN animal_ameaca aa ON a.ameaca_id = aa.ameaca_id 
       WHERE aa.animal_id = $1
-      ORDER BY a.ameaca_id ASC
     `;
 
     const [animalResult, ameacasResult] = await Promise.all([
