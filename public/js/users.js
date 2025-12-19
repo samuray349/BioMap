@@ -87,7 +87,11 @@ function renderUserTable(users, tbody) {
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
             <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
             <td><i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i></td>
-            <td><i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i></td>
+            ` + (
+                user.estado_id === 3
+                ? `<td><i class="fa-solid fa-check ban-icon unban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer; color: #198754;" title="Desbanir utilizador"></i></td>`
+                : `<td><i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i></td>`
+            ) + `
         `;
         
         tbodyEl.appendChild(row);
@@ -193,52 +197,63 @@ function renderUserTable(users, tbody) {
         });
     });
     
-    // Add click handlers for ban icons
+    // Add click handlers for ban/unban icons
     tbodyEl.querySelectorAll('.ban-icon').forEach(icon => {
         icon.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const userId = this.getAttribute('data-user-id');
-            
+
             if (!userId) {
                 console.error('Missing user ID for ban icon');
                 return;
             }
-            
-            if (!confirm('Tem certeza que deseja banir este utilizador? ATENÇÃO: Todos os avistamentos deste utilizador serão deletados permanentemente!')) {
+
+            const isUnban = this.classList.contains('unban-icon');
+
+            const confirmMsg = isUnban
+                ? 'Tem certeza que deseja desbanir este utilizador?'
+                : 'Tem certeza que deseja banir este utilizador? ATENÇÃO: Todos os avistamentos deste utilizador serão deletados permanentemente!';
+
+            if (!confirm(confirmMsg)) {
                 return;
             }
-            
+
             try {
                 const apiUrl = getApiUrl(`users/${userId}/estado`);
+                const bodyData = isUnban ? { estado_id: 1 } : { estado_id: 3 }; // 1 = Normal, 3 = Banido
                 const response = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ estado_id: 3 }) // 3 = Banido
+                    body: JSON.stringify(bodyData)
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (!response.ok) {
-                    throw new Error(result?.error || 'Erro ao banir utilizador.');
+                    throw new Error(result?.error || (isUnban ? 'Erro ao desbanir utilizador.' : 'Erro ao banir utilizador.'));
                 }
-                
+
                 // Show success message
-                alert('Utilizador banido com sucesso. Os avistamentos foram deletados.');
-                
+                if (isUnban) {
+                    alert('Utilizador desbanido com sucesso.');
+                } else {
+                    alert('Utilizador banido com sucesso. Os avistamentos foram deletados.');
+                }
+
                 // Reload the users table to show updated status
                 if (typeof window.loadUsers === 'function') {
                     window.loadUsers();
                 } else {
                     window.location.reload();
                 }
-                
+
             } catch (error) {
-                console.error('Erro ao banir utilizador:', error);
-                alert(error.message || 'Erro ao banir utilizador. Por favor, tente novamente.');
+                console.error(isUnban ? 'Erro ao desbanir utilizador:' : 'Erro ao banir utilizador:', error);
+                alert(error.message || (isUnban ? 'Erro ao desbanir utilizador. Por favor, tente novamente.' : 'Erro ao banir utilizador. Por favor, tente novamente.'));
             }
         });
     });
