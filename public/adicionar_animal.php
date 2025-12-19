@@ -854,6 +854,9 @@ checkAccess(ACCESS_ADMIN);
                 familyOptions = await fetchFamilyOptions();
             } else {
                 console.error('fetchFamilyOptions function not available');
+                if (typeof showNotification === 'function') {
+                    showNotification('Erro: Função de carregamento de famílias não disponível. Recarregue a página.', 'error');
+                }
                 return;
             }
         } catch (error) {
@@ -1329,12 +1332,30 @@ checkAccess(ACCESS_ADMIN);
                 const threats = getThreats();
                 const file = imageInput?.files?.[0];
 
-                if (!nome || !cientifico || !descricao || !family || !diet || !estado) {
-                    setMessage('Preencha todos os campos obrigatórios.', 'error');
+                // Validate required fields with specific messages
+                const missingFields = [];
+                if (!nome) missingFields.push('Nome Animal');
+                if (!cientifico) missingFields.push('Nome Científico');
+                if (!descricao) missingFields.push('Descrição');
+                if (!family) missingFields.push('Família');
+                if (!diet) missingFields.push('Dieta');
+                if (!estado) missingFields.push('Estado de Conservação');
+                
+                if (missingFields.length > 0) {
+                    const errorMessage = `Campos obrigatórios em falta no formulário: ${missingFields.join(', ')}.`;
+                    setMessage(errorMessage, 'error');
+                    if (typeof showNotification === 'function') {
+                        showNotification(errorMessage, 'error');
+                    }
                     return;
                 }
+                
                 if (!file) {
-                    setMessage('Selecione uma imagem para o animal.', 'error');
+                    const errorMessage = 'Erro no formulário: Selecione uma imagem para o animal.';
+                    setMessage(errorMessage, 'error');
+                    if (typeof showNotification === 'function') {
+                        showNotification(errorMessage, 'error');
+                    }
                     return;
                 }
 
@@ -1355,7 +1376,8 @@ checkAccess(ACCESS_ADMIN);
 
                 const uploadResult = await uploadResponse.json();
                 if (!uploadResponse.ok || !uploadResult.success) {
-                    throw new Error(uploadResult?.error || 'Erro ao fazer upload da imagem');
+                    const errorMsg = uploadResult?.error || 'Erro desconhecido';
+                    throw new Error(`Erro ao fazer upload da imagem: ${errorMsg}. Verifique se a imagem é válida e tente novamente.`);
                 }
 
                 // Now send the animal data with the image URL
@@ -1383,7 +1405,9 @@ checkAccess(ACCESS_ADMIN);
                 const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(result?.error || 'Erro ao guardar o animal.');
+                    const errorMsg = result?.error || 'Erro desconhecido';
+                    const errorDetails = result?.details ? ` Detalhes: ${result.details}` : '';
+                    throw new Error(`Erro ao guardar o animal na base de dados: ${errorMsg}${errorDetails}`);
                 }
 
                 // Show success animation
@@ -1395,12 +1419,19 @@ checkAccess(ACCESS_ADMIN);
                 }, 2500);
             } catch (error) {
                 console.error('Erro ao submeter animal', error);
-                setMessage(error?.message || 'Erro ao submeter o animal.', 'error');
+                const errorMessage = error?.message || 'Erro ao submeter o animal. Verifique a sua ligação à internet e tente novamente.';
+                setMessage(errorMessage, 'error');
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMessage, 'error');
+                }
             }
         });
     })();
     
 </script>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
 </body>
 </html>
 

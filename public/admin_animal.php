@@ -278,6 +278,10 @@ checkAccess(ACCESS_ADMIN);
                 if (tbody) {
                     tbody.innerHTML = '<tr><td colspan="5">Erro ao carregar dados.</td></tr>';
                 }
+                const errorMessage = `Erro ao carregar animais: ${error?.message || 'Não foi possível carregar a lista de animais. Verifique a sua ligação à internet.'}`;
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMessage, 'error');
+                }
             }
         }
 
@@ -422,14 +426,16 @@ checkAccess(ACCESS_ADMIN);
                 if (!response.ok) {
                     // Try to parse error message, but handle non-JSON responses
                     let errorMessage = 'Erro ao deletar animal.';
+                    let errorDetails = '';
                     try {
                         const errorData = await response.json();
                         errorMessage = errorData?.error || errorMessage;
+                        errorDetails = errorData?.details ? ` Detalhes: ${errorData.details}` : '';
                     } catch (e) {
                         // If response is not JSON, use status text
                         errorMessage = response.statusText || errorMessage;
                     }
-                    throw new Error(errorMessage);
+                    throw new Error(`Erro ao eliminar animal (ID: ${animalId}): ${errorMessage}${errorDetails}`);
                 }
                 
                 // Parse successful response
@@ -446,7 +452,7 @@ checkAccess(ACCESS_ADMIN);
                 }
             } catch (error) {
                 console.error('Erro ao deletar animal:', error);
-                const errorMessage = error?.message || 'Erro ao deletar animal.';
+                const errorMessage = error?.message || `Erro ao eliminar animal (ID: ${animalId}). Verifique a sua ligação à internet.`;
                 if (typeof showNotification === 'function') {
                     showNotification(errorMessage, 'error');
                 } else {
@@ -570,7 +576,7 @@ checkAccess(ACCESS_ADMIN);
                 document.body.style.overflow = 'hidden';
             } catch (error) {
                 console.error('Erro ao abrir modal de atualização:', error);
-                const errorMessage = 'Erro ao carregar dados do animal.';
+                const errorMessage = `Erro ao carregar dados do animal (ID: ${animalId}): ${error?.message || 'Não foi possível carregar os dados. Verifique a sua ligação à internet.'}`;
                 if (typeof showNotification === 'function') {
                     showNotification(errorMessage, 'error');
                 } else {
@@ -666,6 +672,9 @@ checkAccess(ACCESS_ADMIN);
                 updateFamilyDropdownInitialized = true;
             } catch (error) {
                 console.error('Erro ao inicializar dropdown de família:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification(`Erro ao inicializar o campo Família no formulário: ${error?.message || 'Erro desconhecido'}`, 'error');
+                }
             }
         }
 
@@ -702,9 +711,16 @@ checkAccess(ACCESS_ADMIN);
             };
             
             // Validate required fields
-            if (!updateData.nome_comum || !updateData.nome_cientifico || !updateData.descricao || 
-                !updateData.familia_nome || !updateData.dieta_nome || !updateData.estado_nome) {
-                const validationMessage = 'Por favor, preencha todos os campos obrigatórios.';
+            const missingFields = [];
+            if (!updateData.nome_comum) missingFields.push('Nome Animal');
+            if (!updateData.nome_cientifico) missingFields.push('Nome Científico');
+            if (!updateData.descricao) missingFields.push('Descrição');
+            if (!updateData.familia_nome) missingFields.push('Família');
+            if (!updateData.dieta_nome) missingFields.push('Dieta');
+            if (!updateData.estado_nome) missingFields.push('Estado de Conservação');
+            
+            if (missingFields.length > 0) {
+                const validationMessage = `Campos obrigatórios em falta no formulário de atualização: ${missingFields.join(', ')}.`;
                 if (typeof showNotification === 'function') {
                     showNotification(validationMessage, 'error');
                 } else {
@@ -731,13 +747,13 @@ checkAccess(ACCESS_ADMIN);
                     result = await response.json();
                 } else {
                     const text = await response.text();
-                    throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+                    throw new Error(`Erro ao atualizar animal (ID: ${animalId}): O servidor retornou uma resposta inválida. Status: ${response.status}`);
                 }
                 
                 if (!response.ok) {
                     const errorMsg = result.error || 'Erro ao atualizar animal';
-                    const details = result.details ? `\n\nDetalhes: ${result.details}` : '';
-                    throw new Error(errorMsg + details);
+                    const details = result.details ? ` Detalhes: ${result.details}` : '';
+                    throw new Error(`Erro ao atualizar animal (ID: ${animalId}): ${errorMsg}${details}`);
                 }
                 
                 // Success - close modal immediately and show notification
@@ -753,10 +769,14 @@ checkAccess(ACCESS_ADMIN);
                 // Reload animals in background (don't wait for it)
                 loadAnimals().catch(err => {
                     console.error('Error reloading animals:', err);
+                    if (typeof showNotification === 'function') {
+                        showNotification('Animal atualizado, mas erro ao atualizar a lista: ' + (err?.message || 'Erro desconhecido'), 'error');
+                    }
                 });
             } catch (error) {
                 console.error('Erro ao atualizar animal:', error);
-                const errorMessage = error.message || 'Erro ao atualizar animal.';
+                const animalId = document.getElementById('update-animal-id')?.value || 'desconhecido';
+                const errorMessage = error.message || `Erro ao atualizar animal (ID: ${animalId}). Verifique a sua ligação à internet.`;
                 if (typeof showNotification === 'function') {
                     showNotification(errorMessage, 'error');
                 } else {
