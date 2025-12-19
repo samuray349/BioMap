@@ -536,9 +536,10 @@ checkAccess(ACCESS_ADMIN);
                 }
                 
                 // Handle ameacas (threats) - populate 5 separate inputs
-                // Reverse the array to fix the order issue (first should be first, not last)
+                // The array comes from API in correct order (as shown in animal_desc.php)
+                // but appears backwards in the form, so we reverse it when populating
                 const ameacasArray = animal.ameacas && Array.isArray(animal.ameacas) 
-                    ? [...animal.ameacas]
+                    ? [...animal.ameacas].reverse()
                     : [];
                 
                 for (let i = 1; i <= 5; i++) {
@@ -688,7 +689,9 @@ checkAccess(ACCESS_ADMIN);
                             threats.push(threatInput.value.trim());
                         }
                     }
-                    return threats;
+                    // Reverse the array to match the order expected by the API
+                    // (since we reversed when populating, we need to reverse when reading)
+                    return threats.reverse();
                 })()
             };
             
