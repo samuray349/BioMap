@@ -538,7 +538,7 @@ checkAccess(ACCESS_ADMIN);
                 // Handle ameacas (threats) - populate 5 separate inputs
                 // Reverse the array to fix the order issue (first should be first, not last)
                 const ameacasArray = animal.ameacas && Array.isArray(animal.ameacas) 
-                    ? [...animal.ameacas].reverse() 
+                    ? [...animal.ameacas]
                     : [];
                 
                 for (let i = 1; i <= 5; i++) {
