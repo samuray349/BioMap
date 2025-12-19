@@ -5769,14 +5769,14 @@ body:has(.reset-password-container) .login-container {
 .modal-header h2 {
   margin: 0;
   font-size: 24px;
-  color: #0f172a;
+  color: var(--accent-color);
 }
 
 .modal-close {
   background: none;
   border: none;
   font-size: 24px;
-  color: #6b7280;
+  color: var(--accent-color);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 8px;
@@ -5785,7 +5785,7 @@ body:has(.reset-password-container) .login-container {
 
 .modal-close:hover {
   background-color: #f3f4f6;
-  color: #0f172a;
+  color: var(--accent-color);
 }
 
 .update-animal-form {
@@ -5869,7 +5869,7 @@ body:has(.reset-password-container) .login-container {
 
 .update-animal-form .input-field label {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--accent-color);
   font-size: 15px;
 }
 
@@ -5954,7 +5954,7 @@ body:has(.reset-password-container) .login-container {
   transition: background-color 0.2s ease;
   font-size: 15px;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--accent-color);
 }
 
 .family-select-wrapper .dropdown-item:hover {
