@@ -258,6 +258,7 @@ function renderUserTable(users, tbody) {
 
             const userId = this.getAttribute('data-user-id');
 
+
             if (!userId) {
                 console.error('Missing user ID for unban icon');
                 return;
