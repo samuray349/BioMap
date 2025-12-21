@@ -4,6 +4,7 @@ import path2 from "path";
 import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import crypto from "crypto";
+import nodemailer from "nodemailer";
 import pool from "./bd.js"; // <-- if in your repo the correct path is different, update this
 // (e.g. if this file is placed inside another folder then change './bd.js' -> '../bd.js')
 
@@ -31,6 +32,28 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Serve static files from public directory (for both local and Vercel)
 app.use(express.static(path2.join(__dirname, "public")));
+
+/* =====================
+   EMAIL CONFIGURATION
+===================== */
+// Configure nodemailer transporter
+// Using Gmail SMTP - you may need to use an App Password instead of regular password
+const emailTransporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'pedrovan14@gmail.com',
+    pass: process.env.EMAIL_PASSWORD || ''
+  }
+});
+
+// Verify email configuration (optional, for testing)
+emailTransporter.verify((error, success) => {
+  if (error) {
+    console.error('Email configuration error:', error);
+  } else {
+    console.log('Email server is ready to send messages');
+  }
+});
 
 /* =====================
    Health check
@@ -1236,6 +1259,215 @@ app.post('/api/login', async (req, res) => {
       detail: error?.detail,
     });
     return res.status(500).json({ error: 'Erro ao iniciar sessão.' });
+  }
+});
+
+/* =====================
+   PASSWORD RESET
+   POST /api/forgot-password
+   POST /api/reset-password
+===================== */
+
+// Create password_reset_tokens table if it doesn't exist
+async function ensurePasswordResetTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        token_id SERIAL PRIMARY KEY,
+        utilizador_id INTEGER NOT NULL REFERENCES utilizador(utilizador_id) ON DELETE CASCADE,
+        token VARCHAR(255) NOT NULL UNIQUE,
+        expires_at TIMESTAMP NOT NULL,
+        used BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log('Password reset tokens table ensured');
+  } catch (error) {
+    console.error('Error ensuring password reset table:', error);
+  }
+}
+
+// Initialize table on server start
+ensurePasswordResetTable();
+
+// POST /api/forgot-password - Request password reset
+app.post('/api/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ error: 'Email é obrigatório.' });
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ error: 'Email inválido.' });
+    }
+
+    // Check if user exists
+    const userResult = await pool.query(
+      'SELECT utilizador_id, nome_utilizador, email FROM utilizador WHERE email = $1',
+      [email.trim()]
+    );
+
+    // Always return success message (security best practice - don't reveal if email exists)
+    if (userResult.rowCount === 0) {
+      return res.status(200).json({ 
+        message: 'Se o email existir na nossa base de dados, receberá instruções para redefinir a password.' 
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Generate secure token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1); // Token expires in 1 hour
+
+    // Invalidate any existing tokens for this user
+    await pool.query(
+      'UPDATE password_reset_tokens SET used = TRUE WHERE utilizador_id = $1 AND used = FALSE',
+      [user.utilizador_id]
+    );
+
+    // Store token in database
+    await pool.query(
+      'INSERT INTO password_reset_tokens (utilizador_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.utilizador_id, resetToken, expiresAt]
+    );
+
+    // Create reset URL
+    const resetUrl = `${req.protocol}://${req.get('host')}/repor_password.php?token=${resetToken}`;
+
+    // Send email
+    const mailOptions = {
+      from: 'pedrovan14@gmail.com',
+      to: user.email,
+      subject: 'Redefinir Password - BioMap',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1A8F4A;">Redefinir Password</h2>
+          <p>Olá ${user.nome_utilizador},</p>
+          <p>Recebemos um pedido para redefinir a password da sua conta BioMap.</p>
+          <p>Clique no link abaixo para criar uma nova password:</p>
+          <p style="margin: 20px 0;">
+            <a href="${resetUrl}" style="background-color: #1A8F4A; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Redefinir Password
+            </a>
+          </p>
+          <p>Ou copie e cole este link no seu navegador:</p>
+          <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+          <p style="color: #999; font-size: 12px; margin-top: 30px;">
+            Este link expira em 1 hora. Se não solicitou esta alteração, ignore este email.
+          </p>
+          <p style="color: #999; font-size: 12px;">
+            Atenciosamente,<br>Equipa BioMap
+          </p>
+        </div>
+      `,
+      text: `
+        Redefinir Password
+        
+        Olá ${user.nome_utilizador},
+        
+        Recebemos um pedido para redefinir a password da sua conta BioMap.
+        
+        Clique no link abaixo para criar uma nova password:
+        ${resetUrl}
+        
+        Este link expira em 1 hora. Se não solicitou esta alteração, ignore este email.
+        
+        Atenciosamente,
+        Equipa BioMap
+      `
+    };
+
+    try {
+      await emailTransporter.sendMail(mailOptions);
+      return res.status(200).json({ 
+        message: 'Se o email existir na nossa base de dados, receberá instruções para redefinir a password.' 
+      });
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+      // Still return success to user (security best practice)
+      return res.status(200).json({ 
+        message: 'Se o email existir na nossa base de dados, receberá instruções para redefinir a password.' 
+      });
+    }
+  } catch (error) {
+    console.error('Erro ao processar pedido de redefinição de password:', error);
+    return res.status(500).json({ error: 'Erro ao processar pedido. Tente novamente mais tarde.' });
+  }
+});
+
+// POST /api/reset-password - Reset password with token
+app.post('/api/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !token.trim()) {
+      return res.status(400).json({ error: 'Token é obrigatório.' });
+    }
+
+    if (!password) {
+      return res.status(400).json({ error: 'Password é obrigatória.' });
+    }
+
+    // Validate password strength
+    const pwdPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!pwdPolicy.test(password)) {
+      return res.status(400).json({ 
+        error: 'A password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.' 
+      });
+    }
+
+    // Find valid token
+    const tokenResult = await pool.query(
+      `SELECT prt.token_id, prt.utilizador_id, prt.expires_at, prt.used, u.email
+       FROM password_reset_tokens prt
+       JOIN utilizador u ON prt.utilizador_id = u.utilizador_id
+       WHERE prt.token = $1`,
+      [token.trim()]
+    );
+
+    if (tokenResult.rowCount === 0) {
+      return res.status(400).json({ error: 'Token inválido ou expirado.' });
+    }
+
+    const tokenData = tokenResult.rows[0];
+
+    // Check if token is already used
+    if (tokenData.used) {
+      return res.status(400).json({ error: 'Este token já foi utilizado.' });
+    }
+
+    // Check if token is expired
+    if (new Date() > new Date(tokenData.expires_at)) {
+      return res.status(400).json({ error: 'Token expirado. Solicite um novo link de redefinição.' });
+    }
+
+    // Hash new password
+    const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+
+    // Update password
+    await pool.query(
+      'UPDATE utilizador SET password_hash = $1 WHERE utilizador_id = $2',
+      [passwordHash, tokenData.utilizador_id]
+    );
+
+    // Mark token as used
+    await pool.query(
+      'UPDATE password_reset_tokens SET used = TRUE WHERE token_id = $1',
+      [tokenData.token_id]
+    );
+
+    return res.status(200).json({ 
+      message: 'Password redefinida com sucesso.' 
+    });
+  } catch (error) {
+    console.error('Erro ao redefinir password:', error);
+    return res.status(500).json({ error: 'Erro ao redefinir password. Tente novamente mais tarde.' });
   }
 });
 
