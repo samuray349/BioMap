@@ -19,6 +19,17 @@ checkAccess(ACCESS_ADMIN);
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <style>
+        /* Error styling for form fields */
+        .input-field input.field-error,
+        .input-field textarea.field-error,
+        .input-field select.field-error,
+        .chip-select.field-error,
+        .family-search-input.field-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Header Placeholder -->
@@ -564,6 +575,9 @@ checkAccess(ACCESS_ADMIN);
                 // Initialize family dropdown if not already initialized
                 initUpdateFamilyDropdown();
                 
+                // Setup field validation listeners
+                setupUpdateFieldValidation();
+                
                 // Reset scroll position to top
                 const modalContent = modal.querySelector('.modal-content');
                 if (modalContent) {
@@ -678,9 +692,50 @@ checkAccess(ACCESS_ADMIN);
             }
         }
 
+        // Helper function to clear all error classes in update form
+        const clearUpdateFormErrors = () => {
+            const updateForm = document.getElementById('update-animal-form');
+            if (!updateForm) return;
+            const allInputs = updateForm.querySelectorAll('input, textarea, select, .chip-select, .family-search-input');
+            allInputs.forEach(input => {
+                input.classList.remove('field-error');
+            });
+        };
+
+        // Helper function to add error class to a field in update form
+        const addUpdateError = (fieldId) => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.add('field-error');
+            }
+        };
+
+        // Setup field validation listeners for update form
+        const setupUpdateFieldValidation = () => {
+            const fields = [
+                'update-nome-comum', 'update-nome-cientifico', 'update-descricao', 'update-facto', 'update-populacao',
+                'update-family-input', 'update-dieta', 'update-estado',
+                'update-threat-1', 'update-threat-2', 'update-threat-3', 'update-threat-4', 'update-threat-5'
+            ];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', () => {
+                        field.classList.remove('field-error');
+                    });
+                    field.addEventListener('change', () => {
+                        field.classList.remove('field-error');
+                    });
+                }
+            });
+        };
+
         // Handle update form submission
         async function handleUpdateAnimal(e) {
             e.preventDefault();
+            
+            // Clear all previous errors
+            clearUpdateFormErrors();
             
             const form = e.target;
             const animalId = document.getElementById('update-animal-id').value;
@@ -710,98 +765,76 @@ checkAccess(ACCESS_ADMIN);
                 })()
             };
             
-            // Validate all fields
-            const missingFields = [];
-            if (!updateData.nome_comum) missingFields.push('Nome Animal');
-            if (!updateData.nome_cientifico) missingFields.push('Nome Científico');
-            if (!updateData.descricao) missingFields.push('Descrição');
-            if (!updateData.facto_interessante) missingFields.push('Facto Interessante');
-            if (!updateData.populacao_estimada) missingFields.push('População Estimada');
-            if (!updateData.familia_nome) missingFields.push('Família');
-            if (!updateData.dieta_nome) missingFields.push('Dieta');
-            if (!updateData.estado_nome) missingFields.push('Estado de Conservação');
-            
-            // Validate each threat field individually
-            const threatValues = [];
+            // Get all threat values for validation
+            const allThreats = [];
             for (let i = 1; i <= 5; i++) {
                 const threatInput = document.getElementById(`update-threat-${i}`);
-                if (!threatInput || !threatInput.value.trim()) {
-                    missingFields.push(`Ameaça ${i}`);
-                } else {
-                    threatValues.push(threatInput.value.trim());
-                }
+                const threatValue = threatInput ? threatInput.value.trim() : '';
+                allThreats.push(threatValue);
             }
             
-            if (missingFields.length > 0) {
-                const warningMessage = `Aviso: Alguns campos não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de atualizar.`;
-                if (typeof showNotification === 'function') {
-                    showNotification(warningMessage, 'info');
-                } else {
-                    alert(warningMessage);
+            let hasErrors = false;
+
+            // Validate required fields
+            if (!updateData.nome_comum) { addUpdateError('update-nome-comum'); hasErrors = true; }
+            if (!updateData.nome_cientifico) { addUpdateError('update-nome-cientifico'); hasErrors = true; }
+            if (!updateData.descricao) { addUpdateError('update-descricao'); hasErrors = true; }
+            if (!updateData.facto_interessante) { addUpdateError('update-facto'); hasErrors = true; }
+            if (!updateData.populacao_estimada) { addUpdateError('update-populacao'); hasErrors = true; }
+            if (!updateData.familia_nome) { addUpdateError('update-family-input'); hasErrors = true; }
+            if (!updateData.dieta_nome) { addUpdateError('update-dieta'); hasErrors = true; }
+            if (!updateData.estado_nome) { addUpdateError('update-estado'); hasErrors = true; }
+            
+            // Validate each threat field individually
+            const nonEmptyThreats = allThreats.filter(t => t && t.trim().length > 0);
+            if (nonEmptyThreats.length !== 5) {
+                for (let i = 1; i <= 5; i++) {
+                    addUpdateError(`update-threat-${i}`);
                 }
-                return;
+                hasErrors = true;
             }
             
             // Validate character lengths
-            const validationErrors = [];
-            if (updateData.nome_comum.length < 3) validationErrors.push('Nome Animal deve ter pelo menos 3 caracteres');
-            if (updateData.nome_cientifico.length < 3) validationErrors.push('Nome Científico deve ter pelo menos 3 caracteres');
-            if (updateData.descricao.length < 10) validationErrors.push('Descrição deve ter pelo menos 10 caracteres');
-            if (updateData.facto_interessante.length < 8) validationErrors.push('Facto Interessante deve ter pelo menos 8 caracteres');
+            if (updateData.nome_comum && updateData.nome_comum.length < 3) { addUpdateError('update-nome-comum'); hasErrors = true; }
+            if (updateData.nome_cientifico && updateData.nome_cientifico.length < 3) { addUpdateError('update-nome-cientifico'); hasErrors = true; }
+            if (updateData.descricao && updateData.descricao.length < 10) { addUpdateError('update-descricao'); hasErrors = true; }
+            if (updateData.facto_interessante && updateData.facto_interessante.length < 8) { addUpdateError('update-facto'); hasErrors = true; }
             
             // Validate population (must be a number >= 0)
             const populationRaw = updateData.populacao_estimada || '';
             const population = populationRaw.replace(/[^\d]/g, '');
             const populationNum = parseInt(population);
-            if (isNaN(populationNum) || populationNum < 0) {
-                validationErrors.push('População Estimada deve ser um número maior ou igual a 0');
-            }
-            
-            if (validationErrors.length > 0) {
-                const warningMessage = `Aviso: ${validationErrors.join('; ')}.`;
-                if (typeof showNotification === 'function') {
-                    showNotification(warningMessage, 'info');
-                } else {
-                    alert(warningMessage);
-                }
-                return;
+            if (updateData.populacao_estimada && (isNaN(populationNum) || populationNum < 0)) {
+                addUpdateError('update-populacao');
+                hasErrors = true;
             }
             
             // Validate each threat has at least 5 characters
-            const threatLengthErrors = [];
-            threatValues.forEach((threat, index) => {
-                if (threat.length < 5) {
-                    threatLengthErrors.push(`Ameaça ${index + 1} deve ter pelo menos 5 caracteres`);
+            allThreats.forEach((threat, index) => {
+                if (threat && threat.length < 5) {
+                    addUpdateError(`update-threat-${index + 1}`);
+                    hasErrors = true;
                 }
             });
             
-            if (threatLengthErrors.length > 0) {
-                const warningMessage = `Aviso: ${threatLengthErrors.join('; ')}.`;
-                if (typeof showNotification === 'function') {
-                    showNotification(warningMessage, 'info');
-                } else {
-                    alert(warningMessage);
-                }
-                return;
-            }
-            
             // Validate no duplicate threats (case-insensitive)
-            const threatLower = threatValues.map(t => t.toLowerCase());
-            const duplicateThreats = [];
+            const threatLower = allThreats.map(t => t.toLowerCase());
             for (let i = 0; i < threatLower.length; i++) {
+                if (!threatLower[i]) continue;
                 for (let j = i + 1; j < threatLower.length; j++) {
-                    if (threatLower[i] === threatLower[j]) {
-                        duplicateThreats.push(`Ameaça ${i + 1} e Ameaça ${j + 1} são iguais`);
+                    if (threatLower[j] && threatLower[i] === threatLower[j]) {
+                        addUpdateError(`update-threat-${i + 1}`);
+                        addUpdateError(`update-threat-${j + 1}`);
+                        hasErrors = true;
                     }
                 }
             }
             
-            if (duplicateThreats.length > 0) {
-                const warningMessage = `Aviso: Não pode ter ameaças duplicadas. ${duplicateThreats.join('; ')}.`;
+            if (hasErrors) {
                 if (typeof showNotification === 'function') {
-                    showNotification(warningMessage, 'info');
+                    showNotification('Preencha todos os campos', 'info');
                 } else {
-                    alert(warningMessage);
+                    alert('Preencha todos os campos');
                 }
                 return;
             }
