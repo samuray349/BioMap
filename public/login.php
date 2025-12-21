@@ -25,7 +25,6 @@
                     <div class="input-wrapper">
                         <input type="email" id="email" name="email" required autocomplete="email">
                     </div>
-                    <span class="error-message" id="emailError"></span>
                 </div>
 
                 <div class="form-group">
@@ -36,7 +35,6 @@
                             <span class="eye-icon"></span>
                         </button>
                     </div>
-                    <span class="error-message" id="passwordError"></span>
                 </div>
 
                 <div class="form-options">
@@ -72,8 +70,6 @@
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const passwordToggle = document.getElementById('passwordToggle');
-            const emailError = document.getElementById('emailError');
-            const passwordError = document.getElementById('passwordError');
             const formError = document.getElementById('formError');
             const successMessage = document.getElementById('successMessage');
             const submitButton = form.querySelector('.login-btn');
@@ -99,9 +95,7 @@
             }
 
             function clearErrors() {
-                [emailError, passwordError, formError].forEach(el => {
-                    if (el) el.textContent = '';
-                });
+                if (formError) formError.textContent = '';
             }
 
             function setLoading(isLoading) {
@@ -119,11 +113,11 @@
 
                 let hasError = false;
                 if (!email) {
-                    showError(emailError, 'Insira um email válido.');
+                    showError(formError, 'Insira um email válido.');
                     hasError = true;
                 }
                 if (!password) {
-                    showError(passwordError, 'Insira a password.');
+                    showError(formError, 'Insira a password.');
                     hasError = true;
                 }
 

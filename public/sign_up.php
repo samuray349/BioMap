@@ -25,7 +25,6 @@
                     <div class="input-wrapper">
                         <input type="name" id="name" name="name" required autocomplete="name">
                     </div>
-                    <span class="error-message" id="nameError"></span>
                 </div>
 
                 <div class="form-group">
@@ -33,7 +32,6 @@
                     <div class="input-wrapper">
                         <input type="email" id="email" name="email" required autocomplete="email">
                     </div>
-                    <span class="error-message" id="emailError"></span>
                 </div>
 
                 <div class="form-group">
@@ -44,7 +42,6 @@
                             <span class="eye-icon"></span>
                         </button>
                     </div>
-                    <span class="error-message" id="passwordError"></span>
                 </div>
                 <div class="form-options">
                     <label class="remember-wrapper">
@@ -54,7 +51,6 @@
                             Aceitar os <a href="termos_de_utilizacao.php" target="_blank">Termos e Condições</a>
                         </span>
                     </label>
-                    <span class="error-message" id="termsError"></span>
                 </div>
                 <button type="submit" class="login-btn" action="index.php">
                     <span class="btn-text">Criar Conta</span>
@@ -89,10 +85,6 @@
             const passwordInput = document.getElementById('password');
             const passwordToggle = document.getElementById('passwordToggle');
             const termsCheckbox = document.getElementById('terms');
-            const nameError = document.getElementById('nameError');
-            const emailError = document.getElementById('emailError');
-            const passwordError = document.getElementById('passwordError');
-            const termsError = document.getElementById('termsError');
             const formError = document.getElementById('formError');
             const successMessage = document.getElementById('successMessage');
             const submitButton = form.querySelector('.login-btn');
@@ -114,9 +106,7 @@
             }
 
             function clearErrors() {
-                [nameError, emailError, passwordError, termsError, formError].forEach(el => {
-                    if (el) el.textContent = '';
-                });
+                if (formError) formError.textContent = '';
             }
 
             function setLoading(isLoading) {
@@ -135,16 +125,18 @@
 
                 let hasError = false;
                 if (!name) {
-                    showError(nameError, 'Insira o seu nome.');
+                    showError(formError, 'Insira o seu nome.');
+                    showNotification('Insira o seu nome.', 'error');
                     hasError = true;
                 }
                 if (!email) {
-                    showError(emailError, 'Insira um email válido.');
+                    showError(formError, 'Insira um email válido.');
+                    showNotification('Insira um email válido.', 'error');
                     hasError = true;
                 }
                 if (!password) {
                     const emptyPasswordMsg = 'Insira a password.';
-                    showError(passwordError, emptyPasswordMsg);
+                    showError(formError, emptyPasswordMsg);
                     showNotification(emptyPasswordMsg, 'error');
                     hasError = true;
                 } else {
@@ -152,7 +144,7 @@
                     const pwdPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
                     if (!pwdPolicy.test(password)) {
                         const passwordErrorMsg = 'A password deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.';
-                        showError(passwordError, passwordErrorMsg);
+                        showError(formError, passwordErrorMsg);
                         showNotification(passwordErrorMsg, 'error');
                         hasError = true;
                     }
@@ -160,7 +152,7 @@
 
                 // Validate terms and conditions checkbox
                 if (!termsCheckbox || !termsCheckbox.checked) {
-                    showError(termsError, 'Deve aceitar os Termos e Condições para criar uma conta.');
+                    showError(formError, 'Deve aceitar os Termos e Condições para criar uma conta.');
                     showNotification('Deve aceitar os Termos e Condições para criar uma conta.', 'error');
                     hasError = true;
                 }
@@ -193,8 +185,7 @@
                         if (typeof showNotification === 'function') {
                             showNotification('Nome e email já existentes', 'error');
                         }
-                        if (nameError) showError(nameError, 'Este nome já existe');
-                        if (emailError) showError(emailError, 'Este email já existe');
+                        showError(formError, 'Nome e email já existentes');
                         setLoading(false);
                         return;
                     }
@@ -203,7 +194,7 @@
                         if (typeof showNotification === 'function') {
                             showNotification('Este nome já existe', 'error');
                         }
-                        if (nameError) showError(nameError, 'Este nome já existe');
+                        showError(formError, 'Este nome já existe');
                         setLoading(false);
                         return;
                     }
@@ -212,7 +203,7 @@
                         if (typeof showNotification === 'function') {
                             showNotification('Este email já existe', 'error');
                         }
-                        if (emailError) showError(emailError, 'Este email já existe');
+                        showError(formError, 'Este email já existe');
                         setLoading(false);
                         return;
                     }
@@ -236,18 +227,17 @@
                             if (typeof showNotification === 'function') {
                                 showNotification('Nome e email já existentes', 'error');
                             }
-                            if (nameError) showError(nameError, 'Este nome já existe');
-                            if (emailError) showError(emailError, 'Este email já existe');
+                            showError(formError, 'Nome e email já existentes');
                         } else if (data.nameExists) {
                             if (typeof showNotification === 'function') {
                                 showNotification('Este nome já existe', 'error');
                             }
-                            if (nameError) showError(nameError, 'Este nome já existe');
+                            showError(formError, 'Este nome já existe');
                         } else if (data.emailExists) {
                             if (typeof showNotification === 'function') {
                                 showNotification('Este email já existe', 'error');
                             }
-                            if (emailError) showError(emailError, 'Este email já existe');
+                            showError(formError, 'Este email já existe');
                         } else {
                             throw new Error(data?.error || 'Não foi possível criar a conta.');
                         }
