@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/cron/(.*)",
+      "destination": "/api/cron/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/api/index.js"
     }
@@ -8,6 +12,22 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 30
+    },
+    "api/cron/cleanup-tokens.js": {
+      "maxDuration": 30
+    },
+    "api/cron/cleanup-avistamentos.js": {
+      "maxDuration": 30
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/cleanup-tokens",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-avistamentos",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }
