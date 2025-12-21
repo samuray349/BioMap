@@ -61,6 +61,59 @@ function showConfirmBan(onConfirm, onCancel) {
     });
 }
 
+// Create a simple modal confirm for suspend (Sim / Não)
+function showConfirmSuspend(onConfirm, onCancel) {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '10000';
+
+    const box = document.createElement('div');
+    box.style.background = '#fff';
+    box.style.padding = '20px';
+    box.style.borderRadius = '8px';
+    box.style.maxWidth = '420px';
+    box.style.width = '90%';
+    box.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+
+    box.innerHTML = `
+        <h3 style="margin-top:0">Confirmar suspensão</h3>
+        <p>Tem certeza que deseja suspender este utilizador?</p>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
+            <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;">Sim</button>
+        </div>
+    `;
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    const yesBtn = box.querySelector('#confirmYes');
+    const noBtn = box.querySelector('#confirmNo');
+
+    yesBtn.addEventListener('click', async () => {
+        try {
+            await onConfirm();
+        } catch (error) {
+            console.error('Error in onConfirm:', error);
+        }
+        document.body.removeChild(overlay);
+    });
+
+    noBtn.addEventListener('click', () => {
+        if (onCancel) onCancel();
+        document.body.removeChild(overlay);
+    });
+}
+
 async function fetchUsers(filters = {}) {
     try {
         const params = new URLSearchParams();
@@ -115,15 +168,25 @@ function renderUserTable(users, tbody) {
         
         // Determina a classe do distintivo com base no estado
         let badgeClass = 'status-badge';
+        let badgeStyle = '';
+        
         const estadoLower = (user.nome_estado || '').toLowerCase();
         if (estadoLower.includes('normal')) {
             badgeClass += ' status-normal';
+            // Use database color for normal users
+            if (user.estado_cor) {
+                badgeStyle = `style="background-color: ${user.estado_cor}; color: white;"`;
+            }
         } else if (estadoLower.includes('suspenso')) {
             badgeClass += ' status-suspended';
+            // Use the same color as the suspend button for suspended users
+            badgeStyle = 'style="background-color: #ffc107; color: #000;"';
+        } else {
+            // For other states (like banned), use database color
+            if (user.estado_cor) {
+                badgeStyle = `style="background-color: ${user.estado_cor}; color: white;"`;
+            }
         }
-        
-        // Use the color from database if available, otherwise use default
-        const badgeStyle = user.estado_cor ? `style="background-color: ${user.estado_cor}; color: white;"` : '';
         
         // Make estatuto text clickable - current funcao_id: 1 = Admin, 2 = Utilizador
         // Determine current funcao_id from user data
@@ -218,37 +281,37 @@ function renderUserTable(users, tbody) {
                 return;
             }
             
-            if (!confirm('Tem certeza que deseja suspender este utilizador?')) {
-                return;
-            }
-            
-            try {
-                const apiUrl = getApiUrl(`users/${userId}/estado`);
-                const response = await fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ estado_id: 2 }) // 2 = Suspenso
-                });
-                
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result?.error || 'Erro ao suspender utilizador.');
+            showConfirmSuspend(async function onConfirm() {
+                try {
+                    const apiUrl = getApiUrl(`users/${userId}/estado`);
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ estado_id: 2 }) // 2 = Suspenso
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result?.error || 'Erro ao suspender utilizador.');
+                    }
+                    
+                    // Reload the users table to show updated status
+                    if (typeof window.loadUsers === 'function') {
+                        window.loadUsers();
+                    } else {
+                        window.location.reload();
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao suspender utilizador:', error);
+                    alert(error.message || 'Erro ao suspender utilizador. Por favor, tente novamente.');
                 }
-                
-                // Reload the users table to show updated status
-                if (typeof window.loadUsers === 'function') {
-                    window.loadUsers();
-                } else {
-                    window.location.reload();
-                }
-                
-            } catch (error) {
-                console.error('Erro ao suspender utilizador:', error);
-                alert(error.message || 'Erro ao suspender utilizador. Por favor, tente novamente.');
-            }
+            }, function onCancel() {
+                // No-op on cancel
+            });
         });
     });
     
