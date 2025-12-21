@@ -71,6 +71,11 @@ function renderAnimalCards(animals, container, options = {}) {
     }
     
     animals.forEach(animal => {
+        if (!animal.animal_id) {
+            console.warn('Animal missing animal_id:', animal);
+            return; // Skip animals without ID
+        }
+        
         const card = document.createElement('div');
         card.className = `card green-shadow ${cardClass}`.trim();
         
@@ -94,7 +99,7 @@ function renderAnimalCards(animals, container, options = {}) {
         const animalUrl = `animal_desc.php?id=${animal.animal_id}`;
         
         card.innerHTML = `
-            <a href="${animalUrl}" class="card-image-link" style="display: block; text-decoration: none;">
+            <a href="${animalUrl}" class="card-image-link" style="display: block; text-decoration: none; cursor: pointer;">
                 <img src="${animal.url_imagem || 'img/placeholder.jpg'}" 
                      alt="${animal.nome_comum}" 
                      class="card-image" 
@@ -102,7 +107,7 @@ function renderAnimalCards(animals, container, options = {}) {
             </a>
             <div class="card-content">
                 <div class="card-header">
-                    <h3><a href="${animalUrl}" style="color: inherit; text-decoration: none; cursor: pointer;">${animal.nome_comum}</a></h3>
+                    <h3><a href="${animalUrl}" style="color: inherit; text-decoration: none; cursor: pointer; display: block;">${animal.nome_comum}</a></h3>
                     <span class="badge" style="background-color: ${animal.estado_cor || '#ccc'}; color: white;">
                         ${animal.nome_estado}
                     </span>
