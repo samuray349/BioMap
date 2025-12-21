@@ -112,6 +112,8 @@ function showConfirmSuspend(onConfirm, onCancel) {
         if (onCancel) onCancel();
         document.body.removeChild(overlay);
     });
+}
+
 // Create a simple modal confirm for unban (Sim / Não)
 function showConfirmUnban(onConfirm, onCancel) {
     // Create overlay
