@@ -369,7 +369,10 @@ const SpeciesPanel = {
     if (!details) return;
     
     // Debug: log animal_id to verify it's present
-    console.log('populateData called with animal_id:', details.animal_id, 'details:', details);
+    console.log('populateData called');
+    console.log('details.animal_id:', details.animal_id);
+    console.log('Full details object:', details);
+    console.log('Has animal_id property?', 'animal_id' in details);
 
     // Image - make it clickable if animal_id exists
     // First, ensure we have the image container
@@ -810,6 +813,9 @@ async function loadAvistamentos() {
       const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
 
       // Create details object for SpeciesPanel
+      console.log('Creating details object. avistamento.animal_id:', avistamento.animal_id);
+      console.log('Full avistamento object:', avistamento);
+      
       const details = {
         avistamento_id: avistamento.avistamento_id,
         animal_id: avistamento.animal_id,
@@ -826,6 +832,8 @@ async function loadAvistamentos() {
         estado: avistamento.nome_estado || '—',
         estadoCor: avistamento.estado_cor || '#666'
       };
+      
+      console.log('Details object created with animal_id:', details.animal_id);
 
       // Calculate label font size based on current zoom
       const baseZoom = 12;
