@@ -720,11 +720,11 @@ checkAccess(ACCESS_ADMIN);
             if (!updateData.estado_nome) missingFields.push('Estado de Conservação');
             
             if (missingFields.length > 0) {
-                const validationMessage = `Campos obrigatórios em falta no formulário de atualização: ${missingFields.join(', ')}.`;
+                const warningMessage = `Aviso: Alguns campos obrigatórios não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de atualizar.`;
                 if (typeof showNotification === 'function') {
-                    showNotification(validationMessage, 'error');
+                    showNotification(warningMessage, 'info');
                 } else {
-                    alert(validationMessage);
+                    alert(warningMessage);
                 }
                 return;
             }
@@ -733,11 +733,11 @@ checkAccess(ACCESS_ADMIN);
             const nonEmptyThreats = updateData.ameacas.filter(t => t && t.trim().length > 0);
             const threatsCount = nonEmptyThreats.length;
             if (threatsCount !== 5) {
-                const errorMessage = `Erro no formulário de atualização: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}.`;
+                const warningMessage = `Aviso: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}. Por favor, preencha todas as 5 ameaças antes de atualizar.`;
                 if (typeof showNotification === 'function') {
-                    showNotification(errorMessage, 'error');
+                    showNotification(warningMessage, 'info');
                 } else {
-                    alert(errorMessage);
+                    alert(warningMessage);
                 }
                 return;
             }
