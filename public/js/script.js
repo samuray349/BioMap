@@ -406,16 +406,8 @@ const SpeciesPanel = {
     if (this.elements.name) {
       if (details.animal_id) {
         // Create a link wrapper for the name
-        const nameLink = document.createElement('a');
-        nameLink.href = `animal_desc.php?id=${details.animal_id}`;
-        nameLink.style.textDecoration = 'none';
-        nameLink.style.color = 'inherit';
-        nameLink.style.cursor = 'pointer';
-        nameLink.textContent = details.name || 'Animal sem nome';
-        
-        // Clear existing content and add link
-        this.elements.name.innerHTML = '';
-        this.elements.name.appendChild(nameLink);
+        const animalUrl = `animal_desc.php?id=${details.animal_id}`;
+        this.elements.name.innerHTML = `<a href="${animalUrl}" style="color: inherit; text-decoration: none; cursor: pointer; display: block; width: 100%;">${details.name || 'Animal sem nome'}</a>`;
       } else {
         this.elements.name.textContent = details.name || 'Animal sem nome';
       }
