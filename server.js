@@ -1338,8 +1338,9 @@ app.post('/api/forgot-password', async (req, res) => {
       [user.utilizador_id, resetToken, expiresAt]
     );
 
-    // Create reset URL
-    const resetUrl = `${req.protocol}://${req.get('host')}/repor_password.php?token=${resetToken}`;
+    // Create reset URL - use Hostinger frontend domain
+    const frontendUrl = process.env.FRONTEND_URL || 'https://lucped.antrob.eu';
+    const resetUrl = `${frontendUrl}/public/repor_password.php?token=${resetToken}`;
 
     // Send email
     const mailOptions = {
