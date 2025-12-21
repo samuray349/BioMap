@@ -367,38 +367,47 @@ const SpeciesPanel = {
 
   populateData(details) {
     if (!details) return;
+    
+    // Debug: log animal_id to verify it's present
+    console.log('populateData called with animal_id:', details.animal_id, 'details:', details);
 
     // Image - make it clickable if animal_id exists
-    if (this.elements.image && details.image) {
-      this.elements.image.src = details.image;
-      this.elements.image.alt = details.name || 'Animal';
-      
-      // Make image and container clickable if animal_id exists
+    // First, ensure we have the image container
+    if (!this.elements.imageContainer) {
+      this.elements.imageContainer = this.elements.container?.querySelector('.species-panel__image');
+    }
+    
+    if (this.elements.imageContainer && details.image) {
       if (details.animal_id) {
         const animalUrl = `animal_desc.php?id=${details.animal_id}`;
-        
-        // Make image clickable
-        this.elements.image.style.cursor = 'pointer';
-        this.elements.image.onclick = (e) => {
-          e.stopPropagation();
-          window.location.href = animalUrl;
-        };
-        
-        // Make image container clickable too
-        if (this.elements.imageContainer) {
-          this.elements.imageContainer.style.cursor = 'pointer';
-          this.elements.imageContainer.onclick = (e) => {
-            e.stopPropagation();
-            window.location.href = animalUrl;
-          };
-        }
+        // Wrap the image in a link by replacing the container's content
+        this.elements.imageContainer.innerHTML = `
+          <a href="${animalUrl}" style="display: block; width: 100%; height: 100%; text-decoration: none; cursor: pointer;">
+            <img id="species-panel-image" src="${details.image}" alt="${details.name || 'Animal'}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='img/placeholder.jpg'">
+          </a>
+        `;
+        // Re-get the image element after innerHTML change
+        this.elements.image = document.getElementById('species-panel-image');
       } else {
-        this.elements.image.style.cursor = 'default';
-        this.elements.image.onclick = null;
-        if (this.elements.imageContainer) {
-          this.elements.imageContainer.style.cursor = 'default';
-          this.elements.imageContainer.onclick = null;
-        }
+        // No animal_id, just set the image normally
+        this.elements.imageContainer.innerHTML = `
+          <img id="species-panel-image" src="${details.image}" alt="${details.name || 'Animal'}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='img/placeholder.jpg'">
+        `;
+        this.elements.image = document.getElementById('species-panel-image');
+      }
+    } else if (this.elements.image && details.image) {
+      // Fallback if container doesn't exist
+      this.elements.image.src = details.image;
+      this.elements.image.alt = details.name || 'Animal';
+      if (details.animal_id) {
+        const animalUrl = `animal_desc.php?id=${details.animal_id}`;
+        // Wrap in link
+        const link = document.createElement('a');
+        link.href = animalUrl;
+        link.style.cssText = 'display: block; text-decoration: none; cursor: pointer;';
+        const parent = this.elements.image.parentNode;
+        parent.insertBefore(link, this.elements.image);
+        link.appendChild(this.elements.image);
       }
     }
 
@@ -407,7 +416,14 @@ const SpeciesPanel = {
       if (details.animal_id) {
         // Create a link wrapper for the name
         const animalUrl = `animal_desc.php?id=${details.animal_id}`;
-        this.elements.name.innerHTML = `<a href="${animalUrl}" style="color: inherit; text-decoration: none; cursor: pointer; display: block; width: 100%;">${details.name || 'Animal sem nome'}</a>`;
+        const nameText = details.name || 'Animal sem nome';
+        // Preserve the h2 element but replace its content with a link
+        this.elements.name.innerHTML = '';
+        const nameLink = document.createElement('a');
+        nameLink.href = animalUrl;
+        nameLink.textContent = nameText;
+        nameLink.style.cssText = 'color: inherit; text-decoration: none; cursor: pointer; display: block; width: 100%;';
+        this.elements.name.appendChild(nameLink);
       } else {
         this.elements.name.textContent = details.name || 'Animal sem nome';
       }
