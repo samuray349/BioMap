@@ -52,8 +52,6 @@
                 <p>Não tem conta? <a href="sign_up.php">Criar Conta</a></p>
             </div>
 
-            <div class="error-message" id="formError" role="alert"></div>
-
             <div class="success-message" id="successMessage">
                 <div class="success-icon">✓</div>
                 <h3>Login bem-sucedido!</h3>
@@ -70,7 +68,6 @@
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const passwordToggle = document.getElementById('passwordToggle');
-            const formError = document.getElementById('formError');
             const successMessage = document.getElementById('successMessage');
             const submitButton = form.querySelector('.login-btn');
             const btnText = submitButton.querySelector('.btn-text');
@@ -86,16 +83,15 @@
                 passwordToggle.addEventListener('click', togglePassword);
             }
 
-            function showError(target, message) {
-                if (target) target.textContent = message;
-                // Also show notification for errors
+            function showError(message) {
+                // Show notification for errors
                 if (typeof showNotification === 'function') {
                     showNotification(message, 'error');
                 }
             }
 
             function clearErrors() {
-                if (formError) formError.textContent = '';
+                // Errors are only shown via notifications
             }
 
             function setLoading(isLoading) {
@@ -113,11 +109,11 @@
 
                 let hasError = false;
                 if (!email) {
-                    showError(formError, 'Insira um email válido.');
+                    showError('Insira um email válido.');
                     hasError = true;
                 }
                 if (!password) {
-                    showError(formError, 'Insira a password.');
+                    showError('Insira a password.');
                     hasError = true;
                 }
 
@@ -179,7 +175,7 @@
                     }, 800);
                 } catch (error) {
                     const errorMsg = error.message || 'Não foi possível iniciar sessão.';
-                    showError(formError, errorMsg);
+                    showError(errorMsg);
                 } finally {
                     setLoading(false);
                 }

@@ -129,7 +129,12 @@ function showNotification(message, type = 'success') {
     </div>
   `;
 
-  container.appendChild(notification);
+  // Insert at the beginning so newest notifications appear at top
+  if (container.firstChild) {
+    container.insertBefore(notification, container.firstChild);
+  } else {
+    container.appendChild(notification);
+  }
 
   // Trigger animation
   setTimeout(() => {
