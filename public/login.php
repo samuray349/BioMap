@@ -39,16 +39,7 @@
                     <span class="error-message" id="passwordError"></span>
                 </div>
 
-                <div class="form-options">
-                    <label class="remember-wrapper">
-                        <input type="checkbox" id="remember" name="remember">
-                        <span class="checkbox-label">
-                            <span class="checkmark"></span>
-                            Guardar Sessão
-                        </span>
-                    </label>
-                    <a href="esqueceu_password.php" class="forgot-password">Esqueceu-se da password?</a>
-                </div>
+                
 
                 <button type="submit" class="login-btn" action="index.php">
                     <span class="btn-text">Iniciar Sessão</span>
