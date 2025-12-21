@@ -200,13 +200,13 @@ function renderUserTable(users, tbody) {
         // Check if user is banned (estado_id = 3)
         const isBanned = user.estado_id === 3;
         const banIconHtml = isBanned 
-            ? `<i class="fa-solid fa-check banned-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: default;" title="Utilizador banido"></i>`
+            ? `<i class="fa-solid fa-check check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: default;" title="Utilizador banido"></i>`
             : `<i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i>`;
 
         // Check if user is suspended (estado_id = 2)
         const isSuspended = user.estado_id === 2;
         const suspendIconHtml = isSuspended 
-            ? `<i class="fa-solid fa-check suspended-check-icon" data-user-id="${user.utilizador_id}" style="color: #ffc107; cursor: default;" title="Utilizador suspenso"></i>`
+            ? `<i class="fa-solid fa-check check-icon" data-user-id="${user.utilizador_id}" style="color: #ffc107; cursor: default;" title="Utilizador suspenso"></i>`
             : `<i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i>`;
 
         row.innerHTML = `
