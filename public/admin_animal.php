@@ -863,6 +863,24 @@ checkAccess(ACCESS_ADMIN);
                 if (!response.ok) {
                     const errorMsg = result.error || 'Erro ao atualizar animal';
                     const details = result.details ? ` Detalhes: ${result.details}` : '';
+                    
+                    // Check if error is about family not found
+                    const isFamilyNotFound = errorMsg.toLowerCase().includes('família') && 
+                                           (errorMsg.toLowerCase().includes('não encontrada') || 
+                                            errorMsg.toLowerCase().includes('não encontrado'));
+                    
+                    if (isFamilyNotFound) {
+                        // Highlight family input
+                        addUpdateError('update-family-input');
+                        // Show specific message
+                        if (typeof showNotification === 'function') {
+                            showNotification('Familia não encontrada', 'info');
+                        } else {
+                            alert('Familia não encontrada');
+                        }
+                        return;
+                    }
+                    
                     throw new Error(`Erro ao atualizar animal (ID: ${animalId}): ${errorMsg}${details}`);
                 }
                 
@@ -887,10 +905,27 @@ checkAccess(ACCESS_ADMIN);
                 console.error('Erro ao atualizar animal:', error);
                 const animalId = document.getElementById('update-animal-id')?.value || 'desconhecido';
                 const errorMessage = error.message || `Erro ao atualizar animal (ID: ${animalId}). Verifique a sua ligação à internet.`;
-                if (typeof showNotification === 'function') {
-                    showNotification(errorMessage, 'error');
+                
+                // Check if error is about family not found
+                const isFamilyNotFound = errorMessage.toLowerCase().includes('família') && 
+                                       (errorMessage.toLowerCase().includes('não encontrada') || 
+                                        errorMessage.toLowerCase().includes('não encontrado'));
+                
+                if (isFamilyNotFound) {
+                    // Highlight family input
+                    addUpdateError('update-family-input');
+                    // Show specific message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Familia não encontrada', 'info');
+                    } else {
+                        alert('Familia não encontrada');
+                    }
                 } else {
-                    alert(errorMessage);
+                    if (typeof showNotification === 'function') {
+                        showNotification(errorMessage, 'error');
+                    } else {
+                        alert(errorMessage);
+                    }
                 }
             }
         }
