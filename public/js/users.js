@@ -180,7 +180,7 @@ function renderUserTable(users, tbody) {
         } else if (estadoLower.includes('suspenso')) {
             badgeClass += ' status-suspended';
             // Use the same color as the suspend button for suspended users
-            badgeStyle = 'style="background-color: #ffc107; color: #ffffff;"';
+            badgeStyle = 'style="background-color: #ffc107; color: #000;"';
         } else {
             // For other states (like banned), use database color
             if (user.estado_cor) {
@@ -203,12 +203,18 @@ function renderUserTable(users, tbody) {
             ? `<i class="fa-solid fa-check banned-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: default;" title="Utilizador banido"></i>`
             : `<i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i>`;
 
+        // Check if user is suspended (estado_id = 2)
+        const isSuspended = user.estado_id === 2;
+        const suspendIconHtml = isSuspended 
+            ? `<i class="fa-solid fa-check suspended-check-icon" data-user-id="${user.utilizador_id}" style="color: #ffc107; cursor: default;" title="Utilizador suspenso"></i>`
+            : `<i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i>`;
+
         row.innerHTML = `
             <td>${user.nome_utilizador}</td>
             <td>${user.email}</td>
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
             <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
-            <td><i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i></td>
+            <td>${suspendIconHtml}</td>
             <td>${banIconHtml}</td>
         `;
         
@@ -268,7 +274,7 @@ function renderUserTable(users, tbody) {
         });
     });
     
-    // Add click handlers for suspend icons
+    // Add click handlers for suspend icons (only for non-suspended users)
     tbodyEl.querySelectorAll('.suspend-icon').forEach(icon => {
         icon.addEventListener('click', async function(e) {
             e.preventDefault();
