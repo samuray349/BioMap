@@ -1004,7 +1004,14 @@ app.delete('/animais/:id', async (req, res) => {
 
       const imageUrl = animalResult.rows[0].url_imagem;
 
-      // Delete from database first
+      // Delete related records first (in order of foreign key dependencies)
+      // 1. Delete avistamentos (sightings) that reference this animal
+      await client.query('DELETE FROM avistamento WHERE animal_id = $1', [id]);
+      
+      // 2. Delete animal_ameaca relationships
+      await client.query('DELETE FROM animal_ameaca WHERE animal_id = $1', [id]);
+      
+      // 3. Finally, delete the animal itself
       await client.query('DELETE FROM animal WHERE animal_id = $1', [id]);
 
       await client.query('COMMIT');

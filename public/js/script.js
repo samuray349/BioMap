@@ -174,11 +174,9 @@ const SpeciesPanel = {
 
   init() {
     if (this.isInitialized) {
-      console.log('Panel already initialized');
       return;
     }
     
-    console.log('Initializing SpeciesPanel...');
     // Get all panel elements
     this.elements.container = document.getElementById('species-panel');
     if (!this.elements.container) {
@@ -321,10 +319,7 @@ const SpeciesPanel = {
   },
 
   open(details) {
-    console.log('SpeciesPanel.open called with:', details);
-    
     if (!this.isInitialized) {
-      console.log('Panel not initialized, initializing...');
       this.init();
     }
     
@@ -361,18 +356,12 @@ const SpeciesPanel = {
     // from closing the panel immediately in the same event loop.
     setTimeout(() => {
       this.isOpen = true;
-      console.log('Panel visible. isOpen set to true.');
     }, 50);
   },
 
   populateData(details) {
     if (!details) return;
     
-    // Debug: log animal_id to verify it's present
-    console.log('populateData called');
-    console.log('details.animal_id:', details.animal_id);
-    console.log('Full details object:', details);
-    console.log('Has animal_id property?', 'animal_id' in details);
 
     // Image - make it clickable if animal_id exists
     // First, ensure we have the image container
@@ -417,8 +406,6 @@ const SpeciesPanel = {
     // Text content - make name clickable if animal_id exists
     // Re-fetch the element to ensure we have the latest reference
     const nameElement = document.getElementById('species-panel-name');
-    console.log('Name element found:', nameElement);
-    console.log('details.animal_id:', details.animal_id);
     
     if (nameElement) {
       if (details.animal_id) {
@@ -428,25 +415,12 @@ const SpeciesPanel = {
         // Replace the h2's content with a link - use innerHTML to ensure it's set
         const linkHTML = `<a href="${animalUrl}" style="color: inherit !important; text-decoration: none !important; cursor: pointer !important; display: block !important; width: 100% !important;">${nameText}</a>`;
         nameElement.innerHTML = linkHTML;
-        console.log('Name link created. Element HTML after setting:', nameElement.innerHTML);
-        console.log('Link element:', nameElement.querySelector('a'));
-        
-        // Verify the link was created
-        const linkElement = nameElement.querySelector('a');
-        if (linkElement) {
-          console.log('Link element verified. href:', linkElement.href);
-        } else {
-          console.error('Link element not found after setting innerHTML!');
-        }
         
         // Update the reference
         this.elements.name = nameElement;
       } else {
         nameElement.textContent = details.name || 'Animal sem nome';
-        console.log('No animal_id, name set to text only');
       }
-    } else {
-      console.error('species-panel-name element not found in DOM');
     }
     if (this.elements.scientificName) {
       this.elements.scientificName.textContent = details.scientificName || '—';
@@ -813,15 +787,9 @@ async function loadAvistamentos() {
       const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
 
       // Create details object for SpeciesPanel
-      // Log all keys in avistamento to see what's available
-      console.log('=== AVISTAMENTO OBJECT ===');
-      console.log('Keys in avistamento:', Object.keys(avistamento));
-      console.log('avistamento.animal_id:', avistamento.animal_id);
-      console.log('Full avistamento:', JSON.stringify(avistamento, null, 2));
-      
       const details = {
         avistamento_id: avistamento.avistamento_id,
-        animal_id: avistamento.animal_id, // This should come from the API
+        animal_id: avistamento.animal_id,
         utilizador_id: avistamento.utilizador_id,
         name: avistamento.nome_comum,
         scientificName: avistamento.nome_cientifico || '—',
@@ -835,10 +803,6 @@ async function loadAvistamentos() {
         estado: avistamento.nome_estado || '—',
         estadoCor: avistamento.estado_cor || '#666'
       };
-      
-      console.log('=== DETAILS OBJECT ===');
-      console.log('details.animal_id:', details.animal_id);
-      console.log('Full details:', JSON.stringify(details, null, 2));
 
       // Calculate label font size based on current zoom
       const baseZoom = 12;
