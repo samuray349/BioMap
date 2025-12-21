@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BioMap</title>
+  <title>BioMapaaaaaa</title>
 
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/styles.css?v=5">
   <script src="js/config.js"></script>
   <script src="js/session.js"></script>
-  <script src="js/script.js?v=2"></script>
+  <script src="js/script.js?v=3"></script>
   
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMap&loading=async">

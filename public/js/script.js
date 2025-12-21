@@ -813,12 +813,15 @@ async function loadAvistamentos() {
       const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
 
       // Create details object for SpeciesPanel
-      console.log('Creating details object. avistamento.animal_id:', avistamento.animal_id);
-      console.log('Full avistamento object:', avistamento);
+      // Log all keys in avistamento to see what's available
+      console.log('=== AVISTAMENTO OBJECT ===');
+      console.log('Keys in avistamento:', Object.keys(avistamento));
+      console.log('avistamento.animal_id:', avistamento.animal_id);
+      console.log('Full avistamento:', JSON.stringify(avistamento, null, 2));
       
       const details = {
         avistamento_id: avistamento.avistamento_id,
-        animal_id: avistamento.animal_id,
+        animal_id: avistamento.animal_id, // This should come from the API
         utilizador_id: avistamento.utilizador_id,
         name: avistamento.nome_comum,
         scientificName: avistamento.nome_cientifico || '—',
@@ -833,7 +836,9 @@ async function loadAvistamentos() {
         estadoCor: avistamento.estado_cor || '#666'
       };
       
-      console.log('Details object created with animal_id:', details.animal_id);
+      console.log('=== DETAILS OBJECT ===');
+      console.log('details.animal_id:', details.animal_id);
+      console.log('Full details:', JSON.stringify(details, null, 2));
 
       // Calculate label font size based on current zoom
       const baseZoom = 12;
