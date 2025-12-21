@@ -47,9 +47,11 @@ const emailTransporter = nodemailer.createTransport({
 });
 
 // Verify email configuration (optional, for testing)
+// Don't block deployment if email verification fails
 emailTransporter.verify((error, success) => {
   if (error) {
-    console.error('Email configuration error:', error);
+    console.warn('Email configuration warning:', error.message);
+    console.warn('Email sending may not work until EMAIL_PASSWORD is configured');
   } else {
     console.log('Email server is ready to send messages');
   }
