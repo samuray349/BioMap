@@ -8,6 +8,64 @@
  * @returns {Promise<Array>} Array de objetos de utilizadores
  */
 
+// Create a simple modal confirm (Sim / Não)
+function showConfirmBan(onConfirm, onCancel) {
+    console.log('Creating ban confirmation modal');
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '10000';
+
+    const box = document.createElement('div');
+    box.style.background = '#fff';
+    box.style.padding = '20px';
+    box.style.borderRadius = '8px';
+    box.style.maxWidth = '420px';
+    box.style.width = '90%';
+    box.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+
+    box.innerHTML = `
+        <h3 style="margin-top:0">Confirmar banimento</h3>
+        <p>Tem certeza que deseja banir este utilizador? <strong>ATENÇÃO: Todos os avistamentos deste utilizador serão deletados permanentemente!</strong></p>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
+            <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;">Sim</button>
+        </div>
+    `;
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    console.log('Modal appended to body');
+
+    const yesBtn = box.querySelector('#confirmYes');
+    const noBtn = box.querySelector('#confirmNo');
+    console.log('Buttons found:', !!yesBtn, !!noBtn);
+
+    yesBtn.addEventListener('click', async () => {
+        console.log('Yes button clicked');
+        try {
+            await onConfirm();
+        } catch (error) {
+            console.error('Error in onConfirm:', error);
+        }
+        document.body.removeChild(overlay);
+    });
+
+    noBtn.addEventListener('click', () => {
+        console.log('No button clicked');
+        if (onCancel) onCancel();
+        document.body.removeChild(overlay);
+    });
+}
+
 async function fetchUsers(filters = {}) {
     try {
         const params = new URLSearchParams();
@@ -194,52 +252,63 @@ function renderUserTable(users, tbody) {
     });
     
     // Add click handlers for ban icons
-    tbodyEl.querySelectorAll('.ban-icon').forEach(icon => {
+    const banIcons = tbodyEl.querySelectorAll('.ban-icon');
+    console.log('Found', banIcons.length, 'ban icons');
+    banIcons.forEach(icon => {
         icon.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
             
+            console.log('Ban icon clicked');
             const userId = this.getAttribute('data-user-id');
+            console.log('User ID:', userId);
             
             if (!userId) {
                 console.error('Missing user ID for ban icon');
                 return;
             }
             
-            if (!confirm('Tem certeza que deseja banir este utilizador? ATENÇÃO: Todos os avistamentos deste utilizador serão deletados permanentemente!')) {
-                return;
-            }
-            
-            try {
-                const apiUrl = getApiUrl(`users/${userId}/estado`);
-                const response = await fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ estado_id: 3 }) // 3 = Banido
-                });
-                
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result?.error || 'Erro ao banir utilizador.');
+            showConfirmBan(async function onConfirm() {
+                console.log('Ban confirmed for user:', userId);
+                try {
+                    if (typeof getApiUrl !== 'function') {
+                        throw new Error('getApiUrl function not available');
+                    }
+                    const apiUrl = getApiUrl(`users/${userId}/estado`);
+                    console.log('API URL:', apiUrl);
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ estado_id: 3 }) // 3 = Banido
+                    });
+                    
+                    const result = await response.json();
+                    console.log('API response:', result);
+                    
+                    if (!response.ok) {
+                        throw new Error(result?.error || 'Erro ao banir utilizador.');
+                    }
+                    
+                    // Show success message
+                    alert('Utilizador banido com sucesso. Os avistamentos foram deletados.');
+                    
+                    // Reload the users table to show updated status
+                    if (typeof window.loadUsers === 'function') {
+                        window.loadUsers();
+                    } else {
+                        window.location.reload();
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao banir utilizador:', error);
+                    alert(error.message || 'Erro ao banir utilizador. Por favor, tente novamente.');
                 }
-                
-                // Show success message
-                alert('Utilizador banido com sucesso. Os avistamentos foram deletados.');
-                
-                // Reload the users table to show updated status
-                if (typeof window.loadUsers === 'function') {
-                    window.loadUsers();
-                } else {
-                    window.location.reload();
-                }
-                
-            } catch (error) {
-                console.error('Erro ao banir utilizador:', error);
-                alert(error.message || 'Erro ao banir utilizador. Por favor, tente novamente.');
-            }
+            }, function onCancel() {
+                console.log('Ban cancelled');
+                // No-op on cancel
+            });
         });
     });
 }
