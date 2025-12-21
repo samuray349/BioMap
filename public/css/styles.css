@@ -3559,12 +3559,12 @@ body:has(.login-container) .login-container {
 
 .login-container {
     width: 100%;
-    max-width: 550px;
+    max-width: 400px;
     margin: 0 auto;
 }
 
 .login-card {
-    background: rgb(255 255 255 / 90%);
+    background: rgba(255, 255, 255, 0.80);
     border-radius: 12px;
     padding: 48px;
     border: 2px solid var(--accent-color);
@@ -3573,7 +3573,6 @@ body:has(.login-container) .login-container {
     width: 100%;
     backdrop-filter: blur(10px);
 }
-
 
 .login-header {
     text-align: center;
