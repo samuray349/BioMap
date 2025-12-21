@@ -199,6 +199,22 @@ checkAccess(ACCESS_ADMIN);
             color: #4b5563 !important;
         }
 
+        /* Error styling for form fields */
+        .input-field input.field-error,
+        .input-field textarea.field-error,
+        .input-field select.field-error,
+        .chip-select.field-error,
+        .family-search-input.field-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+        }
+        
+        /* Error styling for image upload */
+        .upload-box.field-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+        }
+
         /* Submit feedback */
         .submit-message {
             margin-top: 12px;
@@ -1316,10 +1332,62 @@ checkAccess(ACCESS_ADMIN);
             reader.readAsDataURL(file);
         });
 
+        // Helper function to clear all error classes
+        const clearAllErrors = () => {
+            const allInputs = form.querySelectorAll('input, textarea, select, .chip-select, .family-search-input, .upload-box');
+            allInputs.forEach(input => {
+                input.classList.remove('field-error');
+            });
+        };
+
+        // Helper function to add error class to a field
+        const addError = (fieldId) => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.add('field-error');
+            }
+        };
+
+        // Add event listeners to remove error class when user types
+        const setupFieldValidation = () => {
+            const fields = [
+                'animal-name', 'scientific-name', 'description', 'fact', 'population',
+                'family-input', 'diet-type', 'conservation-status',
+                'threat-1', 'threat-2', 'threat-3', 'threat-4', 'threat-5'
+            ];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', () => {
+                        field.classList.remove('field-error');
+                    });
+                    field.addEventListener('change', () => {
+                        field.classList.remove('field-error');
+                    });
+                }
+            });
+            
+            // Handle image input
+            const imageInput = document.getElementById('image-input');
+            const uploadBox = document.querySelector('.upload-box');
+            if (imageInput && uploadBox) {
+                imageInput.addEventListener('change', () => {
+                    uploadBox.classList.remove('field-error');
+                });
+            }
+        };
+
         if (!form) return;
+
+        // Setup field validation listeners
+        setupFieldValidation();
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
+            
+            // Clear all previous errors
+            clearAllErrors();
+            
             try {
                 setMessage('A enviar...');
 
@@ -1332,44 +1400,83 @@ checkAccess(ACCESS_ADMIN);
                 const descricao = document.getElementById('description')?.value?.trim();
                 const populationRaw = document.getElementById('population')?.value || '';
                 const population = populationRaw.replace(/[^\d]/g, '');
-                const threats = getThreats();
+                // Get all threats (including empty ones) for validation
+                const allThreats = [];
+                for (let i = 1; i <= 5; i++) {
+                    const threatValue = document.getElementById(`threat-${i}`)?.value?.trim() || '';
+                    allThreats.push(threatValue);
+                }
+                const threats = getThreats(); // For API submission (non-empty only)
                 const file = imageInput?.files?.[0];
 
-                // Validate required fields with specific messages
-                const missingFields = [];
-                if (!nome) missingFields.push('Nome Animal');
-                if (!cientifico) missingFields.push('Nome Científico');
-                if (!descricao) missingFields.push('Descrição');
-                if (!family) missingFields.push('Família');
-                if (!diet) missingFields.push('Dieta');
-                if (!estado) missingFields.push('Estado de Conservação');
+                let hasErrors = false;
+
+                // Validate required fields
+                if (!nome) { addError('animal-name'); hasErrors = true; }
+                if (!cientifico) { addError('scientific-name'); hasErrors = true; }
+                if (!descricao) { addError('description'); hasErrors = true; }
+                if (!fact) { addError('fact'); hasErrors = true; }
+                if (!populationRaw) { addError('population'); hasErrors = true; }
+                if (!family) { addError('family-input'); hasErrors = true; }
+                if (!diet) { addError('diet-type'); hasErrors = true; }
+                if (!estado) { addError('conservation-status'); hasErrors = true; }
                 
-                if (missingFields.length > 0) {
-                    const warningMessage = `Aviso: Alguns campos obrigatórios não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de submeter.`;
-                    setMessage(''); // Clear loading message
-                    if (typeof showNotification === 'function') {
-                        showNotification(warningMessage, 'info');
-                    }
-                    return;
-                }
+                // Validate character lengths
+                if (nome && nome.length < 3) { addError('animal-name'); hasErrors = true; }
+                if (cientifico && cientifico.length < 3) { addError('scientific-name'); hasErrors = true; }
+                if (descricao && descricao.length < 10) { addError('description'); hasErrors = true; }
+                if (fact && fact.length < 8) { addError('fact'); hasErrors = true; }
                 
-                if (!file) {
-                    const warningMessage = 'Aviso: Por favor, selecione uma imagem para o animal antes de submeter.';
-                    setMessage(''); // Clear loading message
-                    if (typeof showNotification === 'function') {
-                        showNotification(warningMessage, 'info');
-                    }
-                    return;
+                // Validate population (must be a number >= 0)
+                const populationNum = parseInt(population);
+                if (populationRaw && (isNaN(populationNum) || populationNum < 0)) {
+                    addError('population');
+                    hasErrors = true;
                 }
                 
                 // Validate ameaças - must be exactly 5 non-empty threats
-                const nonEmptyThreats = threats.filter(t => t && t.trim().length > 0);
+                const nonEmptyThreats = allThreats.filter(t => t && t.trim().length > 0);
                 const threatsCount = nonEmptyThreats.length;
                 if (threatsCount !== 5) {
-                    const warningMessage = `Aviso: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}. Por favor, preencha todas as 5 ameaças antes de submeter.`;
+                    for (let i = 1; i <= 5; i++) {
+                        addError(`threat-${i}`);
+                    }
+                    hasErrors = true;
+                }
+                
+                // Validate each threat has at least 5 characters
+                allThreats.forEach((threat, index) => {
+                    if (threat && threat.length < 5) {
+                        addError(`threat-${index + 1}`);
+                        hasErrors = true;
+                    }
+                });
+                
+                // Validate no duplicate threats (case-insensitive)
+                const threatLower = allThreats.map(t => t.toLowerCase());
+                for (let i = 0; i < threatLower.length; i++) {
+                    if (!threatLower[i]) continue;
+                    for (let j = i + 1; j < threatLower.length; j++) {
+                        if (threatLower[j] && threatLower[i] === threatLower[j]) {
+                            addError(`threat-${i + 1}`);
+                            addError(`threat-${j + 1}`);
+                            hasErrors = true;
+                        }
+                    }
+                }
+                
+                if (!file) {
+                    const uploadBox = document.querySelector('.upload-box');
+                    if (uploadBox) {
+                        uploadBox.classList.add('field-error');
+                    }
+                    hasErrors = true;
+                }
+                
+                if (hasErrors) {
                     setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
-                        showNotification(warningMessage, 'info');
+                        showNotification('Preencha todos os campos', 'info');
                     }
                     return;
                 }
@@ -1456,5 +1563,6 @@ checkAccess(ACCESS_ADMIN);
     <div id="notification-container" class="notification-container"></div>
 </body>
 </html>
+
 
 
