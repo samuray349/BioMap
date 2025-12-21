@@ -1400,6 +1400,7 @@ checkAccess(ACCESS_ADMIN);
                 const descricao = document.getElementById('description')?.value?.trim();
                 const populationRaw = document.getElementById('population')?.value || '';
                 const population = populationRaw.replace(/[^\d]/g, '');
+                const populationNum = population ? parseInt(population) : 0;
                 // Get all threats (including empty ones) for validation
                 const allThreats = [];
                 for (let i = 1; i <= 5; i++) {
@@ -1416,7 +1417,7 @@ checkAccess(ACCESS_ADMIN);
                 if (!cientifico) { addError('scientific-name'); hasErrors = true; }
                 if (!descricao) { addError('description'); hasErrors = true; }
                 if (!fact) { addError('fact'); hasErrors = true; }
-                if (!populationRaw) { addError('population'); hasErrors = true; }
+                if (!populationRaw || isNaN(populationNum) || populationNum < 0) { addError('population'); hasErrors = true; }
                 if (!family) { addError('family-input'); hasErrors = true; }
                 if (!diet) { addError('diet-type'); hasErrors = true; }
                 if (!estado) { addError('conservation-status'); hasErrors = true; }
@@ -1426,13 +1427,6 @@ checkAccess(ACCESS_ADMIN);
                 if (cientifico && cientifico.length < 3) { addError('scientific-name'); hasErrors = true; }
                 if (descricao && descricao.length < 10) { addError('description'); hasErrors = true; }
                 if (fact && fact.length < 8) { addError('fact'); hasErrors = true; }
-                
-                // Validate population (must be a number >= 0)
-                const populationNum = parseInt(population);
-                if (populationRaw && (isNaN(populationNum) || populationNum < 0)) {
-                    addError('population');
-                    hasErrors = true;
-                }
                 
                 // Validate ameaças - must be exactly 5 non-empty threats
                 const nonEmptyThreats = allThreats.filter(t => t && t.trim().length > 0);
@@ -1509,7 +1503,7 @@ checkAccess(ACCESS_ADMIN);
                     nome_cientifico: cientifico,
                     descricao,
                     facto_interessante: fact,
-                    populacao_estimada: population ? Number(population) : null,
+                    populacao_estimada: isNaN(populationNum) ? 0 : populationNum,
                     familia_nome: family,
                     dieta_nome: diet,
                     estado_nome: estado,
@@ -1527,12 +1521,19 @@ checkAccess(ACCESS_ADMIN);
                 const result = await response.json();
 
                 if (!response.ok) {
-                    const errorMsg = result?.error || 'Erro ao guardar o animal na base de dados.';
+                    const errorMsg = result?.error || '';
+                    const details = result?.details || '';
                     
                     // Check if error is about family not found
                     const isFamilyNotFound = errorMsg.toLowerCase().includes('família') && 
                                            (errorMsg.toLowerCase().includes('não encontrada') || 
                                             errorMsg.toLowerCase().includes('não encontrado'));
+                    
+                    // Check if error is about population
+                    const isPopulationError = errorMsg.toLowerCase().includes('populacao') || 
+                                            errorMsg.toLowerCase().includes('população') ||
+                                            details.toLowerCase().includes('populacao') ||
+                                            details.toLowerCase().includes('população');
                     
                     if (isFamilyNotFound) {
                         // Highlight family input
@@ -1545,7 +1546,23 @@ checkAccess(ACCESS_ADMIN);
                         return;
                     }
                     
-                    throw new Error(errorMsg);
+                    if (isPopulationError) {
+                        // Highlight population input
+                        addError('population');
+                        setMessage(''); // Clear loading message
+                        // Show specific message
+                        if (typeof showNotification === 'function') {
+                            showNotification('Preencha todos os campos', 'info');
+                        }
+                        return;
+                    }
+                    
+                    // Generic error message
+                    setMessage(''); // Clear loading message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Erro ao criar animal. Verifique os campos e tente novamente.', 'info');
+                    }
+                    return;
                 }
 
                 // Clear the loading message
@@ -1565,13 +1582,17 @@ checkAccess(ACCESS_ADMIN);
                 }, 2500);
             } catch (error) {
                 console.error('Erro ao submeter animal', error);
-                const errorMessage = error?.message || 'Erro ao submeter o animal. Verifique a sua ligação à internet e tente novamente.';
+                const errorMessage = error?.message || '';
                 setMessage(''); // Clear loading message
                 
                 // Check if error is about family not found
                 const isFamilyNotFound = errorMessage.toLowerCase().includes('família') && 
                                        (errorMessage.toLowerCase().includes('não encontrada') || 
                                         errorMessage.toLowerCase().includes('não encontrado'));
+                
+                // Check if error is about population
+                const isPopulationError = errorMessage.toLowerCase().includes('populacao') || 
+                                        errorMessage.toLowerCase().includes('população');
                 
                 if (isFamilyNotFound) {
                     // Highlight family input
@@ -1580,9 +1601,17 @@ checkAccess(ACCESS_ADMIN);
                     if (typeof showNotification === 'function') {
                         showNotification('Familia não encontrada', 'info');
                     }
-                } else {
+                } else if (isPopulationError) {
+                    // Highlight population input
+                    addError('population');
+                    // Show specific message
                     if (typeof showNotification === 'function') {
-                        showNotification(errorMessage, 'error');
+                        showNotification('Preencha todos os campos', 'info');
+                    }
+                } else {
+                    // Generic error message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Erro ao criar animal. Verifique os campos e tente novamente.', 'info');
                     }
                 }
             }
