@@ -2698,6 +2698,30 @@ p {
     outline: none;
 }
 
+.input-field textarea {
+    border: 1px solid #d9dee7;
+    border-radius: 16px;
+    padding: 16px 18px;
+    font-size: 15px;
+    background-color: #fbfcfe;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.input-field textarea::placeholder {
+    color: #94a3b8;
+}
+
+.input-field textarea:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+    outline: none;
+    background-color: #ffffff;
+}
+
 .add-section {
     border-top: 1px solid #edf0f7;
     padding-top: 32px;
