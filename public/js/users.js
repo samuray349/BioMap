@@ -112,6 +112,57 @@ function showConfirmSuspend(onConfirm, onCancel) {
         if (onCancel) onCancel();
         document.body.removeChild(overlay);
     });
+// Create a simple modal confirm for unban (Sim / Não)
+function showConfirmUnban(onConfirm, onCancel) {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '10000';
+
+    const box = document.createElement('div');
+    box.style.background = '#fff';
+    box.style.padding = '20px';
+    box.style.borderRadius = '8px';
+    box.style.maxWidth = '420px';
+    box.style.width = '90%';
+    box.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+
+    box.innerHTML = `
+        <h3 style="margin-top:0">Confirmar reverter banimento</h3>
+        <p>Tem certeza que deseja suspender este utilizador?</p>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
+            <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;">Sim</button>
+        </div>
+    `;
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    const yesBtn = box.querySelector('#confirmYes');
+    const noBtn = box.querySelector('#confirmNo');
+
+    yesBtn.addEventListener('click', async () => {
+        try {
+            await onConfirm();
+        } catch (error) {
+            console.error('Error in onConfirm:', error);
+        }
+        document.body.removeChild(overlay);
+    });
+
+    noBtn.addEventListener('click', () => {
+        if (onCancel) onCancel();
+        document.body.removeChild(overlay);
+    });
 }
 
 async function fetchUsers(filters = {}) {
@@ -190,7 +241,7 @@ function renderUserTable(users, tbody) {
         // Check if user is banned (estado_id = 3)
         const isBanned = user.estado_id === 3;
         const banIconHtml = isBanned 
-            ? `<i class="fa-solid fa-check banned-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: default;" title="Utilizador banido"></i>`
+            ? `<i class="fa-solid fa-check banned-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: pointer;" title="Clique para reverter banimento"></i>`
             : `<i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i>`;
 
         row.innerHTML = `
@@ -351,6 +402,56 @@ function renderUserTable(users, tbody) {
                 } catch (error) {
                     console.error('Erro ao banir utilizador:', error);
                     alert(error.message || 'Erro ao banir utilizador. Por favor, tente novamente.');
+                }
+            }, function onCancel() {
+                // No-op on cancel
+            });
+        });
+    });
+    
+    // Add click handlers for banned check icons (to unban users)
+    tbodyEl.querySelectorAll('.banned-check-icon').forEach(icon => {
+        icon.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const userId = this.getAttribute('data-user-id');
+            
+            if (!userId) {
+                console.error('Missing user ID for banned check icon');
+                return;
+            }
+            
+            showConfirmUnban(async function onConfirm() {
+                try {
+                    const apiUrl = getApiUrl(`users/${userId}/estado`);
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ estado_id: 1 }) // 1 = Normal
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result?.error || 'Erro ao reverter banimento.');
+                    }
+                    
+                    // Show success message
+                    alert('Banimento revertido com sucesso. O utilizador foi restaurado para o estado normal.');
+                    
+                    // Reload the users table to show updated status
+                    if (typeof window.loadUsers === 'function') {
+                        window.loadUsers();
+                    } else {
+                        window.location.reload();
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao reverter banimento:', error);
+                    alert(error.message || 'Erro ao reverter banimento. Por favor, tente novamente.');
                 }
             }, function onCancel() {
                 // No-op on cancel
