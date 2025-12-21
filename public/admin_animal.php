@@ -9,6 +9,7 @@ checkAccess(ACCESS_ADMIN);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioMap - Administração do registo animal</title>
     
+    <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
