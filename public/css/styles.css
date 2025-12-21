@@ -5737,6 +5737,7 @@ body:has(.reset-password-container) .login-container {
     left: 10px !important;
   }
   
+  
   .notification-container .notification,
   .notification {
     max-width: 100% !important;
