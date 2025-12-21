@@ -1345,19 +1345,19 @@ checkAccess(ACCESS_ADMIN);
                 if (!estado) missingFields.push('Estado de Conservação');
                 
                 if (missingFields.length > 0) {
-                    const errorMessage = `Campos obrigatórios em falta no formulário: ${missingFields.join(', ')}.`;
+                    const warningMessage = `Aviso: Alguns campos obrigatórios não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de submeter.`;
                     setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
-                        showNotification(errorMessage, 'error');
+                        showNotification(warningMessage, 'info');
                     }
                     return;
                 }
                 
                 if (!file) {
-                    const errorMessage = 'Erro no formulário: Selecione uma imagem para o animal.';
+                    const warningMessage = 'Aviso: Por favor, selecione uma imagem para o animal antes de submeter.';
                     setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
-                        showNotification(errorMessage, 'error');
+                        showNotification(warningMessage, 'info');
                     }
                     return;
                 }
@@ -1366,10 +1366,10 @@ checkAccess(ACCESS_ADMIN);
                 const nonEmptyThreats = threats.filter(t => t && t.trim().length > 0);
                 const threatsCount = nonEmptyThreats.length;
                 if (threatsCount !== 5) {
-                    const errorMessage = `Erro no formulário: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}.`;
+                    const warningMessage = `Aviso: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}. Por favor, preencha todas as 5 ameaças antes de submeter.`;
                     setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
-                        showNotification(errorMessage, 'error');
+                        showNotification(warningMessage, 'info');
                     }
                     return;
                 }
