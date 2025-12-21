@@ -3575,6 +3575,8 @@ body:has(.login-container) .login-container {
     box-sizing: border-box;
     overflow: hidden;
     position: relative;
+    min-height: fit-content;
+    height: auto;
 }
 
 .login-header {
@@ -3598,6 +3600,8 @@ body:has(.login-container) .login-container {
 /* Form Styles */
 .form-group {
     margin-bottom: 24px;
+    min-height: 70px;
+    position: relative;
 }
 
 .input-wrapper {
@@ -3699,13 +3703,16 @@ body:has(.login-container) .login-container {
     margin-left: 4px;
     opacity: 0;
     transform: translateY(-4px);
-    transition: all 0.2s ease;
-    min-height: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    min-height: 20px;
     max-height: 50px;
     overflow: hidden;
+    line-height: 1.4;
+    height: 20px;
 }
 
-.error-message.show {
+.error-message.show,
+.error-message:not(:empty) {
     opacity: 1;
     transform: translateY(0);
 }
@@ -3721,6 +3728,8 @@ body:has(.login-container) .login-container {
     align-items: flex-start;
     margin-bottom: 24px;
     gap: 8px;
+    min-height: 60px;
+    position: relative;
 }
 
 .remember-wrapper {
