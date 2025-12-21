@@ -2708,7 +2708,8 @@ p {
     width: 100%;
     font-family: inherit;
     resize: vertical;
-    min-height: 100px;
+    min-height: 150px;
+    line-height: 1.5;
 }
 
 .input-field textarea::placeholder {
