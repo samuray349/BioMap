@@ -722,15 +722,82 @@ checkAccess(ACCESS_ADMIN);
             if (!updateData.estado_nome) missingFields.push('Estado de Conservação');
             
             // Validate each threat field individually
+            const threatValues = [];
             for (let i = 1; i <= 5; i++) {
                 const threatInput = document.getElementById(`update-threat-${i}`);
                 if (!threatInput || !threatInput.value.trim()) {
                     missingFields.push(`Ameaça ${i}`);
+                } else {
+                    threatValues.push(threatInput.value.trim());
                 }
             }
             
             if (missingFields.length > 0) {
                 const warningMessage = `Aviso: Alguns campos não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de atualizar.`;
+                if (typeof showNotification === 'function') {
+                    showNotification(warningMessage, 'info');
+                } else {
+                    alert(warningMessage);
+                }
+                return;
+            }
+            
+            // Validate character lengths
+            const validationErrors = [];
+            if (updateData.nome_comum.length < 3) validationErrors.push('Nome Animal deve ter pelo menos 3 caracteres');
+            if (updateData.nome_cientifico.length < 3) validationErrors.push('Nome Científico deve ter pelo menos 3 caracteres');
+            if (updateData.descricao.length < 10) validationErrors.push('Descrição deve ter pelo menos 10 caracteres');
+            if (updateData.facto_interessante.length < 8) validationErrors.push('Facto Interessante deve ter pelo menos 8 caracteres');
+            
+            // Validate population (must be a number >= 0)
+            const populationRaw = updateData.populacao_estimada || '';
+            const population = populationRaw.replace(/[^\d]/g, '');
+            const populationNum = parseInt(population);
+            if (isNaN(populationNum) || populationNum < 0) {
+                validationErrors.push('População Estimada deve ser um número maior ou igual a 0');
+            }
+            
+            if (validationErrors.length > 0) {
+                const warningMessage = `Aviso: ${validationErrors.join('; ')}.`;
+                if (typeof showNotification === 'function') {
+                    showNotification(warningMessage, 'info');
+                } else {
+                    alert(warningMessage);
+                }
+                return;
+            }
+            
+            // Validate each threat has at least 5 characters
+            const threatLengthErrors = [];
+            threatValues.forEach((threat, index) => {
+                if (threat.length < 5) {
+                    threatLengthErrors.push(`Ameaça ${index + 1} deve ter pelo menos 5 caracteres`);
+                }
+            });
+            
+            if (threatLengthErrors.length > 0) {
+                const warningMessage = `Aviso: ${threatLengthErrors.join('; ')}.`;
+                if (typeof showNotification === 'function') {
+                    showNotification(warningMessage, 'info');
+                } else {
+                    alert(warningMessage);
+                }
+                return;
+            }
+            
+            // Validate no duplicate threats (case-insensitive)
+            const threatLower = threatValues.map(t => t.toLowerCase());
+            const duplicateThreats = [];
+            for (let i = 0; i < threatLower.length; i++) {
+                for (let j = i + 1; j < threatLower.length; j++) {
+                    if (threatLower[i] === threatLower[j]) {
+                        duplicateThreats.push(`Ameaça ${i + 1} e Ameaça ${j + 1} são iguais`);
+                    }
+                }
+            }
+            
+            if (duplicateThreats.length > 0) {
+                const warningMessage = `Aviso: Não pode ter ameaças duplicadas. ${duplicateThreats.join('; ')}.`;
                 if (typeof showNotification === 'function') {
                     showNotification(warningMessage, 'info');
                 } else {

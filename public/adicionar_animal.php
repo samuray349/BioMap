@@ -1332,20 +1332,28 @@ checkAccess(ACCESS_ADMIN);
                 const descricao = document.getElementById('description')?.value?.trim();
                 const populationRaw = document.getElementById('population')?.value || '';
                 const population = populationRaw.replace(/[^\d]/g, '');
-                const threats = getThreats();
+                // Get all threats (including empty ones) for validation
+                const allThreats = [];
+                for (let i = 1; i <= 5; i++) {
+                    const threatValue = document.getElementById(`threat-${i}`)?.value?.trim() || '';
+                    allThreats.push(threatValue);
+                }
+                const threats = getThreats(); // For API submission (non-empty only)
                 const file = imageInput?.files?.[0];
 
-                // Validate required fields with specific messages
+                // Validate required fields
                 const missingFields = [];
                 if (!nome) missingFields.push('Nome Animal');
                 if (!cientifico) missingFields.push('Nome Científico');
                 if (!descricao) missingFields.push('Descrição');
+                if (!fact) missingFields.push('Facto Interessante');
+                if (!populationRaw) missingFields.push('População Estimada');
                 if (!family) missingFields.push('Família');
                 if (!diet) missingFields.push('Dieta');
                 if (!estado) missingFields.push('Estado de Conservação');
                 
                 if (missingFields.length > 0) {
-                    const warningMessage = `Aviso: Alguns campos obrigatórios não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de submeter.`;
+                    const warningMessage = `Aviso: Alguns campos não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de submeter.`;
                     setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
                         showNotification(warningMessage, 'info');
@@ -1362,11 +1370,72 @@ checkAccess(ACCESS_ADMIN);
                     return;
                 }
                 
+                // Validate character lengths
+                const validationErrors = [];
+                if (nome.length < 3) validationErrors.push('Nome Animal deve ter pelo menos 3 caracteres');
+                if (cientifico.length < 3) validationErrors.push('Nome Científico deve ter pelo menos 3 caracteres');
+                if (descricao.length < 10) validationErrors.push('Descrição deve ter pelo menos 10 caracteres');
+                if (fact.length < 8) validationErrors.push('Facto Interessante deve ter pelo menos 8 caracteres');
+                
+                // Validate population (must be a number >= 0)
+                const populationNum = parseInt(population);
+                if (isNaN(populationNum) || populationNum < 0) {
+                    validationErrors.push('População Estimada deve ser um número maior ou igual a 0');
+                }
+                
+                if (validationErrors.length > 0) {
+                    const warningMessage = `Aviso: ${validationErrors.join('; ')}.`;
+                    setMessage(''); // Clear loading message
+                    if (typeof showNotification === 'function') {
+                        showNotification(warningMessage, 'info');
+                    }
+                    return;
+                }
+                
                 // Validate ameaças - must be exactly 5 non-empty threats
-                const nonEmptyThreats = threats.filter(t => t && t.trim().length > 0);
+                const nonEmptyThreats = allThreats.filter(t => t && t.trim().length > 0);
                 const threatsCount = nonEmptyThreats.length;
                 if (threatsCount !== 5) {
                     const warningMessage = `Aviso: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}. Por favor, preencha todas as 5 ameaças antes de submeter.`;
+                    setMessage(''); // Clear loading message
+                    if (typeof showNotification === 'function') {
+                        showNotification(warningMessage, 'info');
+                    }
+                    return;
+                }
+                
+                // Validate each threat has at least 5 characters
+                const threatLengthErrors = [];
+                allThreats.forEach((threat, index) => {
+                    if (threat && threat.length < 5) {
+                        threatLengthErrors.push(`Ameaça ${index + 1} deve ter pelo menos 5 caracteres`);
+                    }
+                });
+                
+                if (threatLengthErrors.length > 0) {
+                    const warningMessage = `Aviso: ${threatLengthErrors.join('; ')}.`;
+                    setMessage(''); // Clear loading message
+                    if (typeof showNotification === 'function') {
+                        showNotification(warningMessage, 'info');
+                    }
+                    return;
+                }
+                
+                // Validate no duplicate threats (case-insensitive)
+                const threatLower = allThreats.map(t => t.toLowerCase());
+                const duplicateThreats = [];
+                for (let i = 0; i < threatLower.length; i++) {
+                    // Only check non-empty threats for duplicates
+                    if (!threatLower[i]) continue;
+                    for (let j = i + 1; j < threatLower.length; j++) {
+                        if (threatLower[j] && threatLower[i] === threatLower[j]) {
+                            duplicateThreats.push(`Ameaça ${i + 1} e Ameaça ${j + 1} são iguais`);
+                        }
+                    }
+                }
+                
+                if (duplicateThreats.length > 0) {
+                    const warningMessage = `Aviso: Não pode ter ameaças duplicadas. ${duplicateThreats.join('; ')}.`;
                     setMessage(''); // Clear loading message
                     if (typeof showNotification === 'function') {
                         showNotification(warningMessage, 'info');
