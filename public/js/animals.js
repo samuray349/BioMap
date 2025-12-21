@@ -91,14 +91,18 @@ function renderAnimalCards(animals, container, options = {}) {
             `;
         }
         
+        const animalUrl = `animal_desc.php?id=${animal.animal_id}`;
+        
         card.innerHTML = `
-            <img src="${animal.url_imagem || 'img/placeholder.jpg'}" 
-                 alt="${animal.nome_comum}" 
-                 class="card-image" 
-                 onerror="this.src='img/placeholder.jpg'">
+            <a href="${animalUrl}" class="card-image-link" style="display: block; text-decoration: none;">
+                <img src="${animal.url_imagem || 'img/placeholder.jpg'}" 
+                     alt="${animal.nome_comum}" 
+                     class="card-image" 
+                     onerror="this.src='img/placeholder.jpg'">
+            </a>
             <div class="card-content">
                 <div class="card-header">
-                    <h3>${animal.nome_comum}</h3>
+                    <h3><a href="${animalUrl}" style="color: inherit; text-decoration: none; cursor: pointer;">${animal.nome_comum}</a></h3>
                     <span class="badge" style="background-color: ${animal.estado_cor || '#ccc'}; color: white;">
                         ${animal.nome_estado}
                     </span>
