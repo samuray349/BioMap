@@ -180,7 +180,7 @@ function renderUserTable(users, tbody) {
         } else if (estadoLower.includes('suspenso')) {
             badgeClass += ' status-suspended';
             // Use the same color as the suspend button for suspended users
-            badgeStyle = 'style="background-color: #ffc107; color: #000;"';
+            badgeStyle = 'style="background-color: #ffc107; color: #ffffff;"';
         } else {
             // For other states (like banned), use database color
             if (user.estado_cor) {
