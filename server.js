@@ -1474,6 +1474,64 @@ app.post('/api/reset-password', async (req, res) => {
 });
 
 /* =====================
+   CRON JOBS (Scheduled Tasks)
+   GET /cron/cleanup-tokens
+   GET /cron/cleanup-avistamentos
+===================== */
+
+// Cleanup expired password reset tokens
+app.get('/cron/cleanup-tokens', async (req, res) => {
+  try {
+    // Delete expired password reset tokens
+    const result = await pool.query(
+      'DELETE FROM password_reset_tokens WHERE expires_at < NOW()'
+    );
+
+    console.log(`Cleaned up ${result.rowCount} expired password reset tokens`);
+
+    return res.status(200).json({
+      success: true,
+      deletedCount: result.rowCount,
+      message: `Deleted ${result.rowCount} expired tokens`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error cleaning up expired tokens:', error);
+    return res.status(500).json({
+      error: 'Failed to cleanup tokens',
+      message: error.message
+    });
+  }
+});
+
+// Cleanup avistamentos older than 2 days
+app.get('/cron/cleanup-avistamentos', async (req, res) => {
+  try {
+    // Delete avistamentos older than 2 days
+    // Using data_avistamento field (the creation date)
+    const result = await pool.query(
+      `DELETE FROM avistamento 
+       WHERE data_avistamento < NOW() - INTERVAL '2 days'`
+    );
+
+    console.log(`Cleaned up ${result.rowCount} avistamentos older than 2 days`);
+
+    return res.status(200).json({
+      success: true,
+      deletedCount: result.rowCount,
+      message: `Deleted ${result.rowCount} avistamentos older than 2 days`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error cleaning up avistamentos:', error);
+    return res.status(500).json({
+      error: 'Failed to cleanup avistamentos',
+      message: error.message
+    });
+  }
+});
+
+/* =====================
    ALERTS (avistamentos)
    GET /api/alerts
    POST /api/alerts
