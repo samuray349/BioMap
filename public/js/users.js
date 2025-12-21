@@ -80,13 +80,6 @@ function renderUserTable(users, tbody) {
             currentFuncaoId = (user.estatuto === 'Admin' || user.estatuto === 'admin') ? 1 : 2;
         }
         const newFuncaoId = currentFuncaoId === 1 ? 2 : 1;
-        
-        // If the user's estado_id is different from 1 (non-normal) show a green verify icon
-        const estadoIdNum = user.estado_id ? parseInt(user.estado_id) : NaN;
-        const isNonNormal = !Number.isNaN(estadoIdNum) && estadoIdNum !== 1;
-        const banCellHtml = isNonNormal
-            ? `<td><i class="fa-solid fa-check unban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer; color: #198754;" title="Definir como Normal"></i></td>`
-            : `<td><i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i></td>`;
 
         row.innerHTML = `
             <td>${user.nome_utilizador}</td>
@@ -94,7 +87,7 @@ function renderUserTable(users, tbody) {
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
             <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
             <td><i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i></td>
-            ${banCellHtml}
+            <td><i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i></td>
         `;
         
         tbodyEl.appendChild(row);
@@ -246,57 +239,6 @@ function renderUserTable(users, tbody) {
             } catch (error) {
                 console.error('Erro ao banir utilizador:', error);
                 alert(error.message || 'Erro ao banir utilizador. Por favor, tente novamente.');
-            }
-        });
-    });
-    
-    // Add click handlers for unban (verify) icons shown when estado_id == 3
-    tbodyEl.querySelectorAll('.unban-icon').forEach(icon => {
-        icon.addEventListener('click', async function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const userId = this.getAttribute('data-user-id');
-
-
-            if (!userId) {
-                console.error('Missing user ID for unban icon');
-                return;
-            }
-
-            if (!confirm('Tem certeza que deseja desbanir este utilizador?')) {
-                return;
-            }
-
-            try {
-                const apiUrl = getApiUrl(`users/${userId}/estado`);
-                const response = await fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ estado_id: 1 }) // 1 = Normal (desbanir)
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result?.error || 'Erro ao desbanir utilizador.');
-                }
-
-                // Show success message
-                alert('Utilizador desbanido com sucesso.');
-
-                // Reload the users table to show updated status
-                if (typeof window.loadUsers === 'function') {
-                    window.loadUsers();
-                } else {
-                    window.location.reload();
-                }
-
-            } catch (error) {
-                console.error('Erro ao desbanir utilizador:', error);
-                alert(error.message || 'Erro ao desbanir utilizador. Por favor, tente novamente.');
             }
         });
     });
