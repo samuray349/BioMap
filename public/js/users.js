@@ -243,9 +243,6 @@ function renderUserTable(users, tbody) {
             currentFuncaoId = (user.estatuto === 'Admin' || user.estatuto === 'admin') ? 1 : 2;
         }
         const newFuncaoId = currentFuncaoId === 1 ? 2 : 1;
-
-        // Check if user is banned (estado_id = 3)
-        const isBanned = user.estado_id === 3;
         const banIconHtml = isBanned 
             ? `<i class="fa-solid fa-check banned-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: pointer;" title="Clique para reverter banimento"></i>`
             : `<i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i>`;
