@@ -1498,9 +1498,31 @@ checkAccess(ACCESS_ADMIN);
                     return;
                 }
 
+                // Validate family exists before uploading image
+                setMessage('A validar família...');
+                let familyOptions = [];
+                try {
+                    if (typeof fetchFamilyOptions === 'function') {
+                        familyOptions = await fetchFamilyOptions();
+                    }
+                } catch (error) {
+                    console.error('Error fetching family options:', error);
+                }
+
+                // Check if the entered family exists in the list
+                const familyExists = familyOptions.some(f => f.toLowerCase().trim() === family.toLowerCase().trim());
+                if (!familyExists) {
+                    addError('family-input');
+                    setMessage(''); // Clear loading message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Familia não encontrada', 'info');
+                    }
+                    return;
+                }
+
+                // All validations passed, now upload the image
                 const base64Image = await fileToDataURL(file);
 
-                // First, upload the image to get a URL
                 setMessage('A fazer upload da imagem...');
                 const uploadResponse = await fetch('upload_image.php', {
                     method: 'POST',
@@ -1516,7 +1538,11 @@ checkAccess(ACCESS_ADMIN);
                 const uploadResult = await uploadResponse.json();
                 if (!uploadResponse.ok || !uploadResult.success) {
                     const errorMsg = uploadResult?.error || 'Erro desconhecido';
-                    throw new Error(`Erro ao fazer upload da imagem: ${errorMsg}. Verifique se a imagem é válida e tente novamente.`);
+                    setMessage(''); // Clear loading message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Erro ao fazer upload da imagem. Verifique se a imagem é válida e tente novamente.', 'info');
+                    }
+                    return;
                 }
 
                 // Now send the animal data with the image URL
@@ -1547,7 +1573,7 @@ checkAccess(ACCESS_ADMIN);
                     const errorMsg = result?.error || '';
                     const details = result?.details || '';
                     
-                    // Check if error is about family not found
+                    // Check if error is about family not found (double-check from API)
                     const isFamilyNotFound = errorMsg.toLowerCase().includes('família') && 
                                            (errorMsg.toLowerCase().includes('não encontrada') || 
                                             errorMsg.toLowerCase().includes('não encontrado'));
