@@ -710,30 +710,27 @@ checkAccess(ACCESS_ADMIN);
                 })()
             };
             
-            // Validate required fields
+            // Validate all fields
             const missingFields = [];
             if (!updateData.nome_comum) missingFields.push('Nome Animal');
             if (!updateData.nome_cientifico) missingFields.push('Nome Científico');
             if (!updateData.descricao) missingFields.push('Descrição');
+            if (!updateData.facto_interessante) missingFields.push('Facto Interessante');
+            if (!updateData.populacao_estimada) missingFields.push('População Estimada');
             if (!updateData.familia_nome) missingFields.push('Família');
             if (!updateData.dieta_nome) missingFields.push('Dieta');
             if (!updateData.estado_nome) missingFields.push('Estado de Conservação');
             
-            if (missingFields.length > 0) {
-                const warningMessage = `Aviso: Alguns campos obrigatórios não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de atualizar.`;
-                if (typeof showNotification === 'function') {
-                    showNotification(warningMessage, 'info');
-                } else {
-                    alert(warningMessage);
+            // Validate each threat field individually
+            for (let i = 1; i <= 5; i++) {
+                const threatInput = document.getElementById(`update-threat-${i}`);
+                if (!threatInput || !threatInput.value.trim()) {
+                    missingFields.push(`Ameaça ${i}`);
                 }
-                return;
             }
             
-            // Validate ameacas (threats) - must be exactly 5 non-empty threats
-            const nonEmptyThreats = updateData.ameacas.filter(t => t && t.trim().length > 0);
-            const threatsCount = nonEmptyThreats.length;
-            if (threatsCount !== 5) {
-                const warningMessage = `Aviso: Deve preencher exatamente 5 ameaças. Atualmente tem ${threatsCount} ameaça${threatsCount !== 1 ? 's' : ''} preenchida${threatsCount !== 1 ? 's' : ''}. Por favor, preencha todas as 5 ameaças antes de atualizar.`;
+            if (missingFields.length > 0) {
+                const warningMessage = `Aviso: Alguns campos não foram preenchidos: ${missingFields.join(', ')}. Por favor, preencha todos os campos antes de atualizar.`;
                 if (typeof showNotification === 'function') {
                     showNotification(warningMessage, 'info');
                 } else {
