@@ -710,6 +710,7 @@ p {
     width: 100%;
     height: 220px;
     overflow: hidden;
+    transition: opacity 0.2s ease;
 }
 
 .species-panel__image img {
@@ -717,6 +718,15 @@ p {
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.2s ease;
+}
+
+.species-panel__image:hover img {
+    transform: scale(1.05);
+}
+
+.species-panel__image[style*="cursor: pointer"]:hover {
+    opacity: 0.9;
 }
 
 .species-panel__content {
@@ -738,6 +748,16 @@ p {
     color: #198754;
     margin: 0;
     line-height: 1.2;
+}
+
+.species-panel__header h2 a {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.species-panel__header h2 a:hover {
+    opacity: 0.8;
 }
 
 .species-panel__close {

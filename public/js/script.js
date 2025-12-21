@@ -155,6 +155,7 @@ const SpeciesPanel = {
   elements: {
     container: null,
     image: null,
+    imageContainer: null,
     name: null,
     scientificName: null,
     family: null,
@@ -187,6 +188,7 @@ const SpeciesPanel = {
     console.log('Species panel element found:', this.elements.container);
 
     this.elements.image = document.getElementById('species-panel-image');
+    this.elements.imageContainer = this.elements.container?.querySelector('.species-panel__image');
     this.elements.name = document.getElementById('species-panel-name');
     this.elements.scientificName = document.getElementById('species-panel-scientific');
     this.elements.family = document.getElementById('species-panel-family');
@@ -366,15 +368,57 @@ const SpeciesPanel = {
   populateData(details) {
     if (!details) return;
 
-    // Image
+    // Image - make it clickable if animal_id exists
     if (this.elements.image && details.image) {
       this.elements.image.src = details.image;
       this.elements.image.alt = details.name || 'Animal';
+      
+      // Make image and container clickable if animal_id exists
+      if (details.animal_id) {
+        const animalUrl = `animal_desc.php?id=${details.animal_id}`;
+        
+        // Make image clickable
+        this.elements.image.style.cursor = 'pointer';
+        this.elements.image.onclick = (e) => {
+          e.stopPropagation();
+          window.location.href = animalUrl;
+        };
+        
+        // Make image container clickable too
+        if (this.elements.imageContainer) {
+          this.elements.imageContainer.style.cursor = 'pointer';
+          this.elements.imageContainer.onclick = (e) => {
+            e.stopPropagation();
+            window.location.href = animalUrl;
+          };
+        }
+      } else {
+        this.elements.image.style.cursor = 'default';
+        this.elements.image.onclick = null;
+        if (this.elements.imageContainer) {
+          this.elements.imageContainer.style.cursor = 'default';
+          this.elements.imageContainer.onclick = null;
+        }
+      }
     }
 
-    // Text content
+    // Text content - make name clickable if animal_id exists
     if (this.elements.name) {
-      this.elements.name.textContent = details.name || 'Animal sem nome';
+      if (details.animal_id) {
+        // Create a link wrapper for the name
+        const nameLink = document.createElement('a');
+        nameLink.href = `animal_desc.php?id=${details.animal_id}`;
+        nameLink.style.textDecoration = 'none';
+        nameLink.style.color = 'inherit';
+        nameLink.style.cursor = 'pointer';
+        nameLink.textContent = details.name || 'Animal sem nome';
+        
+        // Clear existing content and add link
+        this.elements.name.innerHTML = '';
+        this.elements.name.appendChild(nameLink);
+      } else {
+        this.elements.name.textContent = details.name || 'Animal sem nome';
+      }
     }
     if (this.elements.scientificName) {
       this.elements.scientificName.textContent = details.scientificName || '—';
@@ -743,6 +787,7 @@ async function loadAvistamentos() {
       // Create details object for SpeciesPanel
       const details = {
         avistamento_id: avistamento.avistamento_id,
+        animal_id: avistamento.animal_id,
         utilizador_id: avistamento.utilizador_id,
         name: avistamento.nome_comum,
         scientificName: avistamento.nome_cientifico || '—',
