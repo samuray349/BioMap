@@ -3559,17 +3559,21 @@ body:has(.login-container) .login-container {
 
 .login-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 550px;
     margin: 0 auto;
 }
 
 .login-card {
-    background: white;
+    background: rgb(255 255 255 / 90%);
     border-radius: 12px;
-    padding: 32px;
-    border: 1px solid #e2e8f0;
+    padding: 48px;
+    border: 2px solid var(--accent-color);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    backdrop-filter: blur(10px);
 }
+
 
 .login-header {
     text-align: center;
@@ -3986,7 +3990,7 @@ body:has(.login-container) .login-container {
 
     /* Login page responsive */
     .login-card {
-        padding: 24px;
+        padding: 36px;
         margin: 10px;
     }
     

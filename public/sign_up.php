@@ -46,8 +46,16 @@
                     </div>
                     <span class="error-message" id="passwordError"></span>
                 </div>
-
-                <button type="submit" class="login-btn">
+                <div class="form-options">
+                    <label class="remember-wrapper">
+                        <input type="checkbox" id="remember" name="remember">
+                        <span class="checkbox-label">
+                            <span class="checkmark"></span>
+                            Aceitar os <a href="termos_de_utilizacao.php">Termos de Utilização</a> e a <a href="politica_de_privacidade.php">Política de Privacidade</a>
+                        </span>
+                    </label>
+                </div>
+                <button type="submit" class="login-btn" action="index.php">
                     <span class="btn-text">Criar Conta</span>
                     <span class="btn-loader"></span>
                 </button>
