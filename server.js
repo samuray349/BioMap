@@ -46,6 +46,7 @@ const emailTransporter = nodemailer.createTransport({
   }
 });
 
+
 // Verify email configuration (optional, for testing)
 emailTransporter.verify((error, success) => {
   if (error) {
