@@ -742,12 +742,15 @@ checkAccess(ACCESS_ADMIN);
             const formData = new FormData(form);
             
             // Get form values
+            const populacaoRaw = document.getElementById('update-populacao').value.trim();
+            const populacaoNum = populacaoRaw ? parseInt(populacaoRaw.replace(/[^\d]/g, '')) : 0;
+            
             const updateData = {
                 nome_comum: document.getElementById('update-nome-comum').value.trim(),
                 nome_cientifico: document.getElementById('update-nome-cientifico').value.trim(),
                 descricao: document.getElementById('update-descricao').value.trim(),
                 facto_interessante: document.getElementById('update-facto').value.trim(),
-                populacao_estimada: document.getElementById('update-populacao').value.trim(),
+                populacao_estimada: isNaN(populacaoNum) ? 0 : populacaoNum,
                 familia_nome: document.getElementById('update-family-input').value.trim(),
                 dieta_nome: document.getElementById('update-dieta').value.trim(),
                 estado_nome: document.getElementById('update-estado').value.trim(),
@@ -780,7 +783,7 @@ checkAccess(ACCESS_ADMIN);
             if (!updateData.nome_cientifico) { addUpdateError('update-nome-cientifico'); hasErrors = true; }
             if (!updateData.descricao) { addUpdateError('update-descricao'); hasErrors = true; }
             if (!updateData.facto_interessante) { addUpdateError('update-facto'); hasErrors = true; }
-            if (!updateData.populacao_estimada) { addUpdateError('update-populacao'); hasErrors = true; }
+            if (!populacaoRaw || populacaoNum < 0) { addUpdateError('update-populacao'); hasErrors = true; }
             if (!updateData.familia_nome) { addUpdateError('update-family-input'); hasErrors = true; }
             if (!updateData.dieta_nome) { addUpdateError('update-dieta'); hasErrors = true; }
             if (!updateData.estado_nome) { addUpdateError('update-estado'); hasErrors = true; }
@@ -801,10 +804,7 @@ checkAccess(ACCESS_ADMIN);
             if (updateData.facto_interessante && updateData.facto_interessante.length < 8) { addUpdateError('update-facto'); hasErrors = true; }
             
             // Validate population (must be a number >= 0)
-            const populationRaw = updateData.populacao_estimada || '';
-            const population = populationRaw.replace(/[^\d]/g, '');
-            const populationNum = parseInt(population);
-            if (updateData.populacao_estimada && (isNaN(populationNum) || populationNum < 0)) {
+            if (!populacaoRaw || isNaN(populacaoNum) || populacaoNum < 0) {
                 addUpdateError('update-populacao');
                 hasErrors = true;
             }
@@ -862,12 +862,18 @@ checkAccess(ACCESS_ADMIN);
                 
                 if (!response.ok) {
                     const errorMsg = result.error || 'Erro ao atualizar animal';
-                    const details = result.details ? ` Detalhes: ${result.details}` : '';
+                    const details = result.details || '';
                     
                     // Check if error is about family not found
                     const isFamilyNotFound = errorMsg.toLowerCase().includes('família') && 
                                            (errorMsg.toLowerCase().includes('não encontrada') || 
                                             errorMsg.toLowerCase().includes('não encontrado'));
+                    
+                    // Check if error is about population
+                    const isPopulationError = errorMsg.toLowerCase().includes('populacao') || 
+                                            errorMsg.toLowerCase().includes('população') ||
+                                            details.toLowerCase().includes('populacao') ||
+                                            details.toLowerCase().includes('população');
                     
                     if (isFamilyNotFound) {
                         // Highlight family input
@@ -881,7 +887,25 @@ checkAccess(ACCESS_ADMIN);
                         return;
                     }
                     
-                    throw new Error(`Erro ao atualizar animal (ID: ${animalId}): ${errorMsg}${details}`);
+                    if (isPopulationError) {
+                        // Highlight population input
+                        addUpdateError('update-populacao');
+                        // Show specific message
+                        if (typeof showNotification === 'function') {
+                            showNotification('Preencha todos os campos', 'info');
+                        } else {
+                            alert('Preencha todos os campos');
+                        }
+                        return;
+                    }
+                    
+                    // For any other error, show generic message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Erro ao atualizar animal. Verifique os campos e tente novamente.', 'info');
+                    } else {
+                        alert('Erro ao atualizar animal. Verifique os campos e tente novamente.');
+                    }
+                    return;
                 }
                 
                 // Success - close modal immediately and show notification
@@ -903,13 +927,16 @@ checkAccess(ACCESS_ADMIN);
                 });
             } catch (error) {
                 console.error('Erro ao atualizar animal:', error);
-                const animalId = document.getElementById('update-animal-id')?.value || 'desconhecido';
-                const errorMessage = error.message || `Erro ao atualizar animal (ID: ${animalId}). Verifique a sua ligação à internet.`;
+                const errorMessage = error.message || '';
                 
                 // Check if error is about family not found
                 const isFamilyNotFound = errorMessage.toLowerCase().includes('família') && 
                                        (errorMessage.toLowerCase().includes('não encontrada') || 
                                         errorMessage.toLowerCase().includes('não encontrado'));
+                
+                // Check if error is about population
+                const isPopulationError = errorMessage.toLowerCase().includes('populacao') || 
+                                        errorMessage.toLowerCase().includes('população');
                 
                 if (isFamilyNotFound) {
                     // Highlight family input
@@ -920,11 +947,21 @@ checkAccess(ACCESS_ADMIN);
                     } else {
                         alert('Familia não encontrada');
                     }
-                } else {
+                } else if (isPopulationError) {
+                    // Highlight population input
+                    addUpdateError('update-populacao');
+                    // Show specific message
                     if (typeof showNotification === 'function') {
-                        showNotification(errorMessage, 'error');
+                        showNotification('Preencha todos os campos', 'info');
                     } else {
-                        alert(errorMessage);
+                        alert('Preencha todos os campos');
+                    }
+                } else {
+                    // Generic error message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Erro ao atualizar animal. Verifique os campos e tente novamente.', 'info');
+                    } else {
+                        alert('Erro ao atualizar animal. Verifique os campos e tente novamente.');
                     }
                 }
             }
