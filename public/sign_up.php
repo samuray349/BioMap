@@ -48,12 +48,13 @@
                 </div>
                 <div class="form-options">
                     <label class="remember-wrapper">
-                        <input type="checkbox" id="remember" name="remember">
+                        <input type="checkbox" id="terms" name="terms" required>
                         <span class="checkbox-label">
                             <span class="checkmark"></span>
-                            Aceitar os <a href="termos_de_utilizacao.php">Termos de Utilização</a> e a <a href="politica_de_privacidade.php">Política de Privacidade</a>
+                            Aceitar os <a href="termos_de_utilizacao.php" target="_blank">Termos e Condições</a>
                         </span>
                     </label>
+                    <span class="error-message" id="termsError"></span>
                 </div>
                 <button type="submit" class="login-btn" action="index.php">
                     <span class="btn-text">Criar Conta</span>
@@ -87,9 +88,11 @@
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const passwordToggle = document.getElementById('passwordToggle');
+            const termsCheckbox = document.getElementById('terms');
             const nameError = document.getElementById('nameError');
             const emailError = document.getElementById('emailError');
             const passwordError = document.getElementById('passwordError');
+            const termsError = document.getElementById('termsError');
             const formError = document.getElementById('formError');
             const successMessage = document.getElementById('successMessage');
             const submitButton = form.querySelector('.login-btn');
@@ -111,7 +114,7 @@
             }
 
             function clearErrors() {
-                [nameError, emailError, passwordError, formError].forEach(el => {
+                [nameError, emailError, passwordError, termsError, formError].forEach(el => {
                     if (el) el.textContent = '';
                 });
             }
@@ -153,6 +156,13 @@
                         showNotification(passwordErrorMsg, 'error');
                         hasError = true;
                     }
+                }
+
+                // Validate terms and conditions checkbox
+                if (!termsCheckbox || !termsCheckbox.checked) {
+                    showError(termsError, 'Deve aceitar os Termos e Condições para criar uma conta.');
+                    showNotification('Deve aceitar os Termos e Condições para criar uma conta.', 'error');
+                    hasError = true;
                 }
 
                 if (hasError) return;
