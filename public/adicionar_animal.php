@@ -1528,6 +1528,23 @@ checkAccess(ACCESS_ADMIN);
 
                 if (!response.ok) {
                     const errorMsg = result?.error || 'Erro ao guardar o animal na base de dados.';
+                    
+                    // Check if error is about family not found
+                    const isFamilyNotFound = errorMsg.toLowerCase().includes('família') && 
+                                           (errorMsg.toLowerCase().includes('não encontrada') || 
+                                            errorMsg.toLowerCase().includes('não encontrado'));
+                    
+                    if (isFamilyNotFound) {
+                        // Highlight family input
+                        addError('family-input');
+                        setMessage(''); // Clear loading message
+                        // Show specific message
+                        if (typeof showNotification === 'function') {
+                            showNotification('Familia não encontrada', 'info');
+                        }
+                        return;
+                    }
+                    
                     throw new Error(errorMsg);
                 }
 
@@ -1550,8 +1567,23 @@ checkAccess(ACCESS_ADMIN);
                 console.error('Erro ao submeter animal', error);
                 const errorMessage = error?.message || 'Erro ao submeter o animal. Verifique a sua ligação à internet e tente novamente.';
                 setMessage(''); // Clear loading message
-                if (typeof showNotification === 'function') {
-                    showNotification(errorMessage, 'error');
+                
+                // Check if error is about family not found
+                const isFamilyNotFound = errorMessage.toLowerCase().includes('família') && 
+                                       (errorMessage.toLowerCase().includes('não encontrada') || 
+                                        errorMessage.toLowerCase().includes('não encontrado'));
+                
+                if (isFamilyNotFound) {
+                    // Highlight family input
+                    addError('family-input');
+                    // Show specific message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Familia não encontrada', 'info');
+                    }
+                } else {
+                    if (typeof showNotification === 'function') {
+                        showNotification(errorMessage, 'error');
+                    }
                 }
             }
         });
