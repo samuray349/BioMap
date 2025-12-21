@@ -10,6 +10,7 @@
 
 // Create a simple modal confirm (Sim / Não)
 function showConfirmBan(onConfirm, onCancel) {
+    console.log('Creating ban confirmation modal');
     // Create overlay
     const overlay = document.createElement('div');
     overlay.style.position = 'fixed';
@@ -42,16 +43,24 @@ function showConfirmBan(onConfirm, onCancel) {
 
     overlay.appendChild(box);
     document.body.appendChild(overlay);
+    console.log('Modal appended to body');
 
     const yesBtn = box.querySelector('#confirmYes');
     const noBtn = box.querySelector('#confirmNo');
+    console.log('Buttons found:', !!yesBtn, !!noBtn);
 
-    yesBtn.addEventListener('click', () => {
-        onConfirm();
+    yesBtn.addEventListener('click', async () => {
+        console.log('Yes button clicked');
+        try {
+            await onConfirm();
+        } catch (error) {
+            console.error('Error in onConfirm:', error);
+        }
         document.body.removeChild(overlay);
     });
 
     noBtn.addEventListener('click', () => {
+        console.log('No button clicked');
         if (onCancel) onCancel();
         document.body.removeChild(overlay);
     });
@@ -243,12 +252,16 @@ function renderUserTable(users, tbody) {
     });
     
     // Add click handlers for ban icons
-    tbodyEl.querySelectorAll('.ban-icon').forEach(icon => {
+    const banIcons = tbodyEl.querySelectorAll('.ban-icon');
+    console.log('Found', banIcons.length, 'ban icons');
+    banIcons.forEach(icon => {
         icon.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
             
+            console.log('Ban icon clicked');
             const userId = this.getAttribute('data-user-id');
+            console.log('User ID:', userId);
             
             if (!userId) {
                 console.error('Missing user ID for ban icon');
@@ -256,8 +269,13 @@ function renderUserTable(users, tbody) {
             }
             
             showConfirmBan(async function onConfirm() {
+                console.log('Ban confirmed for user:', userId);
                 try {
+                    if (typeof getApiUrl !== 'function') {
+                        throw new Error('getApiUrl function not available');
+                    }
                     const apiUrl = getApiUrl(`users/${userId}/estado`);
+                    console.log('API URL:', apiUrl);
                     const response = await fetch(apiUrl, {
                         method: 'PUT',
                         headers: {
@@ -267,6 +285,7 @@ function renderUserTable(users, tbody) {
                     });
                     
                     const result = await response.json();
+                    console.log('API response:', result);
                     
                     if (!response.ok) {
                         throw new Error(result?.error || 'Erro ao banir utilizador.');
@@ -287,6 +306,7 @@ function renderUserTable(users, tbody) {
                     alert(error.message || 'Erro ao banir utilizador. Por favor, tente novamente.');
                 }
             }, function onCancel() {
+                console.log('Ban cancelled');
                 // No-op on cancel
             });
         });
