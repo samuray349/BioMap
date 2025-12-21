@@ -412,21 +412,38 @@ const SpeciesPanel = {
     }
 
     // Text content - make name clickable if animal_id exists
-    if (this.elements.name) {
+    // Re-fetch the element to ensure we have the latest reference
+    const nameElement = document.getElementById('species-panel-name');
+    console.log('Name element found:', nameElement);
+    console.log('details.animal_id:', details.animal_id);
+    
+    if (nameElement) {
       if (details.animal_id) {
         // Create a link wrapper for the name
         const animalUrl = `animal_desc.php?id=${details.animal_id}`;
         const nameText = details.name || 'Animal sem nome';
-        // Preserve the h2 element but replace its content with a link
-        this.elements.name.innerHTML = '';
-        const nameLink = document.createElement('a');
-        nameLink.href = animalUrl;
-        nameLink.textContent = nameText;
-        nameLink.style.cssText = 'color: inherit; text-decoration: none; cursor: pointer; display: block; width: 100%;';
-        this.elements.name.appendChild(nameLink);
+        // Replace the h2's content with a link - use innerHTML to ensure it's set
+        const linkHTML = `<a href="${animalUrl}" style="color: inherit !important; text-decoration: none !important; cursor: pointer !important; display: block !important; width: 100% !important;">${nameText}</a>`;
+        nameElement.innerHTML = linkHTML;
+        console.log('Name link created. Element HTML after setting:', nameElement.innerHTML);
+        console.log('Link element:', nameElement.querySelector('a'));
+        
+        // Verify the link was created
+        const linkElement = nameElement.querySelector('a');
+        if (linkElement) {
+          console.log('Link element verified. href:', linkElement.href);
+        } else {
+          console.error('Link element not found after setting innerHTML!');
+        }
+        
+        // Update the reference
+        this.elements.name = nameElement;
       } else {
-        this.elements.name.textContent = details.name || 'Animal sem nome';
+        nameElement.textContent = details.name || 'Animal sem nome';
+        console.log('No animal_id, name set to text only');
       }
+    } else {
+      console.error('species-panel-name element not found in DOM');
     }
     if (this.elements.scientificName) {
       this.elements.scientificName.textContent = details.scientificName || '—';
