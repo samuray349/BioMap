@@ -219,6 +219,10 @@ function renderUserTable(users, tbody) {
     users.forEach(user => {
         const row = document.createElement('tr');
         
+        // Check if user is banned (estado_id = 3)
+        const isBanned = user.estado_id === 3;
+        console.log('User:', user.utilizador_id, 'estado_id:', user.estado_id, 'isBanned:', isBanned);
+        
         // Determina a classe do distintivo com base no estado
         let badgeClass = 'status-badge';
         const estadoLower = (user.nome_estado || '').toLowerCase();
@@ -412,10 +416,14 @@ function renderUserTable(users, tbody) {
     });
     
     // Add click handlers for banned check icons (to unban users)
-    tbodyEl.querySelectorAll('.banned-check-icon').forEach(icon => {
+    const bannedCheckIcons = tbodyEl.querySelectorAll('.banned-check-icon');
+    console.log('Found', bannedCheckIcons.length, 'banned check icons');
+    bannedCheckIcons.forEach(icon => {
+        console.log('Attaching click handler to banned check icon for user:', icon.getAttribute('data-user-id'));
         icon.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
+            console.log('Banned check icon clicked for user:', this.getAttribute('data-user-id'));
             
             const userId = this.getAttribute('data-user-id');
             
