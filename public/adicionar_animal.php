@@ -702,8 +702,7 @@ checkAccess(ACCESS_ADMIN);
                         <p>Conte a história, comportamento e habitat do animal.</p>
                     </div>
                     <div class="input-field">
-                        <label for="description">Descrição</label>
-                        <textarea id="description" rows="8" placeholder="Conte a história do animal, habitat, comportamento e outros detalhes importantes..."></textarea>
+                        <textarea id="description" rows="4" placeholder="Conte a história do animal, habitat, comportamento e outros detalhes importantes..."></textarea>
                     </div>
                 </section>
 
