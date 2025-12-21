@@ -214,6 +214,31 @@ checkAccess(ACCESS_ADMIN);
             border-color: #ef4444 !important;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
         }
+        
+        /* Textarea styling to match inputs */
+        .input-field textarea {
+            border: 1px solid #d9dee7 !important;
+            border-radius: 16px !important;
+            padding: 16px 18px !important;
+            font-size: 15px !important;
+            background-color: #fbfcfe !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+            width: 100%;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+            line-height: 1.5;
+        }
+        
+        .input-field textarea::placeholder {
+            color: #94a3b8 !important;
+        }
+        
+        .input-field textarea:focus {
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12) !important;
+            outline: none !important;
+        }
 
         /* Submit feedback */
         .submit-message {
