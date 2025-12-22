@@ -9,5 +9,15 @@
     "api/index.js": {
       "maxDuration": 30
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/cron/cleanup-tokens",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/cron/cleanup-avistamentos",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }

@@ -6,7 +6,7 @@
     <title>BioMap - Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/styles.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
     <script src="js/config.js"></script>
     <script src="js/session.js"></script>
@@ -25,7 +25,6 @@
                     <div class="input-wrapper">
                         <input type="email" id="email" name="email" required autocomplete="email">
                     </div>
-                    <span class="error-message" id="emailError"></span>
                 </div>
 
                 <div class="form-group">
@@ -36,17 +35,10 @@
                             <span class="eye-icon"></span>
                         </button>
                     </div>
-                    <span class="error-message" id="passwordError"></span>
                 </div>
 
                 <div class="form-options">
-                    <label class="remember-wrapper">
-                        <input type="checkbox" id="remember" name="remember">
-                        <span class="checkbox-label">
-                            <span class="checkmark"></span>
-                            Guardar Sessão
-                        </span>
-                    </label>
+                    
                     <a href="esqueceu_password.php" class="forgot-password">Esqueceu-se da password?</a>
                 </div>
 
@@ -59,8 +51,6 @@
             <div class="signup-link">
                 <p>Não tem conta? <a href="sign_up.php">Criar Conta</a></p>
             </div>
-
-            <div class="error-message" id="formError" role="alert"></div>
 
             <div class="success-message" id="successMessage">
                 <div class="success-icon">✓</div>
@@ -78,9 +68,6 @@
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const passwordToggle = document.getElementById('passwordToggle');
-            const emailError = document.getElementById('emailError');
-            const passwordError = document.getElementById('passwordError');
-            const formError = document.getElementById('formError');
             const successMessage = document.getElementById('successMessage');
             const submitButton = form.querySelector('.login-btn');
             const btnText = submitButton.querySelector('.btn-text');
@@ -96,18 +83,15 @@
                 passwordToggle.addEventListener('click', togglePassword);
             }
 
-            function showError(target, message) {
-                if (target) target.textContent = message;
-                // Also show notification for errors
+            function showError(message) {
+                // Show notification for errors
                 if (typeof showNotification === 'function') {
                     showNotification(message, 'error');
                 }
             }
 
             function clearErrors() {
-                [emailError, passwordError, formError].forEach(el => {
-                    if (el) el.textContent = '';
-                });
+                // Errors are only shown via notifications
             }
 
             function setLoading(isLoading) {
@@ -125,11 +109,11 @@
 
                 let hasError = false;
                 if (!email) {
-                    showError(emailError, 'Insira um email válido.');
+                    showError('Insira um email válido.');
                     hasError = true;
                 }
                 if (!password) {
-                    showError(passwordError, 'Insira a password.');
+                    showError('Insira a password.');
                     hasError = true;
                 }
 
@@ -191,7 +175,7 @@
                     }, 800);
                 } catch (error) {
                     const errorMsg = error.message || 'Não foi possível iniciar sessão.';
-                    showError(formError, errorMsg);
+                    showError(errorMsg);
                 } finally {
                     setLoading(false);
                 }

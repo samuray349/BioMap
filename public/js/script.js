@@ -129,7 +129,12 @@ function showNotification(message, type = 'success') {
     </div>
   `;
 
-  container.appendChild(notification);
+  // Insert at the beginning so newest notifications appear at top
+  if (container.firstChild) {
+    container.insertBefore(notification, container.firstChild);
+  } else {
+    container.appendChild(notification);
+  }
 
   // Trigger animation
   setTimeout(() => {
@@ -155,6 +160,7 @@ const SpeciesPanel = {
   elements: {
     container: null,
     image: null,
+    imageContainer: null,
     name: null,
     scientificName: null,
     family: null,
@@ -173,11 +179,9 @@ const SpeciesPanel = {
 
   init() {
     if (this.isInitialized) {
-      console.log('Panel already initialized');
       return;
     }
     
-    console.log('Initializing SpeciesPanel...');
     // Get all panel elements
     this.elements.container = document.getElementById('species-panel');
     if (!this.elements.container) {
@@ -187,6 +191,7 @@ const SpeciesPanel = {
     console.log('Species panel element found:', this.elements.container);
 
     this.elements.image = document.getElementById('species-panel-image');
+    this.elements.imageContainer = this.elements.container?.querySelector('.species-panel__image');
     this.elements.name = document.getElementById('species-panel-name');
     this.elements.scientificName = document.getElementById('species-panel-scientific');
     this.elements.family = document.getElementById('species-panel-family');
@@ -319,10 +324,7 @@ const SpeciesPanel = {
   },
 
   open(details) {
-    console.log('SpeciesPanel.open called with:', details);
-    
     if (!this.isInitialized) {
-      console.log('Panel not initialized, initializing...');
       this.init();
     }
     
@@ -359,22 +361,71 @@ const SpeciesPanel = {
     // from closing the panel immediately in the same event loop.
     setTimeout(() => {
       this.isOpen = true;
-      console.log('Panel visible. isOpen set to true.');
     }, 50);
   },
 
   populateData(details) {
     if (!details) return;
+    
 
-    // Image
-    if (this.elements.image && details.image) {
+    // Image - make it clickable if animal_id exists
+    // First, ensure we have the image container
+    if (!this.elements.imageContainer) {
+      this.elements.imageContainer = this.elements.container?.querySelector('.species-panel__image');
+    }
+    
+    if (this.elements.imageContainer && details.image) {
+      if (details.animal_id) {
+        const animalUrl = `animal_desc.php?id=${details.animal_id}`;
+        // Wrap the image in a link by replacing the container's content
+        this.elements.imageContainer.innerHTML = `
+          <a href="${animalUrl}" style="display: block; width: 100%; height: 100%; text-decoration: none; cursor: pointer;">
+            <img id="species-panel-image" src="${details.image}" alt="${details.name || 'Animal'}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='img/placeholder.jpg'">
+          </a>
+        `;
+        // Re-get the image element after innerHTML change
+        this.elements.image = document.getElementById('species-panel-image');
+      } else {
+        // No animal_id, just set the image normally
+        this.elements.imageContainer.innerHTML = `
+          <img id="species-panel-image" src="${details.image}" alt="${details.name || 'Animal'}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='img/placeholder.jpg'">
+        `;
+        this.elements.image = document.getElementById('species-panel-image');
+      }
+    } else if (this.elements.image && details.image) {
+      // Fallback if container doesn't exist
       this.elements.image.src = details.image;
       this.elements.image.alt = details.name || 'Animal';
+      if (details.animal_id) {
+        const animalUrl = `animal_desc.php?id=${details.animal_id}`;
+        // Wrap in link
+        const link = document.createElement('a');
+        link.href = animalUrl;
+        link.style.cssText = 'display: block; text-decoration: none; cursor: pointer;';
+        const parent = this.elements.image.parentNode;
+        parent.insertBefore(link, this.elements.image);
+        link.appendChild(this.elements.image);
+      }
     }
 
-    // Text content
-    if (this.elements.name) {
-      this.elements.name.textContent = details.name || 'Animal sem nome';
+    // Text content - make name clickable if animal_id exists
+    // Re-fetch the element to ensure we have the latest reference
+    const nameElement = document.getElementById('species-panel-name');
+    
+    if (nameElement) {
+      if (details.animal_id) {
+        // Create a link wrapper for the name
+        const animalUrl = `animal_desc.php?id=${details.animal_id}`;
+        const nameText = details.name || 'Animal sem nome';
+        // Replace the h2's content with a link - use innerHTML to ensure it's set
+        const linkHTML = `<a href="${animalUrl}" style="color: inherit !important; text-decoration: none !important; cursor: pointer !important; display: block !important; width: 100% !important;">${nameText}</a>`;
+        nameElement.innerHTML = linkHTML;
+        
+        // Update the reference
+        this.elements.name = nameElement;
+      } else {
+        nameElement.textContent = details.name || 'Animal sem nome';
+      }
     }
     if (this.elements.scientificName) {
       this.elements.scientificName.textContent = details.scientificName || '—';
@@ -743,6 +794,7 @@ async function loadAvistamentos() {
       // Create details object for SpeciesPanel
       const details = {
         avistamento_id: avistamento.avistamento_id,
+        animal_id: avistamento.animal_id,
         utilizador_id: avistamento.utilizador_id,
         name: avistamento.nome_comum,
         scientificName: avistamento.nome_cientifico || '—',
