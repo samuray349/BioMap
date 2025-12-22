@@ -139,7 +139,7 @@ function showConfirmUnban(onConfirm, onCancel) {
 
     box.innerHTML = `
         <h3 style="margin-top:0">Confirmar reverter banimento</h3>
-        <p>Tem certeza que deseja reverter o banimento deste utilizador?</p>
+        <p>Tem a certeza que quer reverter o banimento deste utilizador?</p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
             <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
             <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;">Sim</button>
@@ -192,7 +192,7 @@ function showConfirmUnsuspend(onConfirm, onCancel) {
 
     box.innerHTML = `
         <h3 style="margin-top:0">Confirmar reverter suspensão</h3>
-        <p>Tem certeza que deseja reverter a suspensão deste utilizador?</p>
+        <p>Tem a certeza que quer reverter a suspenção deste utilizador?</p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
             <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
             <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;">Sim</button>
