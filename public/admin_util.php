@@ -103,6 +103,38 @@ checkAccess(ACCESS_ADMIN);
                 </tbody>
             </table>
         </div>
+        
+        <!-- Pagination -->
+        <div class="admin-pagination-container">
+            <div class="pagination-info">
+                <span>Linhas por pagina</span>
+                <select class="pagination-select">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+                <span>de 140 linhas</span>
+            </div>
+            <div class="pagination-controls">
+                <button class="pagination-btn" title="Primeira página">
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="pagination-btn" title="Página anterior">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                <button class="pagination-btn active">1</button>
+                <button class="pagination-btn">2</button>
+                <button class="pagination-btn">3</button>
+                <span class="pagination-ellipsis">...</span>
+                <button class="pagination-btn">10</button>
+                <button class="pagination-btn" title="Próxima página">
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="pagination-btn" title="Última página">
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
+        </div>
     </main>
     
     <!-- Scripts -->
@@ -127,6 +159,17 @@ checkAccess(ACCESS_ADMIN);
         const tbody = document.querySelector('.admin-users-table tbody');
         const searchInput = document.getElementById('search-input');
         
+        // Pagination state
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let allUsers = [];
+        let totalPages = 1;
+
+        // Pagination elements
+        const paginationSelect = document.querySelector('.pagination-select');
+        const paginationInfo = document.querySelector('.pagination-info span:last-child');
+        const paginationControls = document.querySelector('.pagination-controls');
+
         // Fetch estado options from API
         async function fetchEstadoOptions() {
             try {
@@ -159,9 +202,8 @@ checkAccess(ACCESS_ADMIN);
             }
         }
 
-        // Load and render users (excluding current user)
-        // Make it globally accessible for the ban/suspend handlers
-        window.loadUsers = async function loadUsers() {
+        // Load and render users
+        async function loadUsers() {
             try {
                 const filters = getUserFilters({
                     searchInput: searchInput,
@@ -169,7 +211,7 @@ checkAccess(ACCESS_ADMIN);
                     estatutoTagsArray: adminEstatutoTags
                 });
                 
-                let users = await fetchUsers(filters);
+                allUsers = await fetchUsers(filters);
 
                 // Get current user ID and filter it out
                 let currentUserId = null;
@@ -190,17 +232,135 @@ checkAccess(ACCESS_ADMIN);
                 }
 
                 // Filter out current user from the list
-                users = users.filter(user => {
+                allUsers = allUsers.filter(user => {
                     return currentUserId === null || user.utilizador_id !== currentUserId;
                 });
 
-                renderUserTable(users, tbody);
+                updatePagination();
+                renderCurrentPage();
             } catch (error) {
                 console.error("Erro ao carregar utilizadores:", error);
                 if (tbody) {
                     tbody.innerHTML = '<tr><td colspan="6">Erro ao carregar dados.</td></tr>';
                 }
             }
+        }
+
+        // Render current page of users
+        function renderCurrentPage() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageUsers = allUsers.slice(startIndex, endIndex);
+
+            renderUserTable(pageUsers, tbody);
+        }
+
+        // Update pagination UI
+        function updatePagination() {
+            totalPages = Math.max(1, Math.ceil(allUsers.length / itemsPerPage));
+            const totalItems = allUsers.length;
+
+            // Update info text
+            if (paginationInfo) {
+                paginationInfo.textContent = `de ${totalItems} linhas`;
+            }
+
+            // Update pagination buttons
+            renderPaginationButtons();
+        }
+
+        // Render pagination buttons
+        function renderPaginationButtons() {
+            if (!paginationControls) return;
+
+            paginationControls.innerHTML = '';
+
+            // First page button
+            const firstBtn = createPaginationButton('first', '<i class="fas fa-angle-double-left"></i>', 'Primeira página');
+            firstBtn.disabled = currentPage === 1;
+            paginationControls.appendChild(firstBtn);
+
+            // Previous page button
+            const prevBtn = createPaginationButton('prev', '<i class="fas fa-angle-left"></i>', 'Página anterior');
+            prevBtn.disabled = currentPage === 1;
+            paginationControls.appendChild(prevBtn);
+
+            // Page number buttons
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                const firstPageBtn = createPaginationButton(1, '1');
+                paginationControls.appendChild(firstPageBtn);
+
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-ellipsis';
+                    ellipsis.textContent = '...';
+                    paginationControls.appendChild(ellipsis);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = createPaginationButton(i, i.toString());
+                if (i === currentPage) {
+                    pageBtn.classList.add('active');
+                }
+                paginationControls.appendChild(pageBtn);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-ellipsis';
+                    ellipsis.textContent = '...';
+                    paginationControls.appendChild(ellipsis);
+                }
+
+                const lastPageBtn = createPaginationButton(totalPages, totalPages.toString());
+                paginationControls.appendChild(lastPageBtn);
+            }
+
+            // Next page button
+            const nextBtn = createPaginationButton('next', '<i class="fas fa-angle-right"></i>', 'Próxima página');
+            nextBtn.disabled = currentPage === totalPages;
+            paginationControls.appendChild(nextBtn);
+
+            // Last page button
+            const lastBtn = createPaginationButton('last', '<i class="fas fa-angle-double-right"></i>', 'Última página');
+            lastBtn.disabled = currentPage === totalPages;
+            paginationControls.appendChild(lastBtn);
+        }
+
+        // Create pagination button
+        function createPaginationButton(value, content, title = '') {
+            const btn = document.createElement('button');
+            btn.className = 'pagination-btn';
+            btn.innerHTML = content;
+            if (title) btn.title = title;
+
+            btn.addEventListener('click', () => {
+                if (value === 'first') {
+                    currentPage = 1;
+                } else if (value === 'prev') {
+                    currentPage = Math.max(1, currentPage - 1);
+                } else if (value === 'next') {
+                    currentPage = Math.min(totalPages, currentPage + 1);
+                } else if (value === 'last') {
+                    currentPage = totalPages;
+                } else {
+                    currentPage = value;
+                }
+                renderCurrentPage();
+                renderPaginationButtons();
+            });
+
+            return btn;
         }
 
         async function initAdminUserFilters() {
@@ -222,12 +382,28 @@ checkAccess(ACCESS_ADMIN);
                 estatutoOptions: estatutoOptions,
                 estadoTagsArray: adminEstadoTags,
                 estatutoTagsArray: adminEstatutoTags,
-                onFilterChange: loadUsers
+                onFilterChange: () => {
+                    currentPage = 1; // Reset to first page on filter change
+                    loadUsers();
+                }
             });
 
             // Search input triggers load
             if (searchInput) {
-                searchInput.addEventListener('input', loadUsers);
+                searchInput.addEventListener('input', () => {
+                    currentPage = 1; // Reset to first page on search
+                    loadUsers();
+                });
+            }
+
+            // Items per page change
+            if (paginationSelect) {
+                paginationSelect.addEventListener('change', (e) => {
+                    itemsPerPage = parseInt(e.target.value);
+                    currentPage = 1;
+                    updatePagination();
+                    renderCurrentPage();
+                });
             }
 
             // Clear filters button
@@ -243,6 +419,7 @@ checkAccess(ACCESS_ADMIN);
                         estadoInputId: 'estado-input',
                         estatutoInputId: 'estatuto-input'
                     });
+                    currentPage = 1;
                     loadUsers();
                 });
             }
