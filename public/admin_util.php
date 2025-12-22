@@ -201,7 +201,32 @@ checkAccess(ACCESS_ADMIN);
                     estatutoTagsArray: adminEstatutoTags
                 });
                 
-                await loadUsersWithPagination(filters);
+                const users = await fetchUsers(filters);
+                
+                // Get current user ID and filter it out
+                let currentUserId = null;
+                if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
+                    const currentUser = SessionHelper.getCurrentUser();
+                    currentUserId = currentUser ? currentUser.id : null;
+                } else {
+                    // Fallback to localStorage if SessionHelper not available
+                    try {
+                        const storedUser = localStorage.getItem('biomapUser');
+                        if (storedUser) {
+                            const currentUser = JSON.parse(storedUser);
+                            currentUserId = currentUser ? currentUser.id : null;
+                        }
+                    } catch (e) {
+                        console.warn('Could not get current user ID:', e);
+                    }
+                }
+                
+                // Filter out current user from the list
+                const filteredUsers = users.filter(user => {
+                    return currentUserId === null || user.utilizador_id !== currentUserId;
+                });
+                
+                renderUserTable(filteredUsers, tbody);
             } catch (error) {
                 console.error("Erro ao carregar utilizadores:", error);
                 if (tbody) {

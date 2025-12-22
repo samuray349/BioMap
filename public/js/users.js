@@ -139,60 +139,7 @@ function showConfirmUnban(onConfirm, onCancel) {
 
     box.innerHTML = `
         <h3 style="margin-top:0">Confirmar reverter banimento</h3>
-        <p>Tem a certeza que quer reverter o banimento deste utilizador?</p>
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
-            <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;">Sim</button>
-        </div>
-    `;
-
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-
-    const yesBtn = box.querySelector('#confirmYes');
-    const noBtn = box.querySelector('#confirmNo');
-
-    yesBtn.addEventListener('click', async () => {
-        try {
-            await onConfirm();
-        } catch (error) {
-            console.error('Error in onConfirm:', error);
-        }
-        document.body.removeChild(overlay);
-    });
-
-    noBtn.addEventListener('click', () => {
-        if (onCancel) onCancel();
-        document.body.removeChild(overlay);
-    });
-}
-
-// Create a simple modal confirm for unsuspend (Sim / Não)
-function showConfirmUnsuspend(onConfirm, onCancel) {
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.zIndex = '10000';
-
-    const box = document.createElement('div');
-    box.style.background = '#fff';
-    box.style.padding = '20px';
-    box.style.borderRadius = '8px';
-    box.style.maxWidth = '420px';
-    box.style.width = '90%';
-    box.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
-
-    box.innerHTML = `
-        <h3 style="margin-top:0">Confirmar reverter suspensão</h3>
-        <p>Tem a certeza que quer reverter a suspenção deste utilizador?</p>
+        <p>Tem certeza que deseja suspender este utilizador?</p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
             <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
             <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;">Sim</button>
@@ -276,9 +223,6 @@ function renderUserTable(users, tbody) {
         const isBanned = user.estado_id === 3;
         console.log('User:', user.utilizador_id, 'estado_id:', user.estado_id, 'isBanned:', isBanned);
         
-        // Check if user is suspended (estado_id = 2)
-        const isSuspended = user.estado_id === 2;
-        
         // Determina a classe do distintivo com base no estado
         let badgeClass = 'status-badge';
         const estadoLower = (user.nome_estado || '').toLowerCase();
@@ -302,17 +246,13 @@ function renderUserTable(users, tbody) {
         const banIconHtml = isBanned 
             ? `<i class="fa-solid fa-check banned-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: pointer;" title="Clique para reverter banimento"></i>`
             : `<i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i>`;
-        
-        const suspendIconHtml = isSuspended 
-            ? `<i class="fa-solid fa-check suspend-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: pointer;" title="Clique para reverter suspensão"></i>`
-            : `<i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i>`;
 
         row.innerHTML = `
             <td>${user.nome_utilizador}</td>
             <td>${user.email}</td>
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
             <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
-            <td>${suspendIconHtml}</td>
+            <td><i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i></td>
             <td>${banIconHtml}</td>
         `;
         
@@ -372,7 +312,7 @@ function renderUserTable(users, tbody) {
         });
     });
     
-    // Add click handlers for suspend icons (only for non-suspended users)
+    // Add click handlers for suspend icons
     tbodyEl.querySelectorAll('.suspend-icon').forEach(icon => {
         icon.addEventListener('click', async function(e) {
             e.preventDefault();
@@ -412,60 +352,6 @@ function renderUserTable(users, tbody) {
                 } catch (error) {
                     console.error('Erro ao suspender utilizador:', error);
                     alert(error.message || 'Erro ao suspender utilizador. Por favor, tente novamente.');
-                }
-            }, function onCancel() {
-                // No-op on cancel
-            });
-        });
-    });
-    
-    // Add click handlers for suspended check icons (to unsuspend users)
-    const suspendedCheckIcons = tbodyEl.querySelectorAll('.suspend-check-icon');
-    console.log('Found', suspendedCheckIcons.length, 'suspended check icons');
-    suspendedCheckIcons.forEach(icon => {
-        console.log('Attaching click handler to suspended check icon for user:', icon.getAttribute('data-user-id'));
-        icon.addEventListener('click', async function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Suspended check icon clicked for user:', this.getAttribute('data-user-id'));
-            
-            const userId = this.getAttribute('data-user-id');
-            
-            if (!userId) {
-                console.error('Missing user ID for suspended check icon');
-                return;
-            }
-            
-            showConfirmUnsuspend(async function onConfirm() {
-                try {
-                    const apiUrl = getApiUrl(`users/${userId}/estado`);
-                    const response = await fetch(apiUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ estado_id: 1 }) // 1 = Normal
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(result?.error || 'Erro ao reverter suspensão.');
-                    }
-                    
-                    // Show success message
-                    alert('Suspensão revertida com sucesso. O utilizador foi restaurado para o estado normal.');
-                    
-                    // Reload the users table to show updated status
-                    if (typeof window.loadUsers === 'function') {
-                        window.loadUsers();
-                    } else {
-                        window.location.reload();
-                    }
-                    
-                } catch (error) {
-                    console.error('Erro ao reverter suspensão:', error);
-                    alert(error.message || 'Erro ao reverter suspensão. Por favor, tente novamente.');
                 }
             }, function onCancel() {
                 // No-op on cancel
@@ -596,207 +482,6 @@ function renderUserTable(users, tbody) {
  * @param {Array} config.estatutoTagsArray - Array para armazenar etiquetas de estatuto selecionadas
  * @param {Function} config.onFilterChange - Callback quando os filtros mudam
  */
-
-// Pagination state variables
-let currentPage = 1;
-let itemsPerPage = 10;
-let allUsers = [];
-let totalPages = 1;
-
-// Pagination elements
-let paginationSelect = null;
-let paginationInfo = null;
-let paginationControls = null;
-
-/**
- * Initialize pagination elements and state
- */
-function initPagination() {
-    paginationSelect = document.querySelector('.pagination-select');
-    paginationInfo = document.querySelector('.pagination-info span:last-child');
-    paginationControls = document.querySelector('.pagination-controls');
-
-    // Set initial items per page from select
-    if (paginationSelect) {
-        itemsPerPage = parseInt(paginationSelect.value) || 10;
-
-        // Items per page change handler
-        paginationSelect.addEventListener('change', (e) => {
-            itemsPerPage = parseInt(e.target.value);
-            currentPage = 1;
-            updatePagination();
-            renderCurrentPage();
-        });
-    }
-}
-
-/**
- * Load users with pagination support
- */
-async function loadUsersWithPagination(filters = {}) {
-    try {
-        allUsers = await fetchUsers(filters);
-
-        // Get current user ID and filter it out
-        let currentUserId = null;
-        if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
-            const currentUser = SessionHelper.getCurrentUser();
-            currentUserId = currentUser ? currentUser.id : null;
-        } else {
-            // Fallback to localStorage if SessionHelper not available
-            try {
-                const storedUser = localStorage.getItem('biomapUser');
-                if (storedUser) {
-                    const currentUser = JSON.parse(storedUser);
-                    currentUserId = currentUser ? currentUser.id : null;
-                }
-            } catch (e) {
-                console.warn('Could not get current user ID:', e);
-            }
-        }
-
-        // Filter out current user from the list
-        allUsers = allUsers.filter(user => {
-            return currentUserId === null || user.utilizador_id !== currentUserId;
-        });
-
-        updatePagination();
-        renderCurrentPage();
-    } catch (error) {
-        console.error("Erro ao carregar utilizadores:", error);
-        const tbody = document.querySelector('.admin-users-table tbody');
-        if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="6">Erro ao carregar dados.</td></tr>';
-        }
-    }
-}
-
-/**
- * Render current page of users
- */
-function renderCurrentPage() {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const pageUsers = allUsers.slice(startIndex, endIndex);
-
-    const tbody = document.querySelector('.admin-users-table tbody');
-    renderUserTable(pageUsers, tbody);
-}
-
-/**
- * Update pagination UI
- */
-function updatePagination() {
-    totalPages = Math.max(1, Math.ceil(allUsers.length / itemsPerPage));
-    const totalItems = allUsers.length;
-
-    // Update info text
-    if (paginationInfo) {
-        paginationInfo.textContent = `de ${totalItems} linhas`;
-    }
-
-    // Update pagination buttons
-    renderPaginationButtons();
-}
-
-/**
- * Render pagination buttons
- */
-function renderPaginationButtons() {
-    if (!paginationControls) return;
-
-    paginationControls.innerHTML = '';
-
-    // First page button
-    const firstBtn = createPaginationButton('first', '<i class="fas fa-angle-double-left"></i>', 'Primeira página');
-    firstBtn.disabled = currentPage === 1;
-    paginationControls.appendChild(firstBtn);
-
-    // Previous page button
-    const prevBtn = createPaginationButton('prev', '<i class="fas fa-angle-left"></i>', 'Página anterior');
-    prevBtn.disabled = currentPage === 1;
-    paginationControls.appendChild(prevBtn);
-
-    // Page number buttons
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage < maxVisiblePages - 1) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    if (startPage > 1) {
-        const firstPageBtn = createPaginationButton(1, '1');
-        paginationControls.appendChild(firstPageBtn);
-
-        if (startPage > 2) {
-            const ellipsis = document.createElement('span');
-            ellipsis.className = 'pagination-ellipsis';
-            ellipsis.textContent = '...';
-            paginationControls.appendChild(ellipsis);
-        }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-        const pageBtn = createPaginationButton(i, i.toString());
-        if (i === currentPage) {
-            pageBtn.classList.add('active');
-        }
-        paginationControls.appendChild(pageBtn);
-    }
-
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            const ellipsis = document.createElement('span');
-            ellipsis.className = 'pagination-ellipsis';
-            ellipsis.textContent = '...';
-            paginationControls.appendChild(ellipsis);
-        }
-
-        const lastPageBtn = createPaginationButton(totalPages, totalPages.toString());
-        paginationControls.appendChild(lastPageBtn);
-    }
-
-    // Next page button
-    const nextBtn = createPaginationButton('next', '<i class="fas fa-angle-right"></i>', 'Próxima página');
-    nextBtn.disabled = currentPage === totalPages;
-    paginationControls.appendChild(nextBtn);
-
-    // Last page button
-    const lastBtn = createPaginationButton('last', '<i class="fas fa-angle-double-right"></i>', 'Última página');
-    lastBtn.disabled = currentPage === totalPages;
-    paginationControls.appendChild(lastBtn);
-}
-
-/**
- * Create pagination button
- */
-function createPaginationButton(value, content, title = '') {
-    const btn = document.createElement('button');
-    btn.className = 'pagination-btn';
-    btn.innerHTML = content;
-    if (title) btn.title = title;
-
-    btn.addEventListener('click', () => {
-        if (value === 'first') {
-            currentPage = 1;
-        } else if (value === 'prev') {
-            currentPage = Math.max(1, currentPage - 1);
-        } else if (value === 'next') {
-            currentPage = Math.min(totalPages, currentPage + 1);
-        } else if (value === 'last') {
-            currentPage = totalPages;
-        } else {
-            currentPage = value;
-        }
-        renderCurrentPage();
-        renderPaginationButtons();
-    });
-
-    return btn;
-}
-
 function initUserFilters(config) {
     const {
         estadoInputId,
@@ -811,9 +496,6 @@ function initUserFilters(config) {
         estatutoTagsArray,
         onFilterChange
     } = config;
-    
-    // Initialize pagination
-    initPagination();
     
     // Inicializa entradas de etiquetas se a função existir
     if (typeof initTagInputWithDropdown === 'function') {
