@@ -139,7 +139,60 @@ function showConfirmUnban(onConfirm, onCancel) {
 
     box.innerHTML = `
         <h3 style="margin-top:0">Confirmar reverter banimento</h3>
-        <p>Tem certeza que deseja suspender este utilizador?</p>
+        <p>Tem certeza que deseja reverter o banimento deste utilizador?</p>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
+            <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;">Sim</button>
+        </div>
+    `;
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    const yesBtn = box.querySelector('#confirmYes');
+    const noBtn = box.querySelector('#confirmNo');
+
+    yesBtn.addEventListener('click', async () => {
+        try {
+            await onConfirm();
+        } catch (error) {
+            console.error('Error in onConfirm:', error);
+        }
+        document.body.removeChild(overlay);
+    });
+
+    noBtn.addEventListener('click', () => {
+        if (onCancel) onCancel();
+        document.body.removeChild(overlay);
+    });
+}
+
+// Create a simple modal confirm for unsuspend (Sim / Não)
+function showConfirmUnsuspend(onConfirm, onCancel) {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '10000';
+
+    const box = document.createElement('div');
+    box.style.background = '#fff';
+    box.style.padding = '20px';
+    box.style.borderRadius = '8px';
+    box.style.maxWidth = '420px';
+    box.style.width = '90%';
+    box.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+
+    box.innerHTML = `
+        <h3 style="margin-top:0">Confirmar reverter suspensão</h3>
+        <p>Tem certeza que deseja reverter a suspensão deste utilizador?</p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
             <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
             <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;">Sim</button>
@@ -223,6 +276,9 @@ function renderUserTable(users, tbody) {
         const isBanned = user.estado_id === 3;
         console.log('User:', user.utilizador_id, 'estado_id:', user.estado_id, 'isBanned:', isBanned);
         
+        // Check if user is suspended (estado_id = 2)
+        const isSuspended = user.estado_id === 2;
+        
         // Determina a classe do distintivo com base no estado
         let badgeClass = 'status-badge';
         const estadoLower = (user.nome_estado || '').toLowerCase();
@@ -246,13 +302,17 @@ function renderUserTable(users, tbody) {
         const banIconHtml = isBanned 
             ? `<i class="fa-solid fa-check banned-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: pointer;" title="Clique para reverter banimento"></i>`
             : `<i class="fas fa-ban ban-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Banir utilizador"></i>`;
+        
+        const suspendIconHtml = isSuspended 
+            ? `<i class="fa-solid fa-check suspend-check-icon" data-user-id="${user.utilizador_id}" style="color: #198754; cursor: pointer;" title="Clique para reverter suspensão"></i>`
+            : `<i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i>`;
 
         row.innerHTML = `
             <td>${user.nome_utilizador}</td>
             <td>${user.email}</td>
             <td><span class="${badgeClass}" ${badgeStyle}>${user.nome_estado}</span></td>
             <td><span class="estatuto-cell" data-user-id="${user.utilizador_id}" data-current-funcao="${currentFuncaoId}" data-new-funcao="${newFuncaoId}" title="Clique para alterar entre Admin e Utilizador">${user.estatuto}</span></td>
-            <td><i class="fas fa-clock suspend-icon" data-user-id="${user.utilizador_id}" style="cursor: pointer;" title="Suspender utilizador"></i></td>
+            <td>${suspendIconHtml}</td>
             <td>${banIconHtml}</td>
         `;
         
@@ -312,7 +372,7 @@ function renderUserTable(users, tbody) {
         });
     });
     
-    // Add click handlers for suspend icons
+    // Add click handlers for suspend icons (only for non-suspended users)
     tbodyEl.querySelectorAll('.suspend-icon').forEach(icon => {
         icon.addEventListener('click', async function(e) {
             e.preventDefault();
@@ -352,6 +412,60 @@ function renderUserTable(users, tbody) {
                 } catch (error) {
                     console.error('Erro ao suspender utilizador:', error);
                     alert(error.message || 'Erro ao suspender utilizador. Por favor, tente novamente.');
+                }
+            }, function onCancel() {
+                // No-op on cancel
+            });
+        });
+    });
+    
+    // Add click handlers for suspended check icons (to unsuspend users)
+    const suspendedCheckIcons = tbodyEl.querySelectorAll('.suspend-check-icon');
+    console.log('Found', suspendedCheckIcons.length, 'suspended check icons');
+    suspendedCheckIcons.forEach(icon => {
+        console.log('Attaching click handler to suspended check icon for user:', icon.getAttribute('data-user-id'));
+        icon.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Suspended check icon clicked for user:', this.getAttribute('data-user-id'));
+            
+            const userId = this.getAttribute('data-user-id');
+            
+            if (!userId) {
+                console.error('Missing user ID for suspended check icon');
+                return;
+            }
+            
+            showConfirmUnsuspend(async function onConfirm() {
+                try {
+                    const apiUrl = getApiUrl(`users/${userId}/estado`);
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ estado_id: 1 }) // 1 = Normal
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result?.error || 'Erro ao reverter suspensão.');
+                    }
+                    
+                    // Show success message
+                    alert('Suspensão revertida com sucesso. O utilizador foi restaurado para o estado normal.');
+                    
+                    // Reload the users table to show updated status
+                    if (typeof window.loadUsers === 'function') {
+                        window.loadUsers();
+                    } else {
+                        window.location.reload();
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao reverter suspensão:', error);
+                    alert(error.message || 'Erro ao reverter suspensão. Por favor, tente novamente.');
                 }
             }, function onCancel() {
                 // No-op on cancel
