@@ -158,6 +158,17 @@ checkAccess(ACCESS_ADMIN);
 
         const tbody = document.querySelector('.admin-users-table tbody');
         const searchInput = document.getElementById('search-input');
+        
+        // Pagination state
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let allUsers = [];
+        let totalPages = 1;
+
+        // Pagination elements
+        const paginationSelect = document.querySelector('.pagination-select');
+        const paginationInfo = document.querySelector('.pagination-info span:last-child');
+        const paginationControls = document.querySelector('.pagination-controls');
 
         // Fetch estado options from API
         async function fetchEstadoOptions() {
@@ -201,32 +212,7 @@ checkAccess(ACCESS_ADMIN);
                     estatutoTagsArray: adminEstatutoTags
                 });
                 
-                const users = await fetchUsers(filters);
-                
-                // Get current user ID and filter it out
-                let currentUserId = null;
-                if (typeof SessionHelper !== 'undefined' && SessionHelper.getCurrentUser) {
-                    const currentUser = SessionHelper.getCurrentUser();
-                    currentUserId = currentUser ? currentUser.id : null;
-                } else {
-                    // Fallback to localStorage if SessionHelper not available
-                    try {
-                        const storedUser = localStorage.getItem('biomapUser');
-                        if (storedUser) {
-                            const currentUser = JSON.parse(storedUser);
-                            currentUserId = currentUser ? currentUser.id : null;
-                        }
-                    } catch (e) {
-                        console.warn('Could not get current user ID:', e);
-                    }
-                }
-                
-                // Filter out current user from the list
-                const filteredUsers = users.filter(user => {
-                    return currentUserId === null || user.utilizador_id !== currentUserId;
-                });
-                
-                renderUserTable(filteredUsers, tbody);
+                await loadUsersWithPagination(filters);
             } catch (error) {
                 console.error("Erro ao carregar utilizadores:", error);
                 if (tbody) {
@@ -260,6 +246,16 @@ checkAccess(ACCESS_ADMIN);
             // Search input triggers load
             if (searchInput) {
                 searchInput.addEventListener('input', loadUsers);
+            }
+
+            // Items per page change
+            if (paginationSelect) {
+                paginationSelect.addEventListener('change', (e) => {
+                    itemsPerPage = parseInt(e.target.value);
+                    currentPage = 1;
+                    updatePagination();
+                    renderCurrentPage();
+                });
             }
 
             // Clear filters button
