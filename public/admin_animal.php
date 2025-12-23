@@ -116,7 +116,6 @@ checkAccess(ACCESS_ADMIN);
             <div class="pagination-info">
                 <span>Linhas por paginas</span>
                 <select class="pagination-select">
-                    <option value="2" selected>2</option>
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -265,7 +264,7 @@ checkAccess(ACCESS_ADMIN);
         
         // Pagination state
         let currentPage = 1;
-        let itemsPerPage = 2;
+        let itemsPerPage = 10;
         let allAnimals = [];
         let totalPages = 1;
 
