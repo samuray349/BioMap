@@ -1,3 +1,4 @@
+console.log('📜 script.js LOADED - Version with instituições support');
 let map;
 let familyTags = [];
 let stateTags = [];
@@ -612,8 +613,14 @@ const SpeciesPanel = {
 
 
 function initMap() {
+  console.log('🚀🚀🚀 INITMAP CALLED 🚀🚀🚀');
+  console.log('initMap: Function called');
   const mapElement = document.getElementById("map");
-  if (!mapElement) return;
+  if (!mapElement) {
+    console.warn('initMap: map element not found');
+    return;
+  }
+  console.log('initMap: Map element found, initializing...');
 
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
 
@@ -713,8 +720,29 @@ function initMap() {
   // Load and display avistamentos dynamically
   loadAvistamentos();
   
-  // Load and display instituições dynamically
-  loadInstituicoes();
+  // Load and display instituições dynamically (ensure icon is ready)
+  // houseMarkerIcon is initialized just before this, so it should be ready
+  console.log('initMap: About to call loadInstituicoes', { 
+    houseMarkerIcon: !!houseMarkerIcon,
+    houseMarkerIconValue: houseMarkerIcon,
+    map: !!map 
+  });
+  if (houseMarkerIcon) {
+    console.log('initMap: houseMarkerIcon is ready, calling loadInstituicoes NOW');
+    loadInstituicoes();
+  } else {
+    console.error('initMap: houseMarkerIcon NOT ready!', houseMarkerIcon);
+    console.warn('initMap: Will retry loadInstituicoes in 200ms');
+    setTimeout(() => {
+      console.log('initMap: Retry check - houseMarkerIcon:', !!houseMarkerIcon);
+      if (houseMarkerIcon) {
+        console.log('initMap: houseMarkerIcon ready after retry, calling loadInstituicoes');
+        loadInstituicoes();
+      } else {
+        console.error('initMap: houseMarkerIcon still not ready after retry');
+      }
+    }, 200);
+  }
 
   // Fetch filter options from API and initialize dropdowns
   (async () => {
@@ -899,8 +927,7 @@ function updateMarkerSizes(zoom) {
       }
     });
   }
-}
-}
+  }
 
 // Fetch and display avistamentos on the map
 async function loadAvistamentos() {
@@ -949,6 +976,7 @@ async function loadAvistamentos() {
         return;
       }
 
+      
       // Format date for display
       const alertDate = new Date(avistamento.data_avistamento);
       const formattedDate = alertDate.toLocaleDateString('pt-PT', {
@@ -1055,14 +1083,24 @@ async function loadAvistamentos() {
 }
 
 async function loadInstituicoes() {
+  console.log('=== loadInstituicoes: FUNCTION CALLED ===', { 
+    map: !!map, 
+    houseMarkerIcon: !!houseMarkerIcon,
+    mapType: typeof map,
+    iconType: typeof houseMarkerIcon
+  });
+  
   if (!map) {
-    console.warn('loadInstituicoes: map not initialized');
+    console.error('loadInstituicoes: map not initialized - ABORTING');
     return;
   }
   if (!houseMarkerIcon) {
-    console.warn('loadInstituicoes: houseMarkerIcon not initialized');
+    console.error('loadInstituicoes: houseMarkerIcon not initialized - ABORTING');
+    console.error('loadInstituicoes: houseMarkerIcon value:', houseMarkerIcon);
     return;
   }
+  
+  console.log('loadInstituicoes: Both map and houseMarkerIcon are ready, proceeding to API call...');
 
   try {
     console.log('loadInstituicoes: Starting to load instituições...');
@@ -1086,24 +1124,61 @@ async function loadInstituicoes() {
     }
     const instituicoes = await response.json();
     console.log('loadInstituicoes: Received', instituicoes.length, 'instituições');
+    console.log('loadInstituicoes: Sample instituição data:', instituicoes[0]);
 
     // Create new markers first (but don't add to map yet to avoid flicker)
     const newMarkers = [];
     const markerDataMap = new Map(); // Store marker data for click handlers
 
-    instituicoes.forEach(instituicao => {
+    if (!instituicoes || instituicoes.length === 0) {
+      console.log('loadInstituicoes: No instituições found');
+      return;
+    }
+
+    instituicoes.forEach((instituicao, index) => {
+      // Extract coordinates from API (same format as avistamentos)
+      // Note: If coordinates appear swapped, it might be because the data was inserted incorrectly
+      // Try both orders to see which one works
+      let lat = parseFloat(instituicao.latitude);
+      let lng = parseFloat(instituicao.longitude);
+      
+      // Check if coordinates seem swapped (Portugal is roughly 36-42°N, 6-10°W)
+      // If lat is negative or > 50, or lng is positive and > 10, they're likely swapped
+      if ((lat < 0 || lat > 50) || (lng > 10 && lng < 50)) {
+        console.warn(`loadInstituicoes: Coordinates appear swapped for ${instituicao.nome}, swapping them...`);
+        const temp = lat;
+        lat = lng;
+        lng = temp;
+      }
+      
       const position = {
-        lat: parseFloat(instituicao.latitude),
-        lng: parseFloat(instituicao.longitude)
+        lat: lat,
+        lng: lng
       };
 
+      console.log(`loadInstituicoes: Processing instituição ${index + 1}/${instituicoes.length}:`, {
+        nome: instituicao.nome,
+        api_latitude: instituicao.latitude,
+        api_longitude: instituicao.longitude,
+        final_lat: lat,
+        final_lng: lng
+      });
+
       if (isNaN(position.lat) || isNaN(position.lng)) {
-        console.warn('Invalid coordinates for instituição:', instituicao);
+        console.warn('Invalid coordinates for instituição:', instituicao.nome, 'lat:', lat, 'lng:', lng, 'raw data:', instituicao);
         return;
+      }
+
+      // Validate coordinates are within reasonable bounds (Portugal is roughly 36-42°N, 6-10°W)
+      if (position.lat < 30 || position.lat > 45 || position.lng < -15 || position.lng > 0) {
+        console.warn('Coordinates out of bounds for instituição:', instituicao.nome, 'lat:', position.lat, 'lng:', position.lng);
+        // Don't return - still try to show it, but log the warning
       }
 
       // Format location coordinates
       const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
+      
+      console.log(`loadInstituicoes: Creating marker for ${instituicao.nome} at (${position.lat}, ${position.lng})`);
 
       // Create details object for SpeciesPanel
       const details = {
@@ -1128,6 +1203,7 @@ async function loadInstituicoes() {
       const scale = Math.pow(1.15, clampedZoom - baseZoom);
       const fontSize = Math.round(baseFontSize * scale);
       
+      console.log(`loadInstituicoes: Creating marker with icon:`, houseMarkerIcon);
       const marker = new google.maps.Marker({
         position: position,
         map: null, // Don't add to map yet
@@ -1141,46 +1217,67 @@ async function loadInstituicoes() {
         title: instituicao.nome
       });
 
+      console.log(`loadInstituicoes: Marker created:`, marker, 'Position:', marker.getPosition());
+
       // Store marker and its data
       markerDataMap.set(marker, details);
       newMarkers.push(marker);
     });
 
+    console.log('loadInstituicoes: Created', newMarkers.length, 'markers');
+
     // Now update markers with smooth transitions
     // First, fade out old markers
-    instituicaoMarkers.forEach(marker => {
-      const labelDiv = marker.getLabel()?.element;
-      if (labelDiv) {
-        labelDiv.classList.add('marker-fade-out');
-      }
-      // Remove marker after fade out animation
-      setTimeout(() => {
-        marker.setMap(null);
-      }, 300);
-    });
+    if (instituicaoMarkers && instituicaoMarkers.length > 0) {
+      instituicaoMarkers.forEach(marker => {
+        const labelDiv = marker.getLabel()?.element;
+        if (labelDiv) {
+          labelDiv.classList.add('marker-fade-out');
+        }
+        // Remove marker after fade out animation
+        setTimeout(() => {
+          marker.setMap(null);
+        }, 300);
+      });
+    }
     
     // Then add new markers with fade in animation
+    console.log('loadInstituicoes: Adding', newMarkers.length, 'markers to map');
     setTimeout(() => {
       newMarkers.forEach((marker, index) => {
         // Stagger the appearance slightly for a smoother effect
         setTimeout(() => {
-          marker.setMap(map);
-          
-          // Attach click handler
-          const details = markerDataMap.get(marker);
-          if (details) {
-            marker.addListener("click", (e) => {
-              try {
-                // If panel is already open, just update the content without closing
-                if (SpeciesPanel.isOpen) {
-                  SpeciesPanel.populateData(details);
-                } else {
-                  SpeciesPanel.open(details);
+          try {
+            const markerPosition = marker.getPosition();
+            console.log(`loadInstituicoes: About to add marker ${index + 1} to map. Position:`, markerPosition, 'Map:', map);
+            marker.setMap(map);
+            console.log('loadInstituicoes: Added marker', index + 1, 'to map. Marker visible:', marker.getVisible(), 'Map:', marker.getMap());
+            
+            // Verify marker is actually on the map
+            setTimeout(() => {
+              const actualMap = marker.getMap();
+              const actualPosition = marker.getPosition();
+              console.log(`loadInstituicoes: Marker ${index + 1} verification - Map:`, actualMap, 'Position:', actualPosition, 'Visible:', marker.getVisible());
+            }, 100);
+            
+            // Attach click handler
+            const details = markerDataMap.get(marker);
+            if (details) {
+              marker.addListener("click", (e) => {
+                try {
+                  // If panel is already open, just update the content without closing
+                  if (SpeciesPanel.isOpen) {
+                    SpeciesPanel.populateData(details);
+                  } else {
+                    SpeciesPanel.open(details);
+                  }
+                } catch (error) {
+                  console.error('Error opening panel:', error);
                 }
-              } catch (error) {
-                console.error('Error opening panel:', error);
-              }
-            });
+              });
+            }
+          } catch (error) {
+            console.error('Error adding marker to map:', error, marker);
           }
         }, index * 20); // 20ms delay between each marker
       });
@@ -1188,6 +1285,7 @@ async function loadInstituicoes() {
       // Update the markers array after a short delay
       setTimeout(() => {
         instituicaoMarkers = newMarkers;
+        console.log('loadInstituicoes: Updated instituicaoMarkers array with', newMarkers.length, 'markers');
       }, newMarkers.length * 20 + 100);
     }, 300);
   } catch (error) {
