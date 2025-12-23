@@ -1498,7 +1498,7 @@ checkAccess(ACCESS_ADMIN);
                     return;
                 }
 
-                // Validate family exists before uploading image
+                // Validate family exists before proceeding
                 setMessage('A validar família...');
                 let familyOptions = [];
                 try {
@@ -1520,33 +1520,35 @@ checkAccess(ACCESS_ADMIN);
                     return;
                 }
 
-                // All validations passed, now upload the image
-                const base64Image = await fileToDataURL(file);
-
-                setMessage('A fazer upload da imagem...');
-                const uploadResponse = await fetch('upload_image.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        imagem: {
-                            data: base64Image,
-                            originalName: file.name
-                        }
-                    })
+                // Check for duplicate animal name before uploading image
+                setMessage('A verificar nome do animal...');
+                const checkDuplicateUrl = window.API_CONFIG?.getUrl('animais') || '/animais';
+                const checkResponse = await fetch(checkDuplicateUrl, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
                 });
-
-                const uploadResult = await uploadResponse.json();
-                if (!uploadResponse.ok || !uploadResult.success) {
-                    const errorMsg = uploadResult?.error || 'Erro desconhecido';
-                    setMessage(''); // Clear loading message
-                    if (typeof showNotification === 'function') {
-                        showNotification('Erro ao fazer upload da imagem. Verifique se a imagem é válida e tente novamente.', 'info');
+                
+                if (checkResponse.ok) {
+                    const allAnimals = await checkResponse.json();
+                    const duplicateExists = allAnimals.some(a => 
+                        a.nome_comum && a.nome_comum.toLowerCase().trim() === nome.toLowerCase().trim()
+                    );
+                    
+                    if (duplicateExists) {
+                        addError('animal-name');
+                        setMessage(''); // Clear loading message
+                        if (typeof showNotification === 'function') {
+                            showNotification(`Já existe um animal com o nome "${nome}". Por favor, escolha um nome diferente.`, 'info');
+                        }
+                        return;
                     }
-                    return;
                 }
 
-                // Now send the animal data with the image URL
+                // All validations passed, now create the animal in database first (without image)
                 setMessage('A guardar o animal...');
+                const base64Image = await fileToDataURL(file);
+                
+                // First, create animal without image URL (will be updated after upload)
                 const payload = {
                     nome_comum: nome,
                     nome_cientifico: cientifico,
@@ -1556,8 +1558,8 @@ checkAccess(ACCESS_ADMIN);
                     familia_nome: family,
                     dieta_nome: diet,
                     estado_nome: estado,
-                    ameacas: threats,
-                    imagem_url: uploadResult.url
+                    ameacas: threats
+                    // imagem_url is omitted - will be added after successful upload
                 };
 
                 const apiUrl = window.API_CONFIG?.getUrl('animais') || '/animais';
@@ -1573,6 +1575,10 @@ checkAccess(ACCESS_ADMIN);
                     const errorMsg = result?.error || '';
                     const details = result?.details || '';
                     
+                    // Check if error is about duplicate name
+                    const isDuplicateName = errorMsg.toLowerCase().includes('já existe') || 
+                                          errorMsg.toLowerCase().includes('duplicate');
+                    
                     // Check if error is about family not found (double-check from API)
                     const isFamilyNotFound = errorMsg.toLowerCase().includes('família') && 
                                            (errorMsg.toLowerCase().includes('não encontrada') || 
@@ -1583,6 +1589,17 @@ checkAccess(ACCESS_ADMIN);
                                             errorMsg.toLowerCase().includes('população') ||
                                             details.toLowerCase().includes('populacao') ||
                                             details.toLowerCase().includes('população');
+                    
+                    if (isDuplicateName) {
+                        // Highlight animal name input
+                        addError('animal-name');
+                        setMessage(''); // Clear loading message
+                        // Show specific message
+                        if (typeof showNotification === 'function') {
+                            showNotification(errorMsg || `Já existe um animal com o nome "${nome}". Por favor, escolha um nome diferente.`, 'info');
+                        }
+                        return;
+                    }
                     
                     if (isFamilyNotFound) {
                         // Highlight family input
@@ -1612,6 +1629,84 @@ checkAccess(ACCESS_ADMIN);
                         showNotification('Erro ao criar animal. Verifique os campos e tente novamente.', 'info');
                     }
                     return;
+                }
+
+                // Animal created successfully, now upload the image
+                setMessage('A fazer upload da imagem...');
+                const uploadResponse = await fetch('upload_image.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        imagem: {
+                            data: base64Image,
+                            originalName: file.name
+                        }
+                    })
+                });
+
+                const uploadResult = await uploadResponse.json();
+                if (!uploadResponse.ok || !uploadResult.success) {
+                    // Image upload failed - delete the animal that was just created
+                    const animalId = result.animal_id;
+                    if (animalId) {
+                        try {
+                            const deleteUrl = window.API_CONFIG?.getUrl(`animais/${animalId}`) || `/animais/${animalId}`;
+                            await fetch(deleteUrl, {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+                        } catch (deleteError) {
+                            console.error('Error deleting animal after image upload failure:', deleteError);
+                        }
+                    }
+                    
+                    const errorMsg = uploadResult?.error || 'Erro desconhecido';
+                    setMessage(''); // Clear loading message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Erro ao fazer upload da imagem. Verifique se a imagem é válida e tente novamente.', 'info');
+                    }
+                    return;
+                }
+
+                // Image uploaded successfully, now update the animal with the correct image URL
+                setMessage('A atualizar imagem do animal...');
+                const animalId = result.animal_id;
+                if (animalId) {
+                    const updateResponse = await fetch(window.API_CONFIG?.getUrl(`animais/${animalId}`) || `/animais/${animalId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nome_comum: nome,
+                            nome_cientifico: cientifico,
+                            descricao,
+                            facto_interessante: fact,
+                            populacao_estimada: isNaN(populationNum) ? 0 : populationNum,
+                            familia_nome: family,
+                            dieta_nome: diet,
+                            estado_nome: estado,
+                            ameacas: threats,
+                            imagem_url: uploadResult.url
+                        })
+                    });
+                    
+                    if (!updateResponse.ok) {
+                        // Update failed - try to delete the animal
+                        try {
+                            const deleteUrl = window.API_CONFIG?.getUrl(`animais/${animalId}`) || `/animais/${animalId}`;
+                            await fetch(deleteUrl, {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+                        } catch (deleteError) {
+                            console.error('Error deleting animal after image update failure:', deleteError);
+                        }
+                        
+                        setMessage(''); // Clear loading message
+                        if (typeof showNotification === 'function') {
+                            showNotification('Erro ao atualizar imagem do animal. Tente novamente.', 'info');
+                        }
+                        return;
+                    }
                 }
 
                 // Clear the loading message

@@ -679,7 +679,7 @@ app.post('/animais', async (req, res) => {
   if (!familia_nome || !familia_nome.trim()) errors.push('Família é obrigatória.');
   if (!dieta_nome || !dieta_nome.trim()) errors.push('Dieta é obrigatória.');
   if (!estado_nome || !estado_nome.trim()) errors.push('Estado de conservação é obrigatório.');
-  if (!imagem_url || !imagem_url.trim()) errors.push('Imagem URL é obrigatória.');
+  // imagem_url is optional - can be updated later
   
   // Validate ameacas (threats) - must be exactly 5 non-empty threats
   if (!Array.isArray(ameacas)) {
@@ -706,6 +706,16 @@ app.post('/animais', async (req, res) => {
 
   try {
     await client.query('BEGIN');
+
+    // Check for duplicate animal name (case-insensitive, trimmed)
+    const duplicateCheck = await client.query(
+      'SELECT animal_id FROM animal WHERE LOWER(TRIM(nome_comum)) = LOWER(TRIM($1)) LIMIT 1',
+      [nome_comum.trim()]
+    );
+    if (duplicateCheck.rowCount > 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Já existe um animal com o nome "${nome_comum.trim()}". Por favor, escolha um nome diferente.` });
+    }
 
     // Use TRIM in the query to handle any trailing spaces in database
     const familia = await client.query(
@@ -759,7 +769,7 @@ app.post('/animais', async (req, res) => {
         descricao,
         facto_interessante || '',
         normalizedPopulation,
-        imagem_url,
+        imagem_url || null,
         0,
         dieta.rows[0].dieta_id,
         familia.rows[0].familia_id,
@@ -829,7 +839,8 @@ app.put('/animais/:id', async (req, res) => {
     familia_nome,
     dieta_nome,
     estado_nome,
-    ameacas = []
+    ameacas = [],
+    imagem_url
   } = req.body || {};
 
   const { id } = req.params;
@@ -914,30 +925,58 @@ app.put('/animais/:id', async (req, res) => {
       });
     }
 
-    // Update animal (excluding image URL)
-    await client.query(
-      `UPDATE animal SET
-        nome_comum = $1,
-        nome_cientifico = $2,
-        descricao = $3,
-        facto_interessante = $4,
-        populacao_estimada = $5,
-        dieta_id = $6,
-        familia_id = $7,
-        estado_id = $8
-      WHERE animal_id = $9`,
-      [
-        nome_comum,
-        nome_cientifico,
-        descricao,
-        facto_interessante || '',
-        normalizedPopulation,
-        dieta.rows[0].dieta_id,
-        familia.rows[0].familia_id,
-        estado.rows[0].estado_id,
-        id
-      ]
-    );
+    // Update animal (including image URL if provided)
+    if (imagem_url) {
+      await client.query(
+        `UPDATE animal SET
+          nome_comum = $1,
+          nome_cientifico = $2,
+          descricao = $3,
+          facto_interessante = $4,
+          populacao_estimada = $5,
+          dieta_id = $6,
+          familia_id = $7,
+          estado_id = $8,
+          url_imagem = $9
+        WHERE animal_id = $10`,
+        [
+          nome_comum,
+          nome_cientifico,
+          descricao,
+          facto_interessante || '',
+          normalizedPopulation,
+          dieta.rows[0].dieta_id,
+          familia.rows[0].familia_id,
+          estado.rows[0].estado_id,
+          imagem_url,
+          id
+        ]
+      );
+    } else {
+      await client.query(
+        `UPDATE animal SET
+          nome_comum = $1,
+          nome_cientifico = $2,
+          descricao = $3,
+          facto_interessante = $4,
+          populacao_estimada = $5,
+          dieta_id = $6,
+          familia_id = $7,
+          estado_id = $8
+        WHERE animal_id = $9`,
+        [
+          nome_comum,
+          nome_cientifico,
+          descricao,
+          facto_interessante || '',
+          normalizedPopulation,
+          dieta.rows[0].dieta_id,
+          familia.rows[0].familia_id,
+          estado.rows[0].estado_id,
+          id
+        ]
+      );
+    }
 
     // Handle ameacas (threats) - delete existing relationships and insert new
     try {
