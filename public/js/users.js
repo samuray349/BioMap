@@ -35,8 +35,8 @@ function showConfirmBan(onConfirm, onCancel) {
         <h3 style="margin-top:0">Confirmar banimento</h3>
         <p>Tem certeza que deseja banir este utilizador? <strong>ATENÇÃO: Todos os avistamentos deste utilizador serão deletados permanentemente!</strong></p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
-            <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;">Sim</button>
+            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor: pointer;">Não</button>
+            <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;cursor: pointer;">Sim</button>
         </div>
     `;
 
@@ -88,8 +88,8 @@ function showConfirmSuspend(onConfirm, onCancel) {
         <h3 style="margin-top:0">Confirmar suspensão</h3>
         <p>Tem certeza que deseja suspender este utilizador?</p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
-            <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;">Sim</button>
+            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor: pointer;">Não</button>
+            <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;cursor: pointer;">Sim</button>
         </div>
     `;
 
@@ -141,8 +141,8 @@ function showConfirmUnban(onConfirm, onCancel) {
         <h3 style="margin-top:0">Confirmar reverter banimento</h3>
         <p>Tem certeza que deseja suspender este utilizador?</p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
-            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;">Não</button>
-            <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;">Sim</button>
+            <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor: pointer;">Não</button>
+            <button id="confirmYes" style="padding:8px 14px;background:#28a745;color:#fff;border:none;border-radius:6px;cursor: pointer;">Sim</button>
         </div>
     `;
 

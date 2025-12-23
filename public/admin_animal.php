@@ -116,6 +116,7 @@ checkAccess(ACCESS_ADMIN);
             <div class="pagination-info">
                 <span>Linhas por paginas</span>
                 <select class="pagination-select">
+                    <option value="2" selected>2</option>
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -264,7 +265,7 @@ checkAccess(ACCESS_ADMIN);
         
         // Pagination state
         let currentPage = 1;
-        let itemsPerPage = 10;
+        let itemsPerPage = 2;
         let allAnimals = [];
         let totalPages = 1;
 
@@ -419,13 +420,63 @@ checkAccess(ACCESS_ADMIN);
             return btn;
         }
 
+        // Create a simple modal confirm for delete (Sim / Não)
+        function showConfirmDelete(onConfirm, onCancel) {
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '10000';
+
+            const box = document.createElement('div');
+            box.style.background = '#fff';
+            box.style.padding = '20px';
+            box.style.borderRadius = '8px';
+            box.style.maxWidth = '420px';
+            box.style.width = '90%';
+            box.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+
+            box.innerHTML = `
+                <h3 style="margin-top:0">Confirmar exclusão</h3>
+                <p>Tem certeza que deseja excluir este animal? <strong>ATENÇÃO: Todos os avistamentos deste animal serão deletados permanentemente!</strong></p>
+                <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+                    <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor: pointer;">Não</button>
+                    <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;cursor: pointer;">Sim</button>
+                </div>
+            `;
+
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+
+            const yesBtn = box.querySelector('#confirmYes');
+            const noBtn = box.querySelector('#confirmNo');
+
+            yesBtn.addEventListener('click', async () => {
+                try {
+                    await onConfirm();
+                } catch (error) {
+                    console.error('Error in onConfirm:', error);
+                }
+                document.body.removeChild(overlay);
+            });
+
+            noBtn.addEventListener('click', () => {
+                if (onCancel) onCancel();
+                document.body.removeChild(overlay);
+            });
+        }
+
         // Delete animal handler
         async function deleteAnimal(animalId) {
-            if (!confirm('Tem certeza que deseja excluir este animal? Esta ação não pode ser desfeita.')) {
-                return;
-            }
-            
-            try {
+            showConfirmDelete(async function onConfirm() {
+                try {
                 const apiUrl = window.API_CONFIG?.getUrl(`animais/${animalId}`) || `/animais/${animalId}`;
                 const response = await fetch(apiUrl, {
                     method: 'DELETE',
@@ -456,21 +507,24 @@ checkAccess(ACCESS_ADMIN);
                 // Reload animals
                 await loadAnimals();
                 
-                // Show success notification
-                if (typeof showNotification === 'function') {
-                    showNotification('Animal eliminado com sucesso!', 'success');
-                } else {
-                    alert('Animal eliminado com sucesso!');
+                    // Show success notification
+                    if (typeof showNotification === 'function') {
+                        showNotification('Animal eliminado com sucesso!', 'success');
+                    } else {
+                        alert('Animal eliminado com sucesso!');
+                    }
+                } catch (error) {
+                    console.error('Erro ao deletar animal:', error);
+                    const errorMessage = error?.message || `Erro ao eliminar animal (ID: ${animalId}). Verifique a sua ligação à internet.`;
+                    if (typeof showNotification === 'function') {
+                        showNotification(errorMessage, 'error');
+                    } else {
+                        alert(errorMessage);
+                    }
                 }
-            } catch (error) {
-                console.error('Erro ao deletar animal:', error);
-                const errorMessage = error?.message || `Erro ao eliminar animal (ID: ${animalId}). Verifique a sua ligação à internet.`;
-                if (typeof showNotification === 'function') {
-                    showNotification(errorMessage, 'error');
-                } else {
-                    alert(errorMessage);
-                }
-            }
+            }, function onCancel() {
+                // No-op on cancel
+            });
         }
 
         // Attach delete handlers to ban icons
