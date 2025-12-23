@@ -1763,6 +1763,544 @@ app.delete('/api/alerts/:id', async (req, res) => {
 });
 
 /* =====================
+   INSTITUIÇÕES
+===================== */
+
+// GET /instituicoes - Get all instituições
+app.get('/instituicoes', async (req, res) => {
+  try {
+    const { search } = req.query;
+    
+    let sqlQuery = `
+      SELECT 
+        i.instituicao_id,
+        i.nome,
+        i.descricao,
+        i.localizacao_texto,
+        i.telefone_contacto,
+        i.url_imagem,
+        i.dias_aberto,
+        i.hora_abertura,
+        i.hora_fecho,
+        ST_X(i."localização"::geometry) as longitude,
+        ST_Y(i."localização"::geometry) as latitude
+      FROM instituicao i
+      WHERE 1=1
+    `;
+
+    const queryParams = [];
+    let paramCounter = 1;
+
+    if (search) {
+      sqlQuery += ` AND (i.nome ILIKE $${paramCounter} OR i.localizacao_texto ILIKE $${paramCounter})`;
+      queryParams.push(`%${search}%`);
+      paramCounter++;
+    }
+
+    sqlQuery += ` ORDER BY i.instituicao_id`;
+
+    const { rows } = await pool.query(sqlQuery, queryParams);
+    res.json(rows);
+  } catch (error) {
+    console.error('Erro ao executar a query', error);
+    res.status(500).send('Erro ao executar a query');
+  }
+});
+
+// GET /instituicoesDesc/:id - Get instituição details by ID
+app.get('/instituicoesDesc/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+    
+    let sqlQuery = `
+      SELECT 
+        i.instituicao_id,
+        i.nome,
+        i.descricao,
+        i.localizacao_texto,
+        i.telefone_contacto,
+        i.url_imagem,
+        i.dias_aberto,
+        i.hora_abertura,
+        i.hora_fecho,
+        ST_X(i."localização"::geometry) as longitude,
+        ST_Y(i."localização"::geometry) as latitude
+      FROM instituicao i
+      WHERE i.instituicao_id = $1
+    `;
+
+    const { rows } = await pool.query(sqlQuery, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Instituição not found' });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Erro ao executar a query', error);
+    res.status(500).send('Erro ao executar a query');
+  }
+});
+
+// POST /instituicoes - Create a new instituição
+app.post('/instituicoes', async (req, res) => {
+  const {
+    nome,
+    descricao,
+    localizacao_texto,
+    telefone_contacto,
+    url_imagem,
+    localizacao, // Should be { lat, lon } or "lat,lon" string
+    dias_aberto,
+    hora_abertura,
+    hora_fecho
+  } = req.body || {};
+
+  const errors = [];
+
+  // Validate required fields
+  if (!nome || !nome.trim()) {
+    errors.push('Nome da instituição é obrigatório.');
+  } else if (nome.trim().length < 3) {
+    errors.push('Nome da instituição deve ter pelo menos 3 caracteres.');
+  }
+
+  if (!descricao || !descricao.trim()) {
+    errors.push('Descrição é obrigatória.');
+  } else if (descricao.trim().length < 10) {
+    errors.push('Descrição deve ter pelo menos 10 caracteres.');
+  }
+
+  if (!localizacao_texto || !localizacao_texto.trim()) {
+    errors.push('Localização (texto) é obrigatória.');
+  }
+
+  if (!telefone_contacto || !telefone_contacto.trim()) {
+    errors.push('Telefone de contacto é obrigatório.');
+  }
+
+  if (!dias_aberto || !dias_aberto.trim()) {
+    errors.push('Dias abertos são obrigatórios.');
+  }
+
+  if (!hora_abertura || !hora_abertura.trim()) {
+    errors.push('Hora de abertura é obrigatória.');
+  }
+
+  if (!hora_fecho || !hora_fecho.trim()) {
+    errors.push('Hora de fecho é obrigatória.');
+  }
+
+  // Validate location format
+  let lat, lon;
+  if (!localizacao) {
+    errors.push('Localização (coordenadas) é obrigatória.');
+  } else {
+    // Handle both { lat, lon } object and "lat,lon" string
+    if (typeof localizacao === 'string') {
+      const parts = localizacao.split(',');
+      if (parts.length !== 2) {
+        errors.push('Formato de localização inválido. Use "latitude,longitude".');
+      } else {
+        lat = parseFloat(parts[0].trim());
+        lon = parseFloat(parts[1].trim());
+      }
+    } else if (typeof localizacao === 'object') {
+      lat = parseFloat(localizacao.lat);
+      lon = parseFloat(localizacao.lon);
+    } else {
+      errors.push('Formato de localização inválido.');
+    }
+
+    // Validate coordinates are valid numbers and within valid ranges
+    if (isNaN(lat) || isNaN(lon)) {
+      errors.push('Coordenadas devem ser números válidos.');
+    } else {
+      if (lat < -90 || lat > 90) {
+        errors.push('Latitude deve estar entre -90 e 90.');
+      }
+      if (lon < -180 || lon > 180) {
+        errors.push('Longitude deve estar entre -180 e 180.');
+      }
+    }
+  }
+
+  // Validate time format and that opening < closing
+  if (hora_abertura && hora_fecho) {
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(hora_abertura.trim())) {
+      errors.push('Formato de hora de abertura inválido. Use HH:MM (24 horas).');
+    }
+    if (!timeRegex.test(hora_fecho.trim())) {
+      errors.push('Formato de hora de fecho inválido. Use HH:MM (24 horas).');
+    }
+
+    // Check if opening time is before closing time
+    if (timeRegex.test(hora_abertura.trim()) && timeRegex.test(hora_fecho.trim())) {
+      const [openHour, openMin] = hora_abertura.trim().split(':').map(Number);
+      const [closeHour, closeMin] = hora_fecho.trim().split(':').map(Number);
+      const openTime = openHour * 60 + openMin;
+      const closeTime = closeHour * 60 + closeMin;
+
+      if (openTime >= closeTime) {
+        errors.push('Hora de abertura deve ser anterior à hora de fecho.');
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  // Use placeholder image URL if not provided (database requires NOT NULL)
+  const placeholderImageUrl = 'img/placeholder.jpg';
+  const finalImageUrl = url_imagem && url_imagem.trim() ? url_imagem.trim() : placeholderImageUrl;
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Check for duplicate institution name (case-insensitive, trimmed)
+    const duplicateCheck = await client.query(
+      'SELECT instituicao_id FROM instituicao WHERE LOWER(TRIM(nome)) = LOWER(TRIM($1)) LIMIT 1',
+      [nome.trim()]
+    );
+    if (duplicateCheck.rowCount > 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Já existe uma instituição com o nome "${nome.trim()}". Por favor, escolha um nome diferente.` });
+    }
+
+    const insertInstituicao = await client.query(
+      `INSERT INTO instituicao (
+        nome,
+        descricao,
+        localizacao_texto,
+        telefone_contacto,
+        url_imagem,
+        "localização",
+        dias_aberto,
+        hora_abertura,
+        hora_fecho
+      )
+      VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_MakePoint($6, $7), 4326)::geography, $8, $9, $10)
+      RETURNING instituicao_id`,
+      [
+        nome.trim(),
+        descricao.trim(),
+        localizacao_texto.trim(),
+        telefone_contacto.trim(),
+        finalImageUrl,
+        lon,
+        lat,
+        dias_aberto.trim(),
+        hora_abertura.trim(),
+        hora_fecho.trim()
+      ]
+    );
+
+    await client.query('COMMIT');
+
+    return res.status(201).json({
+      message: 'Instituição criada com sucesso.',
+      instituicao_id: insertInstituicao.rows[0].instituicao_id
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Erro ao criar instituição', error);
+    return res.status(500).json({ error: 'Erro ao criar instituição.' });
+  } finally {
+    client.release();
+  }
+});
+
+// PUT /instituicoes/:id - Update instituição
+app.put('/instituicoes/:id', async (req, res) => {
+  const {
+    nome,
+    descricao,
+    localizacao_texto,
+    telefone_contacto,
+    url_imagem,
+    localizacao, // Should be { lat, lon } or "lat,lon" string
+    dias_aberto,
+    hora_abertura,
+    hora_fecho
+  } = req.body || {};
+
+  const { id } = req.params;
+
+  if (!/^\d+$/.test(id)) {
+    return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+  }
+
+  const errors = [];
+
+  // Validate required fields
+  if (!nome || !nome.trim()) {
+    errors.push('Nome da instituição é obrigatório.');
+  } else if (nome.trim().length < 3) {
+    errors.push('Nome da instituição deve ter pelo menos 3 caracteres.');
+  }
+
+  if (!descricao || !descricao.trim()) {
+    errors.push('Descrição é obrigatória.');
+  } else if (descricao.trim().length < 10) {
+    errors.push('Descrição deve ter pelo menos 10 caracteres.');
+  }
+
+  if (!localizacao_texto || !localizacao_texto.trim()) {
+    errors.push('Localização (texto) é obrigatória.');
+  }
+
+  if (!telefone_contacto || !telefone_contacto.trim()) {
+    errors.push('Telefone de contacto é obrigatório.');
+  }
+
+  if (!dias_aberto || !dias_aberto.trim()) {
+    errors.push('Dias abertos são obrigatórios.');
+  }
+
+  if (!hora_abertura || !hora_abertura.trim()) {
+    errors.push('Hora de abertura é obrigatória.');
+  }
+
+  if (!hora_fecho || !hora_fecho.trim()) {
+    errors.push('Hora de fecho é obrigatória.');
+  }
+
+  // Validate location format
+  let lat, lon;
+  if (localizacao) {
+    // Handle both { lat, lon } object and "lat,lon" string
+    if (typeof localizacao === 'string') {
+      const parts = localizacao.split(',');
+      if (parts.length !== 2) {
+        errors.push('Formato de localização inválido. Use "latitude,longitude".');
+      } else {
+        lat = parseFloat(parts[0].trim());
+        lon = parseFloat(parts[1].trim());
+      }
+    } else if (typeof localizacao === 'object') {
+      lat = parseFloat(localizacao.lat);
+      lon = parseFloat(localizacao.lon);
+    } else {
+      errors.push('Formato de localização inválido.');
+    }
+
+    // Validate coordinates are valid numbers and within valid ranges
+    if (isNaN(lat) || isNaN(lon)) {
+      errors.push('Coordenadas devem ser números válidos.');
+    } else {
+      if (lat < -90 || lat > 90) {
+        errors.push('Latitude deve estar entre -90 e 90.');
+      }
+      if (lon < -180 || lon > 180) {
+        errors.push('Longitude deve estar entre -180 e 180.');
+      }
+    }
+  }
+
+  // Validate time format and that opening < closing
+  if (hora_abertura && hora_fecho) {
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(hora_abertura.trim())) {
+      errors.push('Formato de hora de abertura inválido. Use HH:MM (24 horas).');
+    }
+    if (!timeRegex.test(hora_fecho.trim())) {
+      errors.push('Formato de hora de fecho inválido. Use HH:MM (24 horas).');
+    }
+
+    // Check if opening time is before closing time
+    if (timeRegex.test(hora_abertura.trim()) && timeRegex.test(hora_fecho.trim())) {
+      const [openHour, openMin] = hora_abertura.trim().split(':').map(Number);
+      const [closeHour, closeMin] = hora_fecho.trim().split(':').map(Number);
+      const openTime = openHour * 60 + openMin;
+      const closeTime = closeHour * 60 + closeMin;
+
+      if (openTime >= closeTime) {
+        errors.push('Hora de abertura deve ser anterior à hora de fecho.');
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Check if instituição exists
+    const existingCheck = await client.query(
+      'SELECT instituicao_id FROM instituicao WHERE instituicao_id = $1',
+      [id]
+    );
+    if (existingCheck.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Instituição não encontrada.' });
+    }
+
+    // Check for duplicate institution name (excluding current one)
+    const duplicateCheck = await client.query(
+      'SELECT instituicao_id FROM instituicao WHERE LOWER(TRIM(nome)) = LOWER(TRIM($1)) AND instituicao_id != $2 LIMIT 1',
+      [nome.trim(), id]
+    );
+    if (duplicateCheck.rowCount > 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Já existe uma instituição com o nome "${nome.trim()}". Por favor, escolha um nome diferente.` });
+    }
+
+    // Build update query dynamically
+    let updateQuery = `
+      UPDATE instituicao SET
+        nome = $1,
+        descricao = $2,
+        localizacao_texto = $3,
+        telefone_contacto = $4,
+        dias_aberto = $5,
+        hora_abertura = $6,
+        hora_fecho = $7
+    `;
+    const updateParams = [
+      nome.trim(),
+      descricao.trim(),
+      localizacao_texto.trim(),
+      telefone_contacto.trim(),
+      dias_aberto.trim(),
+      hora_abertura.trim(),
+      hora_fecho.trim()
+    ];
+
+    // Add url_imagem if provided
+    if (url_imagem !== undefined) {
+      updateQuery += `, url_imagem = $${updateParams.length + 1}`;
+      updateParams.push(url_imagem.trim() || 'img/placeholder.jpg');
+    }
+
+    // Add location if provided
+    if (localizacao && !isNaN(lat) && !isNaN(lon)) {
+      updateQuery += `, "localização" = ST_SetSRID(ST_MakePoint($${updateParams.length + 2}, $${updateParams.length + 1}), 4326)::geography`;
+      updateParams.push(lon, lat);
+    }
+
+    updateQuery += ` WHERE instituicao_id = $${updateParams.length + 1}`;
+    updateParams.push(id);
+
+    await client.query(updateQuery, updateParams);
+
+    await client.query('COMMIT');
+
+    return res.status(200).json({ message: 'Instituição atualizada com sucesso.' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Erro ao atualizar instituição', error);
+    return res.status(500).json({ error: 'Erro ao atualizar instituição.' });
+  } finally {
+    client.release();
+  }
+});
+
+// DELETE /instituicoes/:id - Delete instituição
+app.delete('/instituicoes/:id', async (req, res) => {
+  const client = await pool.connect();
+  
+  try {
+    const { id } = req.params;
+    
+    if (!/^\d+$/.test(id)) {
+      return res.status(400).json({ error: 'Invalid ID format. ID must be a number.' });
+    }
+
+    try {
+      await client.query('BEGIN');
+
+      const instituicaoResult = await client.query(
+        'SELECT url_imagem FROM instituicao WHERE instituicao_id = $1',
+        [id]
+      );
+
+      if (instituicaoResult.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Instituição not found.' });
+      }
+
+      const imageUrl = instituicaoResult.rows[0].url_imagem;
+
+      // Delete the instituição
+      await client.query('DELETE FROM instituicao WHERE instituicao_id = $1', [id]);
+
+      await client.query('COMMIT');
+
+      // After successful DB deletion, try to delete the image file from Hostinger
+      if (imageUrl && imageUrl.trim() !== '' && imageUrl !== 'img/placeholder.jpg') {
+        try {
+          console.log(`[DELETE IMAGE] Attempting to delete image: ${imageUrl}`);
+          
+          // Call PHP endpoint to delete the image with timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          
+          try {
+            const deleteImageResponse = await fetch('https://biomappt.com/public/delete_image.php', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ image_url: imageUrl }),
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            let responseData;
+            try {
+              responseData = await deleteImageResponse.json();
+            } catch (parseError) {
+              const textResponse = await deleteImageResponse.text();
+              console.error('[DELETE IMAGE] Failed to parse JSON response:', textResponse);
+              throw new Error(`Invalid JSON response: ${textResponse.substring(0, 100)}`);
+            }
+            
+            if (!deleteImageResponse.ok) {
+              console.error('[DELETE IMAGE] Error deleting image:', responseData.error || 'Unknown error', `Status: ${deleteImageResponse.status}`);
+            } else {
+              console.log('[DELETE IMAGE] Image deleted successfully:', responseData.message || 'Success');
+            }
+          } catch (fetchError) {
+            clearTimeout(timeoutId);
+            if (fetchError.name === 'AbortError') {
+              console.error('[DELETE IMAGE] Request timeout after 10 seconds');
+            } else {
+              throw fetchError; // Re-throw to be caught by outer catch
+            }
+          }
+        } catch (imageError) {
+          // Log error but don't fail the request since DB deletion succeeded
+          console.error('[DELETE IMAGE] Error deleting image (network/parse error):', imageError.message || imageError);
+        }
+      }
+
+      return res.status(200).json({ message: 'Instituição eliminada com sucesso.' });
+    } catch (dbError) {
+      await client.query('ROLLBACK');
+      throw dbError;
+    }
+  } catch (error) {
+    console.error('Erro ao eliminar instituição', error);
+    return res.status(500).json({ error: 'Erro ao eliminar instituição.' });
+  } finally {
+    client.release();
+  }
+});
+
+/* =====================
    LOCAL LISTEN (only when run directly)
    and EXPORT app so it can be imported by Vercel
 ===================== */
