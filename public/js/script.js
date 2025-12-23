@@ -436,32 +436,40 @@ const SpeciesPanel = {
       if (this.elements.scientificName) {
         const parentRow = this.elements.scientificName.closest('.species-panel__info-row');
         if (parentRow) {
-          parentRow.querySelector('i').className = 'fas fa-map-marker-alt';
-          parentRow.querySelector('label').textContent = 'Localização:';
+          const icon = parentRow.querySelector('i');
+          const label = parentRow.querySelector('.label');
+          if (icon) icon.className = 'fas fa-map-marker-alt';
+          if (label) label.textContent = 'Localização:';
           this.elements.scientificName.textContent = details.localizacao_texto || '—';
         }
       }
       if (this.elements.family) {
         const parentRow = this.elements.family.closest('.species-panel__info-row');
         if (parentRow) {
-          parentRow.querySelector('i').className = 'fas fa-phone';
-          parentRow.querySelector('label').textContent = 'Contacto:';
+          const icon = parentRow.querySelector('i');
+          const label = parentRow.querySelector('.label');
+          if (icon) icon.className = 'fas fa-phone';
+          if (label) label.textContent = 'Contacto:';
           this.elements.family.textContent = details.telefone_contacto || '—';
         }
       }
       if (this.elements.diet) {
         const parentRow = this.elements.diet.closest('.species-panel__info-row');
         if (parentRow) {
-          parentRow.querySelector('i').className = 'fas fa-calendar';
-          parentRow.querySelector('label').textContent = 'Dias abertos:';
+          const icon = parentRow.querySelector('i');
+          const label = parentRow.querySelector('.label');
+          if (icon) icon.className = 'fas fa-calendar';
+          if (label) label.textContent = 'Dias abertos:';
           this.elements.diet.textContent = details.dias_aberto || '—';
         }
       }
       if (this.elements.alertDate) {
         const parentRow = this.elements.alertDate.closest('.species-panel__info-row');
         if (parentRow) {
-          parentRow.querySelector('i').className = 'fas fa-clock';
-          parentRow.querySelector('label').textContent = 'Horário:';
+          const icon = parentRow.querySelector('i');
+          const label = parentRow.querySelector('.label');
+          if (icon) icon.className = 'fas fa-clock';
+          if (label) label.textContent = 'Horário:';
           const horario = details.hora_abertura && details.hora_fecho 
             ? `${details.hora_abertura} - ${details.hora_fecho}`
             : '—';
@@ -481,24 +489,30 @@ const SpeciesPanel = {
       if (this.elements.scientificName) {
         const parentRow = this.elements.scientificName.closest('.species-panel__info-row');
         if (parentRow) {
-          parentRow.querySelector('i').className = 'fas fa-info-circle';
-          parentRow.querySelector('label').textContent = 'Nome científico:';
+          const icon = parentRow.querySelector('i');
+          const label = parentRow.querySelector('.label');
+          if (icon) icon.className = 'fas fa-info-circle';
+          if (label) label.textContent = 'Nome científico:';
           this.elements.scientificName.textContent = details.scientificName || '—';
         }
       }
       if (this.elements.family) {
         const parentRow = this.elements.family.closest('.species-panel__info-row');
         if (parentRow) {
-          parentRow.querySelector('i').className = 'fas fa-users';
-          parentRow.querySelector('label').textContent = 'Família:';
+          const icon = parentRow.querySelector('i');
+          const label = parentRow.querySelector('.label');
+          if (icon) icon.className = 'fas fa-users';
+          if (label) label.textContent = 'Família:';
           this.elements.family.textContent = details.family || '—';
         }
       }
       if (this.elements.diet) {
         const parentRow = this.elements.diet.closest('.species-panel__info-row');
         if (parentRow) {
-          parentRow.querySelector('i').className = 'fas fa-drumstick-bite';
-          parentRow.querySelector('label').textContent = 'Dieta:';
+          const icon = parentRow.querySelector('i');
+          const label = parentRow.querySelector('.label');
+          if (icon) icon.className = 'fas fa-drumstick-bite';
+          if (label) label.textContent = 'Dieta:';
           this.elements.diet.textContent = details.diet || '—';
         }
       }
@@ -508,8 +522,10 @@ const SpeciesPanel = {
       if (this.elements.alertDate) {
         const parentRow = this.elements.alertDate.closest('.species-panel__info-row');
         if (parentRow) {
-          parentRow.querySelector('i').className = 'far fa-clock';
-          parentRow.querySelector('label').textContent = 'Data do avistamento:';
+          const icon = parentRow.querySelector('i');
+          const label = parentRow.querySelector('.label');
+          if (icon) icon.className = 'far fa-clock';
+          if (label) label.textContent = 'Data do avistamento:';
           this.elements.alertDate.textContent = details.alertDate || '—';
         }
       }
@@ -675,24 +691,7 @@ function initMap() {
   };
 
   // Initialize house marker icon (brown color for instituições)
-  const houseIconSVG = `
-<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
-  <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
-        fill="#8B4513" stroke="white" stroke-width="3"/>
-  <g fill="white" stroke="white" stroke-width="2" transform="translate(30, 40)">
-    <!-- House base -->
-    <path d="M -15,10 L -15,-5 L 15,-5 L 15,10 Z" fill="white"/>
-    <!-- Roof -->
-    <path d="M -18,-5 L 0,-18 L 18,-5 Z" fill="white"/>
-    <!-- Door -->
-    <rect x="-5" y="10" width="10" height="12" fill="#8B4513"/>
-    <!-- Window left -->
-    <rect x="-12" y="-2" width="6" height="6" fill="#8B4513"/>
-    <!-- Window right -->
-    <rect x="6" y="-2" width="6" height="6" fill="#8B4513"/>
-  </g>
-</svg>
-`;
+  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="white" stroke="white" stroke-width="2" transform="translate(30, 40)"><path d="M -15,10 L -15,-5 L 15,-5 L 15,10 Z" fill="white"/><path d="M -18,-5 L 0,-18 L 18,-5 Z" fill="white"/><rect x="-5" y="10" width="10" height="12" fill="#8B4513"/><rect x="-12" y="-2" width="6" height="6" fill="#8B4513"/><rect x="6" y="-2" width="6" height="6" fill="#8B4513"/></g></svg>`;
   houseMarkerIcon = {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(houseIconSVG),
     scaledSize: iconSize.scaledSize,
