@@ -1137,8 +1137,19 @@ async function loadInstituicoes() {
 
     instituicoes.forEach((instituicao, index) => {
       // Extract coordinates from API (same format as avistamentos)
-      const lat = parseFloat(instituicao.latitude);
-      const lng = parseFloat(instituicao.longitude);
+      // Note: If coordinates appear swapped, it might be because the data was inserted incorrectly
+      // Try both orders to see which one works
+      let lat = parseFloat(instituicao.latitude);
+      let lng = parseFloat(instituicao.longitude);
+      
+      // Check if coordinates seem swapped (Portugal is roughly 36-42°N, 6-10°W)
+      // If lat is negative or > 50, or lng is positive and > 10, they're likely swapped
+      if ((lat < 0 || lat > 50) || (lng > 10 && lng < 50)) {
+        console.warn(`loadInstituicoes: Coordinates appear swapped for ${instituicao.nome}, swapping them...`);
+        const temp = lat;
+        lat = lng;
+        lng = temp;
+      }
       
       const position = {
         lat: lat,
@@ -1147,10 +1158,10 @@ async function loadInstituicoes() {
 
       console.log(`loadInstituicoes: Processing instituição ${index + 1}/${instituicoes.length}:`, {
         nome: instituicao.nome,
-        latitude: instituicao.latitude,
-        longitude: instituicao.longitude,
-        parsed_lat: lat,
-        parsed_lng: lng
+        api_latitude: instituicao.latitude,
+        api_longitude: instituicao.longitude,
+        final_lat: lat,
+        final_lng: lng
       });
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
@@ -1158,8 +1169,16 @@ async function loadInstituicoes() {
         return;
       }
 
+      // Validate coordinates are within reasonable bounds (Portugal is roughly 36-42°N, 6-10°W)
+      if (position.lat < 30 || position.lat > 45 || position.lng < -15 || position.lng > 0) {
+        console.warn('Coordinates out of bounds for instituição:', instituicao.nome, 'lat:', position.lat, 'lng:', position.lng);
+        // Don't return - still try to show it, but log the warning
+      }
+
       // Format location coordinates
       const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
+      
+      console.log(`loadInstituicoes: Creating marker for ${instituicao.nome} at (${position.lat}, ${position.lng})`);
 
       // Create details object for SpeciesPanel
       const details = {
@@ -1184,6 +1203,7 @@ async function loadInstituicoes() {
       const scale = Math.pow(1.15, clampedZoom - baseZoom);
       const fontSize = Math.round(baseFontSize * scale);
       
+      console.log(`loadInstituicoes: Creating marker with icon:`, houseMarkerIcon);
       const marker = new google.maps.Marker({
         position: position,
         map: null, // Don't add to map yet
@@ -1196,6 +1216,8 @@ async function loadInstituicoes() {
         },
         title: instituicao.nome
       });
+
+      console.log(`loadInstituicoes: Marker created:`, marker, 'Position:', marker.getPosition());
 
       // Store marker and its data
       markerDataMap.set(marker, details);
@@ -1226,8 +1248,17 @@ async function loadInstituicoes() {
         // Stagger the appearance slightly for a smoother effect
         setTimeout(() => {
           try {
+            const markerPosition = marker.getPosition();
+            console.log(`loadInstituicoes: About to add marker ${index + 1} to map. Position:`, markerPosition, 'Map:', map);
             marker.setMap(map);
-            console.log('loadInstituicoes: Added marker', index + 1, 'to map');
+            console.log('loadInstituicoes: Added marker', index + 1, 'to map. Marker visible:', marker.getVisible(), 'Map:', marker.getMap());
+            
+            // Verify marker is actually on the map
+            setTimeout(() => {
+              const actualMap = marker.getMap();
+              const actualPosition = marker.getPosition();
+              console.log(`loadInstituicoes: Marker ${index + 1} verification - Map:`, actualMap, 'Position:', actualPosition, 'Visible:', marker.getVisible());
+            }, 100);
             
             // Attach click handler
             const details = markerDataMap.get(marker);
