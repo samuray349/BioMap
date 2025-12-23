@@ -95,11 +95,11 @@ checkAccess(ACCESS_ADMIN);
                         </th>
                         <th>
                             Família
-                            <i class="fas fa-sort sort-icon"></i>
+                            
                         </th>
                         <th>
                             Estado de cons
-                            <i class="fas fa-sort sort-icon"></i>
+                            
                         </th>
                         <th>Atualizar</th>
                         <th>Excluir</th>
@@ -268,6 +268,12 @@ checkAccess(ACCESS_ADMIN);
         let allAnimals = [];
         let totalPages = 1;
 
+        // Sorting state
+        let sortStates = {
+            'nome': 0  // 0: original, 1: asc, 2: desc
+        };
+        let originalAnimals = []; // Store original order
+
         // Pagination elements
         const paginationSelect = document.querySelector('.pagination-select');
         const paginationInfo = document.querySelector('.pagination-info span:last-child');
@@ -283,6 +289,10 @@ checkAccess(ACCESS_ADMIN);
                 });
                 
                 allAnimals = await fetchAnimals(filters);
+
+                // Store original order for reverting sort
+                originalAnimals = [...allAnimals];
+
                 updatePagination();
                 renderCurrentPage();
             } catch (error) {
@@ -309,6 +319,59 @@ checkAccess(ACCESS_ADMIN);
             attachDeleteHandlers();
             // Add update button handlers
             attachUpdateHandlers();
+        }
+
+        // Sort animals by column
+        function sortAnimals(column) {
+            sortStates[column]++;
+            if (sortStates[column] > 2) {
+                sortStates[column] = 0;
+            }
+
+            if (sortStates[column] === 0) {
+                // Revert to original order
+                allAnimals = [...originalAnimals];
+            } else {
+                // Sort alphabetically
+                allAnimals.sort((a, b) => {
+                    let valueA, valueB;
+                    if (column === 'nome') {
+                        valueA = a.nome_comum.toLowerCase();
+                        valueB = b.nome_comum.toLowerCase();
+                    }
+
+                    if (sortStates[column] === 1) {
+                        // Ascending (A-Z)
+                        return valueA.localeCompare(valueB);
+                    } else {
+                        // Descending (Z-A)
+                        return valueB.localeCompare(valueA);
+                    }
+                });
+            }
+
+            // Update sort icons
+            updateSortIcons();
+
+            // Reset to first page and render
+            currentPage = 1;
+            updatePagination();
+            renderCurrentPage();
+        }
+
+        // Update sort icons based on current sort state
+        function updateSortIcons() {
+            const nomeIcon = document.querySelector('.admin-animals-table thead th:nth-child(1) .sort-icon');
+
+            // Reset all icons to default
+            if (nomeIcon) nomeIcon.className = 'fas fa-sort sort-icon';
+
+            // Update nome icon
+            if (sortStates.nome === 1) {
+                if (nomeIcon) nomeIcon.className = 'fas fa-sort-up sort-icon';
+            } else if (sortStates.nome === 2) {
+                if (nomeIcon) nomeIcon.className = 'fas fa-sort-down sort-icon';
+            }
         }
 
         // Update pagination UI
@@ -1049,6 +1112,9 @@ checkAccess(ACCESS_ADMIN);
                 stateTagsArray: adminStateTags,
                 onFilterChange: () => {
                     currentPage = 1; // Reset to first page on filter change
+                    // Reset sort states on filter change
+                    sortStates = { 'nome': 0 };
+                    updateSortIcons();
                     loadAnimals();
                 }
             });
@@ -1057,6 +1123,9 @@ checkAccess(ACCESS_ADMIN);
             if (searchInput) {
                 searchInput.addEventListener('input', () => {
                     currentPage = 1; // Reset to first page on search
+                    // Reset sort states on search
+                    sortStates = { 'nome': 0 };
+                    updateSortIcons();
                     loadAnimals();
                 });
             }
@@ -1085,8 +1154,18 @@ checkAccess(ACCESS_ADMIN);
                         stateInputId: 'state-input'
                     });
                     currentPage = 1;
+                    // Reset sort states on clear filters
+                    sortStates = { 'nome': 0 };
+                    updateSortIcons();
                     loadAnimals();
                 });
+            }
+
+            // Sort functionality
+            const nomeTh = document.querySelector('.admin-animals-table thead th:nth-child(1)');
+            if (nomeTh) {
+                nomeTh.style.cursor = 'pointer';
+                nomeTh.addEventListener('click', () => sortAnimals('nome'));
             }
 
             // Initial load

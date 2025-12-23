@@ -88,11 +88,11 @@ checkAccess(ACCESS_ADMIN);
                         </th>
                         <th>
                             Estado
-                            <i class="fas fa-sort sort-icon"></i>
+                            
                         </th>
                         <th>
                             Estatuto
-                            <i class="fas fa-sort sort-icon"></i>
+                            
                         </th>
                         <th>Suspender</th>
                         <th>Banir</th>
@@ -165,6 +165,13 @@ checkAccess(ACCESS_ADMIN);
         let allUsers = [];
         let totalPages = 1;
 
+        // Sorting state
+        let sortStates = {
+            'nome': 0, // 0: original, 1: asc, 2: desc
+            'email': 0  // 0: original, 1: asc, 2: desc
+        };
+        let originalUsers = []; // Store original order
+
         // Pagination elements
         const paginationSelect = document.querySelector('.pagination-select');
         const paginationInfo = document.querySelector('.pagination-info span:last-child');
@@ -236,6 +243,9 @@ checkAccess(ACCESS_ADMIN);
                     return currentUserId === null || user.utilizador_id !== currentUserId;
                 });
 
+                // Store original order for reverting sort
+                originalUsers = [...allUsers];
+
                 updatePagination();
                 renderCurrentPage();
             } catch (error) {
@@ -253,6 +263,71 @@ checkAccess(ACCESS_ADMIN);
             const pageUsers = allUsers.slice(startIndex, endIndex);
 
             renderUserTable(pageUsers, tbody);
+        }
+
+        // Sort users by column
+        function sortUsers(column) {
+            sortStates[column]++;
+            if (sortStates[column] > 2) {
+                sortStates[column] = 0;
+            }
+
+            if (sortStates[column] === 0) {
+                // Revert to original order
+                allUsers = [...originalUsers];
+            } else {
+                // Sort alphabetically
+                allUsers.sort((a, b) => {
+                    let valueA, valueB;
+                    if (column === 'nome') {
+                        valueA = a.nome_utilizador.toLowerCase();
+                        valueB = b.nome_utilizador.toLowerCase();
+                    } else if (column === 'email') {
+                        valueA = a.email.toLowerCase();
+                        valueB = b.email.toLowerCase();
+                    }
+
+                    if (sortStates[column] === 1) {
+                        // Ascending (A-Z)
+                        return valueA.localeCompare(valueB);
+                    } else {
+                        // Descending (Z-A)
+                        return valueB.localeCompare(valueA);
+                    }
+                });
+            }
+
+            // Update sort icons
+            updateSortIcons();
+
+            // Reset to first page and render
+            currentPage = 1;
+            updatePagination();
+            renderCurrentPage();
+        }
+
+        // Update sort icons based on current sort state
+        function updateSortIcons() {
+            const nomeIcon = document.querySelector('.admin-users-table thead th:nth-child(1) .sort-icon');
+            const emailIcon = document.querySelector('.admin-users-table thead th:nth-child(2) .sort-icon');
+
+            // Reset all icons to default
+            if (nomeIcon) nomeIcon.className = 'fas fa-sort sort-icon';
+            if (emailIcon) emailIcon.className = 'fas fa-sort sort-icon';
+
+            // Update nome icon
+            if (sortStates.nome === 1) {
+                if (nomeIcon) nomeIcon.className = 'fas fa-sort-up sort-icon';
+            } else if (sortStates.nome === 2) {
+                if (nomeIcon) nomeIcon.className = 'fas fa-sort-down sort-icon';
+            }
+
+            // Update email icon
+            if (sortStates.email === 1) {
+                if (emailIcon) emailIcon.className = 'fas fa-sort-up sort-icon';
+            } else if (sortStates.email === 2) {
+                if (emailIcon) emailIcon.className = 'fas fa-sort-down sort-icon';
+            }
         }
 
         // Update pagination UI
@@ -384,6 +459,9 @@ checkAccess(ACCESS_ADMIN);
                 estatutoTagsArray: adminEstatutoTags,
                 onFilterChange: () => {
                     currentPage = 1; // Reset to first page on filter change
+                    // Reset sort states on filter change
+                    sortStates = { 'nome': 0, 'email': 0 };
+                    updateSortIcons();
                     loadUsers();
                 }
             });
@@ -392,6 +470,9 @@ checkAccess(ACCESS_ADMIN);
             if (searchInput) {
                 searchInput.addEventListener('input', () => {
                     currentPage = 1; // Reset to first page on search
+                    // Reset sort states on search
+                    sortStates = { 'nome': 0, 'email': 0 };
+                    updateSortIcons();
                     loadUsers();
                 });
             }
@@ -420,8 +501,24 @@ checkAccess(ACCESS_ADMIN);
                         estatutoInputId: 'estatuto-input'
                     });
                     currentPage = 1;
+                    // Reset sort states on clear filters
+                    sortStates = { 'nome': 0, 'email': 0 };
+                    updateSortIcons();
                     loadUsers();
                 });
+            }
+
+            // Sort functionality
+            const nomeTh = document.querySelector('.admin-users-table thead th:nth-child(1)');
+            const emailTh = document.querySelector('.admin-users-table thead th:nth-child(2)');
+
+            if (nomeTh) {
+                nomeTh.style.cursor = 'pointer';
+                nomeTh.addEventListener('click', () => sortUsers('nome'));
+            }
+            if (emailTh) {
+                emailTh.style.cursor = 'pointer';
+                emailTh.addEventListener('click', () => sortUsers('email'));
             }
 
             // Initial load
