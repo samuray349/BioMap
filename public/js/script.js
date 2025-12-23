@@ -975,6 +975,7 @@ async function loadAvistamentos() {
         return;
       }
 
+      
       // Format date for display
       const alertDate = new Date(avistamento.data_avistamento);
       const formattedDate = alertDate.toLocaleDateString('pt-PT', {
