@@ -702,6 +702,18 @@ app.post('/animais', async (req, res) => {
       ? populacao_estimada
       : Number(String(populacao_estimada || '').replace(/[^\d]/g, '')) || null;
 
+  // Validate population is within PostgreSQL integer range (-2,147,483,648 to 2,147,483,647)
+  if (normalizedPopulation !== null && (normalizedPopulation > 2147483647 || normalizedPopulation < -2147483648)) {
+    return res.status(400).json({ 
+      error: `População estimada "${populacao_estimada}" está fora do intervalo permitido. O valor deve estar entre -2,147,483,648 e 2,147,483,647.` 
+    });
+  }
+
+  // Use placeholder image URL if not provided (database requires NOT NULL)
+  // Since images are stored on Hostinger, we use a placeholder that will be updated after upload
+  const placeholderImageUrl = 'img/placeholder.jpg';
+  const finalImageUrl = imagem_url && imagem_url.trim() ? imagem_url.trim() : placeholderImageUrl;
+
   const client = await pool.connect();
 
   try {
