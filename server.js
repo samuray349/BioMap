@@ -1110,7 +1110,7 @@ app.delete('/animais/:id', async (req, res) => {
           const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
           
           try {
-            const deleteImageResponse = await fetch('https://biomappt.com/public/delete_image.php', {
+            const deleteImageResponse = await fetch('https://lucped.antrob.eu/public/delete_image.php', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
