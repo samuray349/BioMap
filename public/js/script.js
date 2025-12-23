@@ -473,9 +473,19 @@ const SpeciesPanel = {
           const label = parentRow.querySelector('.label');
           if (icon) icon.className = 'fas fa-clock';
           if (label) label.textContent = 'Horário:';
-          const horario = details.hora_abertura && details.hora_fecho 
-            ? `${details.hora_abertura} - ${details.hora_fecho}`
-            : '—';
+          // Format times to show only hours and minutes (HH:MM)
+          let horario = '—';
+          if (details.hora_abertura && details.hora_fecho) {
+            const formatTime = (timeStr) => {
+              if (!timeStr) return '';
+              // If time includes seconds (HH:MM:SS), remove them
+              if (timeStr.includes(':') && timeStr.split(':').length === 3) {
+                return timeStr.substring(0, 5); // Take only HH:MM
+              }
+              return timeStr; // Already in HH:MM format
+            };
+            horario = `${formatTime(details.hora_abertura)} - ${formatTime(details.hora_fecho)}`;
+          }
           this.elements.alertDate.textContent = horario;
         }
       }
@@ -542,8 +552,14 @@ const SpeciesPanel = {
       }
     }
 
-    // Location
+    // Location/Coordinates - change label to "Coordenadas"
     if (this.elements.location) {
+      const locationRow = this.elements.location.closest('.species-panel__info-row');
+      if (locationRow) {
+        const label = locationRow.querySelector('.label');
+        if (label) label.textContent = 'Coordenadas:';
+      }
+      
       const coords = details.coordinates || {};
       if (typeof coords.lat === 'number' && typeof coords.lng === 'number') {
         this.elements.location.textContent = `${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`;
@@ -2014,10 +2030,53 @@ function initMapPicker() {
                 const lat = typeof selectedLatLng.lat === 'function' ? selectedLatLng.lat() : selectedLatLng.lat;
                 const lng = typeof selectedLatLng.lng === 'function' ? selectedLatLng.lng() : selectedLatLng.lng;
                 
-                // Format the coordinates for the input field
-                locationInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                
-                if (mapOverlay) mapOverlay.classList.remove('show');
+                // Use Geocoder to get address from coordinates
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                    if (status === 'OK' && results && results.length > 0) {
+                        // Format address as "City, Region - Country"
+                        const addressComponents = results[0].address_components;
+                        let city = '';
+                        let region = '';
+                        let country = '';
+                        
+                        addressComponents.forEach(component => {
+                            const types = component.types;
+                            if (types.includes('locality') || types.includes('administrative_area_level_2')) {
+                                city = component.long_name;
+                            } else if (types.includes('administrative_area_level_1')) {
+                                region = component.long_name;
+                            } else if (types.includes('country')) {
+                                country = component.long_name;
+                            }
+                        });
+                        
+                        // Build formatted address: "City, Region - Country"
+                        let formattedAddress = '';
+                        if (city) {
+                            formattedAddress = city;
+                            if (region && region !== city) {
+                                formattedAddress += `, ${region}`;
+                            }
+                            if (country) {
+                                formattedAddress += ` - ${country}`;
+                            }
+                        } else {
+                            // Fallback to coordinates if geocoding fails
+                            formattedAddress = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        }
+                        
+                        locationInput.value = formattedAddress;
+                        // Ensure selectedLatLng is stored in window for cross-script access
+                        window.selectedLatLng = selectedLatLng;
+                    } else {
+                        // Fallback to coordinates if geocoding fails
+                        locationInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        window.selectedLatLng = selectedLatLng;
+                    }
+                    
+                    if (mapOverlay) mapOverlay.classList.remove('show');
+                });
             }
         });
     }
@@ -2036,8 +2095,9 @@ function initMapPicker() {
             animation: google.maps.Animation.DROP
         });
 
-        // Store the selected coordinates globally
+        // Store the selected coordinates globally (accessible from other scripts)
         selectedLatLng = latLng;
+        window.selectedLatLng = latLng; // Also store in window for cross-script access
 
         // Update the display in the sidebar
         const lat = typeof latLng.lat === 'function' ? latLng.lat() : latLng.lat;

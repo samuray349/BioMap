@@ -400,19 +400,29 @@ checkAccess(ACCESS_ADMIN);
                     const hora_fecho = document.getElementById('closing-time')?.value?.trim();
                     
                     // Get location coordinates from map picker
+                    // The locationInput now contains formatted address (e.g., "Alenquer, Lisboa - Portugal")
+                    // But we need to get coordinates from the map picker's selectedLatLng
+                    // We'll need to access the global selectedLatLng from script.js
                     let localizacao = null;
-                    const locationInputValue = document.getElementById('location-search')?.value?.trim();
-                    if (locationInputValue) {
-                        // Parse coordinates from input (format: "lat, lng" or "lat,lng")
-                        // The map picker sets it as "lat, lng" format
-                        const coordsMatch = locationInputValue.match(/(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)/);
-                        if (coordsMatch) {
-                            // Input format is "lat, lng", convert to {lat, lon} object
-                            // Database uses ST_MakePoint(lon, lat) so we keep lat/lon order in the object
-                            localizacao = {
-                                lat: parseFloat(coordsMatch[1]),
-                                lon: parseFloat(coordsMatch[2])
-                            };
+                    // Try to get coordinates from the global selectedLatLng variable (set by map picker)
+                    if (typeof window.selectedLatLng !== 'undefined' && window.selectedLatLng) {
+                        const lat = typeof window.selectedLatLng.lat === 'function' ? window.selectedLatLng.lat() : window.selectedLatLng.lat;
+                        const lng = typeof window.selectedLatLng.lng === 'function' ? window.selectedLatLng.lng() : window.selectedLatLng.lng;
+                        localizacao = {
+                            lat: lat,
+                            lon: lng
+                        };
+                    } else {
+                        // Fallback: try to parse coordinates from input if it's still in coordinate format
+                        const locationInputValue = document.getElementById('location-search')?.value?.trim();
+                        if (locationInputValue) {
+                            const coordsMatch = locationInputValue.match(/(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)/);
+                            if (coordsMatch) {
+                                localizacao = {
+                                    lat: parseFloat(coordsMatch[1]),
+                                    lon: parseFloat(coordsMatch[2])
+                                };
+                            }
                         }
                     }
 
