@@ -384,6 +384,7 @@ checkAccess(ACCESS_ADMIN);
         loadHeader();
         highlightCurrentPage();
 
+        
         // Success animation function
         const showSuccessAnimation = () => {
             const overlay = document.getElementById('success-overlay');
