@@ -769,7 +769,7 @@ app.post('/animais', async (req, res) => {
         descricao,
         facto_interessante || '',
         normalizedPopulation,
-        imagem_url || null,
+        finalImageUrl,
         0,
         dieta.rows[0].dieta_id,
         familia.rows[0].familia_id,
@@ -814,7 +814,7 @@ app.post('/animais', async (req, res) => {
     return res.status(201).json({
       message: 'Animal criado com sucesso.',
       animal_id: animalId,
-      url_imagem: imagem_url
+      url_imagem: finalImageUrl
     });
   } catch (error) {
     await client.query('ROLLBACK');
@@ -878,6 +878,13 @@ app.put('/animais/:id', async (req, res) => {
     typeof populacao_estimada === 'number'
       ? populacao_estimada
       : Number(String(populacao_estimada || '').replace(/[^\d]/g, '')) || null;
+
+  // Validate population is within PostgreSQL integer range (-2,147,483,648 to 2,147,483,647)
+  if (normalizedPopulation !== null && (normalizedPopulation > 2147483647 || normalizedPopulation < -2147483648)) {
+    return res.status(400).json({ 
+      error: `População estimada "${populacao_estimada}" está fora do intervalo permitido. O valor deve estar entre -2,147,483,648 e 2,147,483,647.` 
+    });
+  }
 
   const client = await pool.connect();
 
