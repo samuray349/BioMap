@@ -21,7 +21,7 @@ Disponibilizar uma plataforma que aumenta a visibilidade de instituições de co
 [Visite o site do projeto](https://lucped.antrob.eu/public/)
 
 ## Site do modelo da base de dados
-[Visite o site do modelo](https://dbdiagram.io/d/BioMap-68fd15d8357668b73299cd44)
+[Visite o site do modelo](https://dbdiagram.io/d/BioMap-694b0774dbf05578e6697a86)
 
 ## Autor
 Pedro Oliveira
