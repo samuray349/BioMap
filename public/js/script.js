@@ -3,7 +3,9 @@ let familyTags = [];
 let stateTags = [];
 let rightClickPosition = null; // Store this globally to pass to the alert menu
 let mapMarkers = []; // Store all map markers for dynamic updates
+let instituicaoMarkers = []; // Store all instituição markers for dynamic updates
 let pawMarkerIcon = null; // Will be initialized in initMap() after Google Maps API loads
+let houseMarkerIcon = null; // Will be initialized in initMap() after Google Maps API loads
 let currentZoomLevel = 12; // Track current zoom level
 
 // ==========================================
@@ -427,20 +429,97 @@ const SpeciesPanel = {
         nameElement.textContent = details.name || 'Animal sem nome';
       }
     }
-    if (this.elements.scientificName) {
-      this.elements.scientificName.textContent = details.scientificName || '—';
-    }
-    if (this.elements.family) {
-      this.elements.family.textContent = details.family || '—';
-    }
-    if (this.elements.diet) {
-      this.elements.diet.textContent = details.diet || '—';
-    }
-    if (this.elements.description) {
-      this.elements.description.textContent = details.description || '';
-    }
-    if (this.elements.alertDate) {
-      this.elements.alertDate.textContent = details.alertDate || '—';
+    // Handle instituição vs animal data
+    if (details.isInstituicao) {
+      // For instituições, show instituição-specific fields
+      if (this.elements.scientificName) {
+        const parentRow = this.elements.scientificName.closest('.species-panel__info-row');
+        if (parentRow) {
+          parentRow.querySelector('i').className = 'fas fa-map-marker-alt';
+          parentRow.querySelector('label').textContent = 'Localização:';
+          this.elements.scientificName.textContent = details.localizacao_texto || '—';
+        }
+      }
+      if (this.elements.family) {
+        const parentRow = this.elements.family.closest('.species-panel__info-row');
+        if (parentRow) {
+          parentRow.querySelector('i').className = 'fas fa-phone';
+          parentRow.querySelector('label').textContent = 'Contacto:';
+          this.elements.family.textContent = details.telefone_contacto || '—';
+        }
+      }
+      if (this.elements.diet) {
+        const parentRow = this.elements.diet.closest('.species-panel__info-row');
+        if (parentRow) {
+          parentRow.querySelector('i').className = 'fas fa-calendar';
+          parentRow.querySelector('label').textContent = 'Dias abertos:';
+          this.elements.diet.textContent = details.dias_aberto || '—';
+        }
+      }
+      if (this.elements.alertDate) {
+        const parentRow = this.elements.alertDate.closest('.species-panel__info-row');
+        if (parentRow) {
+          parentRow.querySelector('i').className = 'fas fa-clock';
+          parentRow.querySelector('label').textContent = 'Horário:';
+          const horario = details.hora_abertura && details.hora_fecho 
+            ? `${details.hora_abertura} - ${details.hora_fecho}`
+            : '—';
+          this.elements.alertDate.textContent = horario;
+        }
+      }
+      if (this.elements.description) {
+        this.elements.description.textContent = details.description || '';
+      }
+      // Hide badge for instituições
+      if (this.elements.badge) {
+        this.elements.badge.textContent = '';
+        this.elements.badge.style.display = 'none';
+      }
+    } else {
+      // For animals, show animal-specific fields
+      if (this.elements.scientificName) {
+        const parentRow = this.elements.scientificName.closest('.species-panel__info-row');
+        if (parentRow) {
+          parentRow.querySelector('i').className = 'fas fa-info-circle';
+          parentRow.querySelector('label').textContent = 'Nome científico:';
+          this.elements.scientificName.textContent = details.scientificName || '—';
+        }
+      }
+      if (this.elements.family) {
+        const parentRow = this.elements.family.closest('.species-panel__info-row');
+        if (parentRow) {
+          parentRow.querySelector('i').className = 'fas fa-users';
+          parentRow.querySelector('label').textContent = 'Família:';
+          this.elements.family.textContent = details.family || '—';
+        }
+      }
+      if (this.elements.diet) {
+        const parentRow = this.elements.diet.closest('.species-panel__info-row');
+        if (parentRow) {
+          parentRow.querySelector('i').className = 'fas fa-drumstick-bite';
+          parentRow.querySelector('label').textContent = 'Dieta:';
+          this.elements.diet.textContent = details.diet || '—';
+        }
+      }
+      if (this.elements.description) {
+        this.elements.description.textContent = details.description || '';
+      }
+      if (this.elements.alertDate) {
+        const parentRow = this.elements.alertDate.closest('.species-panel__info-row');
+        if (parentRow) {
+          parentRow.querySelector('i').className = 'far fa-clock';
+          parentRow.querySelector('label').textContent = 'Data do avistamento:';
+          this.elements.alertDate.textContent = details.alertDate || '—';
+        }
+      }
+      // Show badge for animals
+      if (this.elements.badge && details.estado) {
+        this.elements.badge.style.display = '';
+        this.elements.badge.textContent = details.estado;
+        if (details.estadoCor) {
+          this.elements.badge.style.backgroundColor = details.estadoCor;
+        }
+      }
     }
 
     // Location
@@ -474,6 +553,16 @@ const SpeciesPanel = {
 
   updateMenuVisibility(details) {
     if (!this.elements.menu) return;
+
+    // For instituições, don't show the menu (no delete functionality for instituições on map)
+    if (details.isInstituicao) {
+      this.elements.menu.style.display = 'none';
+      // Close dropdown if open
+      if (this.elements.menuDropdown) {
+        this.elements.menuDropdown.style.display = 'none';
+      }
+      return;
+    }
 
     // Show menu only if:
     // 1. User is logged in
@@ -578,6 +667,32 @@ function initMap() {
     labelOrigin: iconSize.labelOrigin
   };
 
+  // Initialize house marker icon (brown color for instituições)
+  const houseIconSVG = `
+<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
+        fill="#8B4513" stroke="white" stroke-width="3"/>
+  <g fill="white" stroke="white" stroke-width="2" transform="translate(30, 40)">
+    <!-- House base -->
+    <path d="M -15,10 L -15,-5 L 15,-5 L 15,10 Z" fill="white"/>
+    <!-- Roof -->
+    <path d="M -18,-5 L 0,-18 L 18,-5 Z" fill="white"/>
+    <!-- Door -->
+    <rect x="-5" y="10" width="10" height="12" fill="#8B4513"/>
+    <!-- Window left -->
+    <rect x="-12" y="-2" width="6" height="6" fill="#8B4513"/>
+    <!-- Window right -->
+    <rect x="6" y="-2" width="6" height="6" fill="#8B4513"/>
+  </g>
+</svg>
+`;
+  houseMarkerIcon = {
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(houseIconSVG),
+    scaledSize: iconSize.scaledSize,
+    anchor: iconSize.anchor,
+    labelOrigin: iconSize.labelOrigin
+  };
+
   map = new google.maps.Map(mapElement, {
     zoom: 12,
     center,
@@ -597,6 +712,9 @@ function initMap() {
 
   // Load and display avistamentos dynamically
   loadAvistamentos();
+  
+  // Load and display instituições dynamically
+  loadInstituicoes();
 
   // Fetch filter options from API and initialize dropdowns
   (async () => {
@@ -619,7 +737,10 @@ function initMap() {
   // Set up filter change listeners to update map markers
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
-    searchInput.addEventListener('input', debounce(loadAvistamentos, 300));
+    searchInput.addEventListener('input', debounce(() => {
+      loadAvistamentos();
+      loadInstituicoes();
+    }, 300));
   }
 
   // Observe changes to tag containers
@@ -649,8 +770,9 @@ function initMap() {
         familyInputId: 'family-input',
         stateInputId: 'state-input'
       });
-      // Reload avistamentos after clearing filters
+      // Reload avistamentos and instituições after clearing filters
       loadAvistamentos();
+      loadInstituicoes();
     });
   }
 
@@ -674,7 +796,7 @@ function debounce(func, wait) {
 
 // Update marker sizes based on zoom level
 function updateMarkerSizes(zoom) {
-  if (!mapMarkers || mapMarkers.length === 0) return;
+  if ((!mapMarkers || mapMarkers.length === 0) && (!instituicaoMarkers || instituicaoMarkers.length === 0)) return;
   
   // Calculate new icon size with more gradual scaling
   const baseZoom = 12;
@@ -714,21 +836,70 @@ function updateMarkerSizes(zoom) {
     labelOrigin: new google.maps.Point(width / 2, labelYOffset)
   };
   
-  // Update all existing markers with new icon and label size
-  mapMarkers.forEach(marker => {
-    marker.setIcon(pawMarkerIcon);
-    
-    // Update label with new font size
-    const currentLabel = marker.getLabel();
-    if (currentLabel) {
-      marker.setLabel({
-        text: currentLabel.text || currentLabel,
-        className: "marker-label",
-        fontSize: `${fontSize}px`,
-        fontWeight: "600"
-      });
-    }
-  });
+  // Get the current house icon SVG
+  const houseIconSVG = `
+<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
+        fill="#8B4513" stroke="white" stroke-width="3"/>
+  <g fill="white" stroke="white" stroke-width="2" transform="translate(30, 40)">
+    <!-- House base -->
+    <path d="M -15,10 L -15,-5 L 15,-5 L 15,10 Z" fill="white"/>
+    <!-- Roof -->
+    <path d="M -18,-5 L 0,-18 L 18,-5 Z" fill="white"/>
+    <!-- Door -->
+    <rect x="-5" y="10" width="10" height="12" fill="#8B4513"/>
+    <!-- Window left -->
+    <rect x="-12" y="-2" width="6" height="6" fill="#8B4513"/>
+    <!-- Window right -->
+    <rect x="6" y="-2" width="6" height="6" fill="#8B4513"/>
+  </g>
+</svg>
+`;
+  
+  // Update the global house icon with proper label origin
+  houseMarkerIcon = {
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(houseIconSVG),
+    scaledSize: new google.maps.Size(width, height),
+    anchor: new google.maps.Point(width / 2, height),
+    labelOrigin: new google.maps.Point(width / 2, labelYOffset)
+  };
+  
+  // Update all existing animal markers with new icon and label size
+  if (mapMarkers && mapMarkers.length > 0) {
+    mapMarkers.forEach(marker => {
+      marker.setIcon(pawMarkerIcon);
+      
+      // Update label with new font size
+      const currentLabel = marker.getLabel();
+      if (currentLabel) {
+        marker.setLabel({
+          text: currentLabel.text || currentLabel,
+          className: "marker-label",
+          fontSize: `${fontSize}px`,
+          fontWeight: "600"
+        });
+      }
+    });
+  }
+  
+  // Update all existing instituição markers with new icon and label size
+  if (instituicaoMarkers && instituicaoMarkers.length > 0) {
+    instituicaoMarkers.forEach(marker => {
+      marker.setIcon(houseMarkerIcon);
+      
+      // Update label with new font size
+      const currentLabel = marker.getLabel();
+      if (currentLabel) {
+        marker.setLabel({
+          text: currentLabel.text || currentLabel,
+          className: "marker-label",
+          fontSize: `${fontSize}px`,
+          fontWeight: "600"
+        });
+      }
+    });
+  }
+}
 }
 
 // Fetch and display avistamentos on the map
@@ -880,6 +1051,147 @@ async function loadAvistamentos() {
     }, 300);
   } catch (error) {
     console.error('Erro ao carregar avistamentos:', error);
+  }
+}
+
+async function loadInstituicoes() {
+  if (!map) {
+    console.warn('loadInstituicoes: map not initialized');
+    return;
+  }
+  if (!houseMarkerIcon) {
+    console.warn('loadInstituicoes: houseMarkerIcon not initialized');
+    return;
+  }
+
+  try {
+    console.log('loadInstituicoes: Starting to load instituições...');
+    // Get current search filter
+    const searchInput = document.getElementById('search-input');
+    const searchTerm = searchInput ? searchInput.value.trim() : '';
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (searchTerm) {
+      params.append('search', searchTerm);
+    }
+
+    // Fetch instituições from API
+    const apiUrl = getApiUrl(`instituicoes?${params.toString()}`);
+    console.log('loadInstituicoes: Fetching from', apiUrl);
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      console.error('loadInstituicoes: HTTP error! status:', response.status);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const instituicoes = await response.json();
+    console.log('loadInstituicoes: Received', instituicoes.length, 'instituições');
+
+    // Create new markers first (but don't add to map yet to avoid flicker)
+    const newMarkers = [];
+    const markerDataMap = new Map(); // Store marker data for click handlers
+
+    instituicoes.forEach(instituicao => {
+      const position = {
+        lat: parseFloat(instituicao.latitude),
+        lng: parseFloat(instituicao.longitude)
+      };
+
+      if (isNaN(position.lat) || isNaN(position.lng)) {
+        console.warn('Invalid coordinates for instituição:', instituicao);
+        return;
+      }
+
+      // Format location coordinates
+      const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
+
+      // Create details object for SpeciesPanel
+      const details = {
+        instituicao_id: instituicao.instituicao_id,
+        name: instituicao.nome,
+        description: instituicao.descricao || '—',
+        localizacao_texto: instituicao.localizacao_texto || '—',
+        telefone_contacto: instituicao.telefone_contacto || '—',
+        dias_aberto: instituicao.dias_aberto || '—',
+        hora_abertura: instituicao.hora_abertura || '—',
+        hora_fecho: instituicao.hora_fecho || '—',
+        coordinates: position,
+        location: locationText,
+        image: instituicao.url_imagem || 'img/placeholder.jpg',
+        isInstituicao: true // Flag to identify this as an instituição
+      };
+
+      // Calculate label font size based on current zoom
+      const baseZoom = 12;
+      const baseFontSize = 14;
+      const clampedZoom = Math.max(8, Math.min(18, currentZoomLevel));
+      const scale = Math.pow(1.15, clampedZoom - baseZoom);
+      const fontSize = Math.round(baseFontSize * scale);
+      
+      const marker = new google.maps.Marker({
+        position: position,
+        map: null, // Don't add to map yet
+        icon: houseMarkerIcon,
+        label: {
+          text: instituicao.nome,
+          className: "marker-label",
+          fontSize: `${fontSize}px`,
+          fontWeight: "600"
+        },
+        title: instituicao.nome
+      });
+
+      // Store marker and its data
+      markerDataMap.set(marker, details);
+      newMarkers.push(marker);
+    });
+
+    // Now update markers with smooth transitions
+    // First, fade out old markers
+    instituicaoMarkers.forEach(marker => {
+      const labelDiv = marker.getLabel()?.element;
+      if (labelDiv) {
+        labelDiv.classList.add('marker-fade-out');
+      }
+      // Remove marker after fade out animation
+      setTimeout(() => {
+        marker.setMap(null);
+      }, 300);
+    });
+    
+    // Then add new markers with fade in animation
+    setTimeout(() => {
+      newMarkers.forEach((marker, index) => {
+        // Stagger the appearance slightly for a smoother effect
+        setTimeout(() => {
+          marker.setMap(map);
+          
+          // Attach click handler
+          const details = markerDataMap.get(marker);
+          if (details) {
+            marker.addListener("click", (e) => {
+              try {
+                // If panel is already open, just update the content without closing
+                if (SpeciesPanel.isOpen) {
+                  SpeciesPanel.populateData(details);
+                } else {
+                  SpeciesPanel.open(details);
+                }
+              } catch (error) {
+                console.error('Error opening panel:', error);
+              }
+            });
+          }
+        }, index * 20); // 20ms delay between each marker
+      });
+      
+      // Update the markers array after a short delay
+      setTimeout(() => {
+        instituicaoMarkers = newMarkers;
+      }, newMarkers.length * 20 + 100);
+    }, 300);
+  } catch (error) {
+    console.error('Erro ao carregar instituições:', error);
   }
 }
 

@@ -3944,9 +3944,63 @@ body:has(.login-container) .login-container {
 /* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 768px) {
     /* Header responsive */
+    .header {
+        height: auto;
+        min-height: 70px;
+    }
+    
+    .header-content {
+        padding: 0 15px;
+        flex-wrap: wrap;
+    }
+    
+    .logo-section {
+        flex-shrink: 0;
+    }
+    
+    .logo-icon {
+        width: 40px;
+    }
+    
+    .logo-text {
+        font-size: 20px;
+    }
+    
     .nav-links {
-        gap: 15px;
-        font-size: 14px;
+        gap: 10px;
+        font-size: 13px;
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        padding: 10px 0;
+        border-top: 1px solid #e0e0e0;
+        margin-top: 10px;
+    }
+    
+    .nav-link {
+        font-size: 13px;
+        padding: 5px 8px;
+    }
+    
+    .user-section {
+        flex-shrink: 0;
+        min-height: 70px;
+    }
+    
+    .user-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+        max-width: 36px;
+        max-height: 36px;
+        font-size: 20px;
+    }
+    
+    .account-menu {
+        right: 0;
+        left: auto;
+        min-width: 180px;
     }
 
     /* Sidebar responsive */
@@ -4194,6 +4248,47 @@ body:has(.login-container) .login-container {
 }
 
 @media (max-width: 480px) {
+    /* Header mobile small screens */
+    .header-content {
+        padding: 0 10px;
+    }
+    
+    .logo-icon {
+        width: 35px;
+    }
+    
+    .logo-text {
+        font-size: 18px;
+    }
+    
+    .nav-links {
+        gap: 8px;
+        font-size: 12px;
+        padding: 8px 0;
+    }
+    
+    .nav-link {
+        font-size: 12px;
+        padding: 5px 6px;
+    }
+    
+    .user-icon {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+        max-width: 32px;
+        max-height: 32px;
+        font-size: 18px;
+    }
+    
+    .account-menu {
+        right: 0;
+        left: auto;
+        min-width: 160px;
+        font-size: 14px;
+    }
+    
     .cards-grid {
         grid-template-columns: 1fr;
     }
