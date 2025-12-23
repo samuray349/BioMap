@@ -5,7 +5,6 @@ checkAccess(ACCESS_USER);
 // Get current user data
 $user = getCurrentUser();
 $userName = $user['name'] ?? '';
-$userEmail = $user['email'] ?? '';
 $userId = $user['id'] ?? '';
 ?>
 <!DOCTYPE html>
@@ -35,7 +34,6 @@ $userId = $user['id'] ?? '';
         <div class="profile-banner-content">
             <div class="profile-info">
                 <h1 class="profile-name"><?php echo htmlspecialchars($userName); ?></h1>
-                <p class="profile-email"><?php echo htmlspecialchars($userEmail); ?></p>
             </div>
             <div class="profile-picture-container">
                 <div class="profile-picture">
@@ -56,13 +54,6 @@ $userId = $user['id'] ?? '';
                         <label for="username" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Nome Utilizador</label>
                         <div class="input-wrapper">
                             <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($userName); ?>" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
-                        <div class="input-wrapper">
-                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($userEmail); ?>" required>
                         </div>
                     </div>
                     
@@ -110,19 +101,10 @@ $userId = $user['id'] ?? '';
                 }
                 
                 const username = document.getElementById('username').value.trim();
-                const email = document.getElementById('email').value.trim();
                 
                 // Basic validation
-                if (!username || !email) {
-                    errorMessage.textContent = 'Por favor, preencha todos os campos.';
-                    errorMessage.style.display = 'block';
-                    return;
-                }
-                
-                // Email validation
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    errorMessage.textContent = 'Por favor, insira um email válido.';
+                if (!username) {
+                    errorMessage.textContent = 'Por favor, preencha o campo do nome.';
                     errorMessage.style.display = 'block';
                     return;
                 }
@@ -141,8 +123,7 @@ $userId = $user['id'] ?? '';
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            nome_utilizador: username,
-                            email: email
+                            nome_utilizador: username
                         })
                     });
                     
@@ -155,7 +136,6 @@ $userId = $user['id'] ?? '';
                     // Update session data
                     if (user) {
                         user.name = username;
-                        user.email = email;
                         
                         // Update cookie
                         if (SessionHelper) {
@@ -185,9 +165,7 @@ $userId = $user['id'] ?? '';
                     
                     // Update banner
                     const profileName = document.querySelector('.profile-name');
-                    const profileEmail = document.querySelector('.profile-email');
                     if (profileName) profileName.textContent = username;
-                    if (profileEmail) profileEmail.textContent = email;
                     
                     // Update header with new name
                     if (typeof applyHeaderAuthState === 'function') {
