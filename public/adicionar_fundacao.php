@@ -860,6 +860,15 @@ checkAccess(ACCESS_ADMIN);
                             closingTimeDisplay.textContent = '17:00';
                             document.getElementById('closing-time').value = '17:00';
                         }
+                        // Reset image preview to placeholder
+                        const imagePreview = document.querySelector('.image-preview img');
+                        const imageInput = document.getElementById('institution-image');
+                        if (imagePreview) {
+                            imagePreview.src = './img/generico_instituicao.jpg';
+                        }
+                        if (imageInput) {
+                            imageInput.value = '';
+                        }
                     }, 2000);
                 } catch (error) {
                     console.error('Erro ao submeter instituição', error);
