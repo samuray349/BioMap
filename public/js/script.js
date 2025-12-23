@@ -8,6 +8,9 @@ let instituicaoMarkers = []; // Store all instituição markers for dynamic upda
 let pawMarkerIcon = null; // Will be initialized in initMap() after Google Maps API loads
 let houseMarkerIcon = null; // Will be initialized in initMap() after Google Maps API loads
 let currentZoomLevel = 12; // Track current zoom level
+let pawIconSVG = null; // SVG string for paw icon
+let houseIconSVG = null; // SVG string for house icon
+let getScaledIconSize = null; // Function to get scaled icon size
 
 // ==========================================
 // GENERALIZED UTILITY FUNCTIONS
@@ -641,10 +644,10 @@ function initMap() {
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
 
   // Initialize paw marker icon - Font Awesome style paw print
-  const pawIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#1A8F4A" stroke="white" stroke-width="3"/><g fill="white" transform="translate(30, 40)"><circle cx="-10" cy="-8" r="4"/><circle cx="0" cy="-12" r="4"/><circle cx="10" cy="-8" r="4"/><circle cx="-6" cy="0" r="4"/><circle cx="6" cy="0" r="4"/><ellipse cx="0" cy="8" rx="8" ry="6"/></g></svg>`;
+  pawIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#1A8F4A" stroke="white" stroke-width="3"/><g fill="white" transform="translate(30, 40)"><circle cx="-10" cy="-8" r="4"/><circle cx="0" cy="-12" r="4"/><circle cx="10" cy="-8" r="4"/><circle cx="-6" cy="0" r="4"/><circle cx="6" cy="0" r="4"/><ellipse cx="0" cy="8" rx="8" ry="6"/></g></svg>`;
 
   // Function to get scaled icon size based on zoom level
-  function getScaledIconSize(zoom) {
+  getScaledIconSize = function(zoom) {
     // Base size at zoom level 12
     const baseZoom = 12;
     const baseWidth = 45;
@@ -680,7 +683,8 @@ function initMap() {
 
   // Initialize house marker icon using Font Awesome house icon (simple outline style)
   // Font Awesome fa-house icon path - simple outline house, positioned higher, with taller door
-  const houseIconSVG = `<svg width="80" height="100" viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(0.9)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><rect x="-4" y="-2" width="8" height="10" fill="none" stroke="white" stroke-width="2.5"/></g></svg>`;
+  // Make house icon bigger to match paw icon size - scale up the house inside
+  houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(1.3)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><rect x="-4" y="-2" width="8" height="10" fill="none" stroke="white" stroke-width="2.5"/></g></svg>`;
   houseMarkerIcon = {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(houseIconSVG),
     scaledSize: iconSize.scaledSize,
@@ -829,21 +833,7 @@ function updateMarkerSizes(zoom) {
   // Label position: slightly above the marker, scaling with marker size
   const labelYOffset = -15 * scale; // Scale the gap with the marker size
   
-  // Get the current paw icon SVG
-  const pawIconSVG = `
-<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
-  <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
-        fill="#1A8F4A" stroke="white" stroke-width="3"/>
-  <g fill="none" stroke="white" stroke-width="3" transform="translate(0, -2)">
-    <ellipse cx="14" cy="28" rx="4.5" ry="5.5" transform="rotate(-40 14 28)" />
-    <ellipse cx="24" cy="20" rx="4.5" ry="5.5" transform="rotate(-15 24 20)" />
-    <ellipse cx="36" cy="20" rx="4.5" ry="5.5" transform="rotate(15 36 20)" />
-    <ellipse cx="46" cy="28" rx="4.5" ry="5.5" transform="rotate(40 46 28)" />
-    <path d="M 30 33 C 38 33, 44 39, 44 45 C 44 51, 38 55, 30 55 C 22 55, 16 51, 16 45 C 16 39, 22 33, 30 33 Z" />
-  </g>
-</svg>
-`;
-  
+  // Use global pawIconSVG (already defined in initMap)
   // Update the global icon with proper label origin
   pawMarkerIcon = {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(pawIconSVG),
@@ -852,8 +842,7 @@ function updateMarkerSizes(zoom) {
     labelOrigin: new google.maps.Point(width / 2, labelYOffset)
   };
   
-  // Get the current house icon SVG (Font Awesome style - simple outline with taller door)
-  const houseIconSVG = `<svg width="80" height="100" viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(0.9)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><rect x="-4" y="-2" width="8" height="10" fill="none" stroke="white" stroke-width="2.5"/></g></svg>`;
+  // Use global houseIconSVG (already defined in initMap)
   
   // Update the global house icon with proper label origin
   houseMarkerIcon = {
@@ -986,10 +975,23 @@ async function loadAvistamentos() {
       const scale = Math.pow(1.15, clampedZoom - baseZoom);
       const fontSize = Math.round(baseFontSize * scale);
       
+      // Create icon with current zoom level size (same as updateMarkerSizes does)
+      // This ensures markers use the correct size on initial load
+      let currentPawIcon = pawMarkerIcon;
+      if (getScaledIconSize && pawIconSVG) {
+        const iconSize = getScaledIconSize(currentZoomLevel);
+        currentPawIcon = {
+          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(pawIconSVG),
+          scaledSize: iconSize.scaledSize,
+          anchor: iconSize.anchor,
+          labelOrigin: iconSize.labelOrigin
+        };
+      }
+      
       const marker = new google.maps.Marker({
         position: position,
         map: null, // Don't add to map yet
-        icon: pawMarkerIcon,
+        icon: currentPawIcon,
         label: {
           text: avistamento.nome_comum,
           className: "marker-label",
