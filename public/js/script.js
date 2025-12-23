@@ -1054,6 +1054,147 @@ async function loadAvistamentos() {
   }
 }
 
+async function loadInstituicoes() {
+  if (!map) {
+    console.warn('loadInstituicoes: map not initialized');
+    return;
+  }
+  if (!houseMarkerIcon) {
+    console.warn('loadInstituicoes: houseMarkerIcon not initialized');
+    return;
+  }
+
+  try {
+    console.log('loadInstituicoes: Starting to load instituições...');
+    // Get current search filter
+    const searchInput = document.getElementById('search-input');
+    const searchTerm = searchInput ? searchInput.value.trim() : '';
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (searchTerm) {
+      params.append('search', searchTerm);
+    }
+
+    // Fetch instituições from API
+    const apiUrl = getApiUrl(`instituicoes?${params.toString()}`);
+    console.log('loadInstituicoes: Fetching from', apiUrl);
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      console.error('loadInstituicoes: HTTP error! status:', response.status);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const instituicoes = await response.json();
+    console.log('loadInstituicoes: Received', instituicoes.length, 'instituições');
+
+    // Create new markers first (but don't add to map yet to avoid flicker)
+    const newMarkers = [];
+    const markerDataMap = new Map(); // Store marker data for click handlers
+
+    instituicoes.forEach(instituicao => {
+      const position = {
+        lat: parseFloat(instituicao.latitude),
+        lng: parseFloat(instituicao.longitude)
+      };
+
+      if (isNaN(position.lat) || isNaN(position.lng)) {
+        console.warn('Invalid coordinates for instituição:', instituicao);
+        return;
+      }
+
+      // Format location coordinates
+      const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
+
+      // Create details object for SpeciesPanel
+      const details = {
+        instituicao_id: instituicao.instituicao_id,
+        name: instituicao.nome,
+        description: instituicao.descricao || '—',
+        localizacao_texto: instituicao.localizacao_texto || '—',
+        telefone_contacto: instituicao.telefone_contacto || '—',
+        dias_aberto: instituicao.dias_aberto || '—',
+        hora_abertura: instituicao.hora_abertura || '—',
+        hora_fecho: instituicao.hora_fecho || '—',
+        coordinates: position,
+        location: locationText,
+        image: instituicao.url_imagem || 'img/placeholder.jpg',
+        isInstituicao: true // Flag to identify this as an instituição
+      };
+
+      // Calculate label font size based on current zoom
+      const baseZoom = 12;
+      const baseFontSize = 14;
+      const clampedZoom = Math.max(8, Math.min(18, currentZoomLevel));
+      const scale = Math.pow(1.15, clampedZoom - baseZoom);
+      const fontSize = Math.round(baseFontSize * scale);
+      
+      const marker = new google.maps.Marker({
+        position: position,
+        map: null, // Don't add to map yet
+        icon: houseMarkerIcon,
+        label: {
+          text: instituicao.nome,
+          className: "marker-label",
+          fontSize: `${fontSize}px`,
+          fontWeight: "600"
+        },
+        title: instituicao.nome
+      });
+
+      // Store marker and its data
+      markerDataMap.set(marker, details);
+      newMarkers.push(marker);
+    });
+
+    // Now update markers with smooth transitions
+    // First, fade out old markers
+    instituicaoMarkers.forEach(marker => {
+      const labelDiv = marker.getLabel()?.element;
+      if (labelDiv) {
+        labelDiv.classList.add('marker-fade-out');
+      }
+      // Remove marker after fade out animation
+      setTimeout(() => {
+        marker.setMap(null);
+      }, 300);
+    });
+    
+    // Then add new markers with fade in animation
+    setTimeout(() => {
+      newMarkers.forEach((marker, index) => {
+        // Stagger the appearance slightly for a smoother effect
+        setTimeout(() => {
+          marker.setMap(map);
+          
+          // Attach click handler
+          const details = markerDataMap.get(marker);
+          if (details) {
+            marker.addListener("click", (e) => {
+              try {
+                // If panel is already open, just update the content without closing
+                if (SpeciesPanel.isOpen) {
+                  SpeciesPanel.populateData(details);
+                } else {
+                  SpeciesPanel.open(details);
+                }
+              } catch (error) {
+                console.error('Error opening panel:', error);
+              }
+            });
+          }
+        }, index * 20); // 20ms delay between each marker
+      });
+      
+      // Update the markers array after a short delay
+      setTimeout(() => {
+        instituicaoMarkers = newMarkers;
+      }, newMarkers.length * 20 + 100);
+    }, 300);
+  } catch (error) {
+    console.error('Erro ao carregar instituições:', error);
+  }
+}
+
 function createFallbackDetails(location) {
   return {
     name: location.title,
