@@ -1,3 +1,4 @@
+console.log('📜 script.js LOADED - Version with instituições support');
 let map;
 let familyTags = [];
 let stateTags = [];
@@ -612,6 +613,7 @@ const SpeciesPanel = {
 
 
 function initMap() {
+  console.log('🚀🚀🚀 INITMAP CALLED 🚀🚀🚀');
   console.log('initMap: Function called');
   const mapElement = document.getElementById("map");
   if (!mapElement) {
@@ -925,8 +927,7 @@ function updateMarkerSizes(zoom) {
       }
     });
   }
-}
-}
+  }
 
 // Fetch and display avistamentos on the map
 async function loadAvistamentos() {
