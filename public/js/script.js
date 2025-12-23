@@ -643,8 +643,8 @@ function initMap() {
 
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
 
-  // Initialize paw marker icon - Font Awesome style paw print
-  pawIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#1A8F4A" stroke="white" stroke-width="3"/><g fill="white" transform="translate(30, 40)"><circle cx="-10" cy="-8" r="4"/><circle cx="0" cy="-12" r="4"/><circle cx="10" cy="-8" r="4"/><circle cx="-6" cy="0" r="4"/><circle cx="6" cy="0" r="4"/><ellipse cx="0" cy="8" rx="8" ry="6"/></g></svg>`;
+  // Initialize paw marker icon - original design with ellipses
+  pawIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#1A8F4A" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="3" transform="translate(0, -2)"><ellipse cx="14" cy="28" rx="4.5" ry="5.5" transform="rotate(-40 14 28)" /><ellipse cx="24" cy="20" rx="4.5" ry="5.5" transform="rotate(-15 24 20)" /><ellipse cx="36" cy="20" rx="4.5" ry="5.5" transform="rotate(15 36 20)" /><ellipse cx="46" cy="28" rx="4.5" ry="5.5" transform="rotate(40 46 28)" /><path d="M 30 33 C 38 33, 44 39, 44 45 C 44 51, 38 55, 30 55 C 22 55, 16 51, 16 45 C 16 39, 22 33, 30 33 Z" /></g></svg>`;
 
   // Function to get scaled icon size based on zoom level
   getScaledIconSize = function(zoom) {
