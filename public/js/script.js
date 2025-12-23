@@ -612,8 +612,13 @@ const SpeciesPanel = {
 
 
 function initMap() {
+  console.log('initMap: Function called');
   const mapElement = document.getElementById("map");
-  if (!mapElement) return;
+  if (!mapElement) {
+    console.warn('initMap: map element not found');
+    return;
+  }
+  console.log('initMap: Map element found, initializing...');
 
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
 
@@ -713,10 +718,29 @@ function initMap() {
   // Load and display avistamentos dynamically
   loadAvistamentos();
   
-  // Load and display instituições dynamically (with a small delay to ensure icon is ready)
-  setTimeout(() => {
+  // Load and display instituições dynamically (ensure icon is ready)
+  // houseMarkerIcon is initialized just before this, so it should be ready
+  console.log('initMap: About to call loadInstituicoes', { 
+    houseMarkerIcon: !!houseMarkerIcon,
+    houseMarkerIconValue: houseMarkerIcon,
+    map: !!map 
+  });
+  if (houseMarkerIcon) {
+    console.log('initMap: houseMarkerIcon is ready, calling loadInstituicoes NOW');
     loadInstituicoes();
-  }, 100);
+  } else {
+    console.error('initMap: houseMarkerIcon NOT ready!', houseMarkerIcon);
+    console.warn('initMap: Will retry loadInstituicoes in 200ms');
+    setTimeout(() => {
+      console.log('initMap: Retry check - houseMarkerIcon:', !!houseMarkerIcon);
+      if (houseMarkerIcon) {
+        console.log('initMap: houseMarkerIcon ready after retry, calling loadInstituicoes');
+        loadInstituicoes();
+      } else {
+        console.error('initMap: houseMarkerIcon still not ready after retry');
+      }
+    }, 200);
+  }
 
   // Fetch filter options from API and initialize dropdowns
   (async () => {
@@ -1057,23 +1081,24 @@ async function loadAvistamentos() {
 }
 
 async function loadInstituicoes() {
-  console.log('loadInstituicoes: Function called', { map: !!map, houseMarkerIcon: !!houseMarkerIcon });
+  console.log('=== loadInstituicoes: FUNCTION CALLED ===', { 
+    map: !!map, 
+    houseMarkerIcon: !!houseMarkerIcon,
+    mapType: typeof map,
+    iconType: typeof houseMarkerIcon
+  });
   
   if (!map) {
-    console.warn('loadInstituicoes: map not initialized');
+    console.error('loadInstituicoes: map not initialized - ABORTING');
     return;
   }
   if (!houseMarkerIcon) {
-    console.warn('loadInstituicoes: houseMarkerIcon not initialized, retrying in 500ms...');
-    setTimeout(() => {
-      if (houseMarkerIcon) {
-        loadInstituicoes();
-      } else {
-        console.error('loadInstituicoes: houseMarkerIcon still not initialized after retry');
-      }
-    }, 500);
+    console.error('loadInstituicoes: houseMarkerIcon not initialized - ABORTING');
+    console.error('loadInstituicoes: houseMarkerIcon value:', houseMarkerIcon);
     return;
   }
+  
+  console.log('loadInstituicoes: Both map and houseMarkerIcon are ready, proceeding to API call...');
 
   try {
     console.log('loadInstituicoes: Starting to load instituições...');
