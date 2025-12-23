@@ -679,8 +679,8 @@ function initMap() {
   };
 
   // Initialize house marker icon using Font Awesome house icon (simple outline style)
-  // Font Awesome fa-house icon path - simple outline house, positioned higher
-  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(0.9)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><path d="M-6 2V-2"/><path d="M6 2V-2"/></g></svg>`;
+  // Font Awesome fa-house icon path - simple outline house, positioned higher, with door
+  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(0.9)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><rect x="-4" y="2" width="8" height="6" fill="none" stroke="white" stroke-width="2.5"/></g></svg>`;
   houseMarkerIcon = {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(houseIconSVG),
     scaledSize: iconSize.scaledSize,
@@ -852,8 +852,8 @@ function updateMarkerSizes(zoom) {
     labelOrigin: new google.maps.Point(width / 2, labelYOffset)
   };
   
-  // Get the current house icon SVG (Font Awesome style - simple outline)
-  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(0.9)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><path d="M-6 2V-2"/><path d="M6 2V-2"/></g></svg>`;
+  // Get the current house icon SVG (Font Awesome style - simple outline with door)
+  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(0.9)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><rect x="-4" y="2" width="8" height="6" fill="none" stroke="white" stroke-width="2.5"/></g></svg>`;
   
   // Update the global house icon with proper label origin
   houseMarkerIcon = {
