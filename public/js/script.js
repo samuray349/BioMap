@@ -713,8 +713,10 @@ function initMap() {
   // Load and display avistamentos dynamically
   loadAvistamentos();
   
-  // Load and display instituições dynamically
-  loadInstituicoes();
+  // Load and display instituições dynamically (with a small delay to ensure icon is ready)
+  setTimeout(() => {
+    loadInstituicoes();
+  }, 100);
 
   // Fetch filter options from API and initialize dropdowns
   (async () => {
@@ -1055,12 +1057,21 @@ async function loadAvistamentos() {
 }
 
 async function loadInstituicoes() {
+  console.log('loadInstituicoes: Function called', { map: !!map, houseMarkerIcon: !!houseMarkerIcon });
+  
   if (!map) {
     console.warn('loadInstituicoes: map not initialized');
     return;
   }
   if (!houseMarkerIcon) {
-    console.warn('loadInstituicoes: houseMarkerIcon not initialized');
+    console.warn('loadInstituicoes: houseMarkerIcon not initialized, retrying in 500ms...');
+    setTimeout(() => {
+      if (houseMarkerIcon) {
+        loadInstituicoes();
+      } else {
+        console.error('loadInstituicoes: houseMarkerIcon still not initialized after retry');
+      }
+    }, 500);
     return;
   }
 
@@ -1086,19 +1097,37 @@ async function loadInstituicoes() {
     }
     const instituicoes = await response.json();
     console.log('loadInstituicoes: Received', instituicoes.length, 'instituições');
+    console.log('loadInstituicoes: Sample instituição data:', instituicoes[0]);
 
     // Create new markers first (but don't add to map yet to avoid flicker)
     const newMarkers = [];
     const markerDataMap = new Map(); // Store marker data for click handlers
 
-    instituicoes.forEach(instituicao => {
+    if (!instituicoes || instituicoes.length === 0) {
+      console.log('loadInstituicoes: No instituições found');
+      return;
+    }
+
+    instituicoes.forEach((instituicao, index) => {
+      // API returns latitude and longitude (from ST_X and ST_Y)
+      const lat = parseFloat(instituicao.latitude);
+      const lng = parseFloat(instituicao.longitude);
+      
       const position = {
-        lat: parseFloat(instituicao.latitude),
-        lng: parseFloat(instituicao.longitude)
+        lat: lat,
+        lng: lng
       };
 
+      console.log(`loadInstituicoes: Processing instituição ${index + 1}/${instituicoes.length}:`, {
+        nome: instituicao.nome,
+        latitude: instituicao.latitude,
+        longitude: instituicao.longitude,
+        parsed_lat: lat,
+        parsed_lng: lng
+      });
+
       if (isNaN(position.lat) || isNaN(position.lng)) {
-        console.warn('Invalid coordinates for instituição:', instituicao);
+        console.warn('Invalid coordinates for instituição:', instituicao.nome, 'lat:', lat, 'lng:', lng, 'raw data:', instituicao);
         return;
       }
 
@@ -1146,41 +1175,51 @@ async function loadInstituicoes() {
       newMarkers.push(marker);
     });
 
+    console.log('loadInstituicoes: Created', newMarkers.length, 'markers');
+
     // Now update markers with smooth transitions
     // First, fade out old markers
-    instituicaoMarkers.forEach(marker => {
-      const labelDiv = marker.getLabel()?.element;
-      if (labelDiv) {
-        labelDiv.classList.add('marker-fade-out');
-      }
-      // Remove marker after fade out animation
-      setTimeout(() => {
-        marker.setMap(null);
-      }, 300);
-    });
+    if (instituicaoMarkers && instituicaoMarkers.length > 0) {
+      instituicaoMarkers.forEach(marker => {
+        const labelDiv = marker.getLabel()?.element;
+        if (labelDiv) {
+          labelDiv.classList.add('marker-fade-out');
+        }
+        // Remove marker after fade out animation
+        setTimeout(() => {
+          marker.setMap(null);
+        }, 300);
+      });
+    }
     
     // Then add new markers with fade in animation
+    console.log('loadInstituicoes: Adding', newMarkers.length, 'markers to map');
     setTimeout(() => {
       newMarkers.forEach((marker, index) => {
         // Stagger the appearance slightly for a smoother effect
         setTimeout(() => {
-          marker.setMap(map);
-          
-          // Attach click handler
-          const details = markerDataMap.get(marker);
-          if (details) {
-            marker.addListener("click", (e) => {
-              try {
-                // If panel is already open, just update the content without closing
-                if (SpeciesPanel.isOpen) {
-                  SpeciesPanel.populateData(details);
-                } else {
-                  SpeciesPanel.open(details);
+          try {
+            marker.setMap(map);
+            console.log('loadInstituicoes: Added marker', index + 1, 'to map');
+            
+            // Attach click handler
+            const details = markerDataMap.get(marker);
+            if (details) {
+              marker.addListener("click", (e) => {
+                try {
+                  // If panel is already open, just update the content without closing
+                  if (SpeciesPanel.isOpen) {
+                    SpeciesPanel.populateData(details);
+                  } else {
+                    SpeciesPanel.open(details);
+                  }
+                } catch (error) {
+                  console.error('Error opening panel:', error);
                 }
-              } catch (error) {
-                console.error('Error opening panel:', error);
-              }
-            });
+              });
+            }
+          } catch (error) {
+            console.error('Error adding marker to map:', error, marker);
           }
         }, index * 20); // 20ms delay between each marker
       });
@@ -1188,6 +1227,7 @@ async function loadInstituicoes() {
       // Update the markers array after a short delay
       setTimeout(() => {
         instituicaoMarkers = newMarkers;
+        console.log('loadInstituicoes: Updated instituicaoMarkers array with', newMarkers.length, 'markers');
       }, newMarkers.length * 20 + 100);
     }, 300);
   } catch (error) {
