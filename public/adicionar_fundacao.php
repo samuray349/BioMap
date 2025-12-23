@@ -27,6 +27,16 @@ checkAccess(ACCESS_ADMIN);
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
         }
         
+        /* Error styling for location input wrapper */
+        .location-input-wrapper.field-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+        }
+        
+        .location-input-wrapper.field-error input {
+            border-color: #ef4444 !important;
+        }
+        
         /* Textarea styling to match inputs */
         .input-field textarea {
             border: 1px solid #d9dee7 !important;
@@ -265,18 +275,31 @@ checkAccess(ACCESS_ADMIN);
                 allInputs.forEach(input => {
                     input.classList.remove('field-error');
                 });
+                // Also clear location wrapper error
+                const locationWrapper = document.querySelector('.location-input-wrapper');
+                if (locationWrapper) {
+                    locationWrapper.classList.remove('field-error');
+                }
             };
 
             // Helper function to add error class to a field
             const addError = (fieldId) => {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    field.classList.add('field-error');
+                if (fieldId === 'location-search') {
+                    // Special handling for location - highlight the wrapper div
+                    const locationWrapper = document.querySelector('.location-input-wrapper');
+                    if (locationWrapper) {
+                        locationWrapper.classList.add('field-error');
+                    }
                 } else {
-                    // Try to find by class or other selector
-                    const timeDisplay = document.querySelector(`[data-target="${fieldId}"]`);
-                    if (timeDisplay) {
-                        timeDisplay.classList.add('field-error');
+                    const field = document.getElementById(fieldId);
+                    if (field) {
+                        field.classList.add('field-error');
+                    } else {
+                        // Try to find by class or other selector
+                        const timeDisplay = document.querySelector(`[data-target="${fieldId}"]`);
+                        if (timeDisplay) {
+                            timeDisplay.classList.add('field-error');
+                        }
                     }
                 }
             };
@@ -307,6 +330,18 @@ checkAccess(ACCESS_ADMIN);
                     });
                 });
                 
+                // Handle location input wrapper
+                const locationWrapper = document.querySelector('.location-input-wrapper');
+                const locationInput = document.getElementById('location-search');
+                if (locationWrapper && locationInput) {
+                    locationInput.addEventListener('click', () => {
+                        locationWrapper.classList.remove('field-error');
+                    });
+                    locationInput.addEventListener('input', () => {
+                        locationWrapper.classList.remove('field-error');
+                    });
+                }
+                
                 // Handle image input
                 if (imageInput) {
                     const uploadBox = document.querySelector('.upload-box');
@@ -322,6 +357,28 @@ checkAccess(ACCESS_ADMIN);
 
             // Setup field validation listeners
             setupFieldValidation();
+
+            // Image preview functionality (like in adicionar_animal.php)
+            (function setupImagePreview() {
+                const imageInput = document.getElementById('institution-image');
+                const imagePreview = document.querySelector('.image-preview img');
+                
+                if (!imageInput || !imagePreview) return;
+                
+                imageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imageUrl = e.target.result;
+                            if (imagePreview) {
+                                imagePreview.src = imageUrl;
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            })();
 
             form.addEventListener('submit', async (event) => {
                 event.preventDefault();
@@ -344,12 +401,14 @@ checkAccess(ACCESS_ADMIN);
                     
                     // Get location coordinates from map picker
                     let localizacao = null;
-                    const selectedCoordsDisplay = document.getElementById('selected-coords-display');
-                    if (selectedCoordsDisplay && selectedCoordsDisplay.textContent !== 'Nenhuma localização selecionada') {
-                        const coordsText = selectedCoordsDisplay.textContent.trim();
-                        // Parse coordinates from display (format: "lat, lon" or similar)
-                        const coordsMatch = coordsText.match(/(-?\d+\.?\d*),\s*(-?\d+\.?\d*)/);
+                    const locationInputValue = document.getElementById('location-search')?.value?.trim();
+                    if (locationInputValue) {
+                        // Parse coordinates from input (format: "lat, lng" or "lat,lng")
+                        // The map picker sets it as "lat, lng" format
+                        const coordsMatch = locationInputValue.match(/(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)/);
                         if (coordsMatch) {
+                            // Input format is "lat, lng", convert to {lat, lon} object
+                            // Database uses ST_MakePoint(lon, lat) so we keep lat/lon order in the object
                             localizacao = {
                                 lat: parseFloat(coordsMatch[1]),
                                 lon: parseFloat(coordsMatch[2])
@@ -388,6 +447,13 @@ checkAccess(ACCESS_ADMIN);
                                 addError('location-search');
                                 hasErrors = true;
                             }
+                        }
+                    } else if (!locationInputValue) {
+                        // If no location input value, check the selected coords display as fallback
+                        const selectedCoordsDisplay = document.getElementById('selected-coords-display');
+                        if (!selectedCoordsDisplay || selectedCoordsDisplay.textContent === 'Nenhuma localização selecionada') {
+                            addError('location-search');
+                            hasErrors = true;
                         }
                     }
                     
@@ -501,6 +567,16 @@ checkAccess(ACCESS_ADMIN);
                             setMessage('');
                             if (typeof showNotification === 'function') {
                                 showNotification('Formato de localização inválido. Por favor, selecione uma localização válida no mapa.', 'error');
+                            }
+                            return;
+                        }
+                        
+                        // Generic location error
+                        if (errorMsg.toLowerCase().includes('localização') || errorMsg.toLowerCase().includes('coordenadas')) {
+                            addError('location-search');
+                            setMessage('');
+                            if (typeof showNotification === 'function') {
+                                showNotification('Erro na localização. Por favor, selecione uma localização válida no mapa.', 'error');
                             }
                             return;
                         }
