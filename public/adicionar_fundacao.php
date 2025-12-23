@@ -613,7 +613,8 @@ checkAccess(ACCESS_ADMIN);
                             imagem: {
                                 data: base64Image,
                                 originalName: file.name
-                            }
+                            },
+                            folder: 'instituicao'
                         })
                     });
 
