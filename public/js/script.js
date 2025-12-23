@@ -640,20 +640,8 @@ function initMap() {
 
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
 
-  // Initialize paw marker icon (needs google.maps to be available)
-  const pawIconSVG = `
-<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
-  <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
-        fill="#1A8F4A" stroke="white" stroke-width="3"/>
-  <g fill="none" stroke="white" stroke-width="3" transform="translate(0, -2)">
-    <ellipse cx="14" cy="28" rx="4.5" ry="5.5" transform="rotate(-40 14 28)" />
-    <ellipse cx="24" cy="20" rx="4.5" ry="5.5" transform="rotate(-15 24 20)" />
-    <ellipse cx="36" cy="20" rx="4.5" ry="5.5" transform="rotate(15 36 20)" />
-    <ellipse cx="46" cy="28" rx="4.5" ry="5.5" transform="rotate(40 46 28)" />
-    <path d="M 30 33 C 38 33, 44 39, 44 45 C 44 51, 38 55, 30 55 C 22 55, 16 51, 16 45 C 16 39, 22 33, 30 33 Z" />
-  </g>
-</svg>
-`;
+  // Initialize paw marker icon - Font Awesome style paw print
+  const pawIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#1A8F4A" stroke="white" stroke-width="3"/><g fill="white" transform="translate(30, 40)"><circle cx="-10" cy="-8" r="4"/><circle cx="0" cy="-12" r="4"/><circle cx="10" cy="-8" r="4"/><circle cx="-6" cy="0" r="4"/><circle cx="6" cy="0" r="4"/><ellipse cx="0" cy="8" rx="8" ry="6"/></g></svg>`;
 
   // Function to get scaled icon size based on zoom level
   function getScaledIconSize(zoom) {
@@ -690,8 +678,9 @@ function initMap() {
     labelOrigin: iconSize.labelOrigin
   };
 
-  // Initialize house marker icon (brown color for instituições)
-  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="white" stroke="white" stroke-width="2" transform="translate(30, 40)"><path d="M -15,10 L -15,-5 L 15,-5 L 15,10 Z" fill="white"/><path d="M -18,-5 L 0,-18 L 18,-5 Z" fill="white"/><rect x="-5" y="10" width="10" height="12" fill="#8B4513"/><rect x="-12" y="-2" width="6" height="6" fill="#8B4513"/><rect x="6" y="-2" width="6" height="6" fill="#8B4513"/></g></svg>`;
+  // Initialize house marker icon using Font Awesome house icon (simple outline style)
+  // Font Awesome fa-house icon path - simple outline house, positioned higher
+  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(0.9)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><path d="M-6 2V-2"/><path d="M6 2V-2"/></g></svg>`;
   houseMarkerIcon = {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(houseIconSVG),
     scaledSize: iconSize.scaledSize,
@@ -863,8 +852,8 @@ function updateMarkerSizes(zoom) {
     labelOrigin: new google.maps.Point(width / 2, labelYOffset)
   };
   
-  // Get the current house icon SVG
-  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="white" stroke="white" stroke-width="2" transform="translate(30, 40)"><path d="M -15,10 L -15,-5 L 15,-5 L 15,10 Z" fill="white"/><path d="M -18,-5 L 0,-18 L 18,-5 Z" fill="white"/><rect x="-5" y="10" width="10" height="12" fill="#8B4513"/><rect x="-12" y="-2" width="6" height="6" fill="#8B4513"/><rect x="6" y="-2" width="6" height="6" fill="#8B4513"/></g></svg>`;
+  // Get the current house icon SVG (Font Awesome style - simple outline)
+  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(30, 32) scale(0.9)"><path d="M-12 -8L0 -18L12 -8V6C12 8 10 10 8 10H-8C-10 10 -12 8 -12 6V-8Z"/><path d="M-6 2V-2"/><path d="M6 2V-2"/></g></svg>`;
   
   // Update the global house icon with proper label origin
   houseMarkerIcon = {
