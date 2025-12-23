@@ -73,9 +73,136 @@ checkAccess(ACCESS_ADMIN);
         .submit-message.success {
             color: #047857;
         }
+
+        /* Success Animation Overlay */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .success-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--accent-color, #198754);
+            position: relative;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        .success-checkmark::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid var(--accent-color, #198754);
+            animation: ripple 1s ease-out infinite;
+        }
+
+        .success-checkmark svg {
+            width: 50px;
+            height: 50px;
+            stroke: white;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheckmark 0.6s ease-out 0.3s forwards;
+        }
+
+        .success-message-popup {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent-color, #198754);
+            margin: 1rem 0 0 0;
+            padding: 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.4s ease-out 0.4s forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes drawCheckmark {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
+    <div id="success-overlay" class="success-overlay">
+        <div class="success-content">
+            <div class="success-checkmark">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 6L9 17l-5-5" />
+                </svg>
+            </div>
+            <h1 class="success-message-popup">Instituição criada com sucesso</h1>
+        </div>
+    </div>
+
     <div id="header-placeholder"></div>
 
     <main class="add-institution-page">
@@ -256,6 +383,20 @@ checkAccess(ACCESS_ADMIN);
     <script>
         loadHeader();
         highlightCurrentPage();
+
+        // Success animation function
+        const showSuccessAnimation = () => {
+            const overlay = document.getElementById('success-overlay');
+            if (!overlay) return;
+
+            // Show overlay
+            overlay.classList.add('show');
+
+            // Hide overlay after animation completes and reset form
+            setTimeout(() => {
+                overlay.classList.remove('show');
+            }, 2500);
+        };
 
         // Form submission handler with validations
         (function attachAddInstitutionSubmitHandler() {
@@ -696,10 +837,8 @@ checkAccess(ACCESS_ADMIN);
                     // Clear the loading message
                     setMessage('');
                     
-                    // Show success notification
-                    if (typeof showNotification === 'function') {
-                        showNotification('Instituição criada com sucesso!', 'success');
-                    }
+                    // Show success animation
+                    showSuccessAnimation();
                     
                     // Reset form after success
                     setTimeout(() => {

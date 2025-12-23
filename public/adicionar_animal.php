@@ -1712,11 +1712,6 @@ checkAccess(ACCESS_ADMIN);
                 // Clear the loading message
                 setMessage('');
                 
-                // Show success notification
-                if (typeof showNotification === 'function') {
-                    showNotification('Animal criado com sucesso!', 'success');
-                }
-                
                 // Show success animation
                 showSuccessAnimation();
 
