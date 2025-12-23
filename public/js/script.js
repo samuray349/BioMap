@@ -1137,19 +1137,8 @@ async function loadInstituicoes() {
 
     instituicoes.forEach((instituicao, index) => {
       // Extract coordinates from API (same format as avistamentos)
-      // Note: If coordinates appear swapped, it might be because the data was inserted incorrectly
-      // Try both orders to see which one works
-      let lat = parseFloat(instituicao.latitude);
-      let lng = parseFloat(instituicao.longitude);
-      
-      // Check if coordinates seem swapped (Portugal is roughly 36-42°N, 6-10°W)
-      // If lat is negative or > 50, or lng is positive and > 10, they're likely swapped
-      if ((lat < 0 || lat > 50) || (lng > 10 && lng < 50)) {
-        console.warn(`loadInstituicoes: Coordinates appear swapped for ${instituicao.nome}, swapping them...`);
-        const temp = lat;
-        lat = lng;
-        lng = temp;
-      }
+      const lat = parseFloat(instituicao.latitude);
+      const lng = parseFloat(instituicao.longitude);
       
       const position = {
         lat: lat,
@@ -1158,10 +1147,10 @@ async function loadInstituicoes() {
 
       console.log(`loadInstituicoes: Processing instituição ${index + 1}/${instituicoes.length}:`, {
         nome: instituicao.nome,
-        api_latitude: instituicao.latitude,
-        api_longitude: instituicao.longitude,
-        final_lat: lat,
-        final_lng: lng
+        latitude: instituicao.latitude,
+        longitude: instituicao.longitude,
+        parsed_lat: lat,
+        parsed_lng: lng
       });
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
