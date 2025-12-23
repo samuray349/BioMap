@@ -94,6 +94,11 @@
                 passwordToggle.classList.toggle('visible', !isPassword);
             };
 
+            const isValidEmail = (email) => {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            };
+
             if (passwordToggle) {
                 passwordToggle.addEventListener('click', togglePassword);
             }
@@ -129,6 +134,9 @@
                     hasError = true;
                 }
                 if (!email) {
+                    showError('Insira um email.');
+                    hasError = true;
+                } else if (!isValidEmail(email)) {
                     showError('Insira um email válido.');
                     hasError = true;
                 }
