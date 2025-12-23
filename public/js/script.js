@@ -1136,7 +1136,7 @@ async function loadInstituicoes() {
     }
 
     instituicoes.forEach((instituicao, index) => {
-      // API returns latitude and longitude (from ST_X and ST_Y)
+      // Extract coordinates from API (same format as avistamentos)
       const lat = parseFloat(instituicao.latitude);
       const lng = parseFloat(instituicao.longitude);
       
