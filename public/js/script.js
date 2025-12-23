@@ -864,24 +864,7 @@ function updateMarkerSizes(zoom) {
   };
   
   // Get the current house icon SVG
-  const houseIconSVG = `
-<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
-  <path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z"
-        fill="#8B4513" stroke="white" stroke-width="3"/>
-  <g fill="white" stroke="white" stroke-width="2" transform="translate(30, 40)">
-    <!-- House base -->
-    <path d="M -15,10 L -15,-5 L 15,-5 L 15,10 Z" fill="white"/>
-    <!-- Roof -->
-    <path d="M -18,-5 L 0,-18 L 18,-5 Z" fill="white"/>
-    <!-- Door -->
-    <rect x="-5" y="10" width="10" height="12" fill="#8B4513"/>
-    <!-- Window left -->
-    <rect x="-12" y="-2" width="6" height="6" fill="#8B4513"/>
-    <!-- Window right -->
-    <rect x="6" y="-2" width="6" height="6" fill="#8B4513"/>
-  </g>
-</svg>
-`;
+  const houseIconSVG = `<svg width="60" height="80" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><path d="M 30,0 C 15,0 0,15 0,30 C 0,45 15,60 30,80 C 45,60 60,45 60,30 C 60,15 45,0 30,0 Z" fill="#8B4513" stroke="white" stroke-width="3"/><g fill="white" stroke="white" stroke-width="2" transform="translate(30, 40)"><path d="M -15,10 L -15,-5 L 15,-5 L 15,10 Z" fill="white"/><path d="M -18,-5 L 0,-18 L 18,-5 Z" fill="white"/><rect x="-5" y="10" width="10" height="12" fill="#8B4513"/><rect x="-12" y="-2" width="6" height="6" fill="#8B4513"/><rect x="6" y="-2" width="6" height="6" fill="#8B4513"/></g></svg>`;
   
   // Update the global house icon with proper label origin
   houseMarkerIcon = {
