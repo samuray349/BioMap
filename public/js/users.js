@@ -33,7 +33,7 @@ function showConfirmBan(onConfirm, onCancel) {
 
     box.innerHTML = `
         <h3 style="margin-top:0">Confirmar banimento</h3>
-        <p>Tem certeza que deseja banir este utilizador? <strong>ATENÇÃO: Todos os avistamentos deste utilizador serão deletados permanentemente!</strong></p>
+        <p>Tem certeza que deseja banir este utilizador? <strong>ATENÇÃO: Todos os avistamentos deste utilizador serão apagados permanentemente!</strong></p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
             <button id="confirmNo" style="padding:8px 14px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor: pointer;">Não</button>
             <button id="confirmYes" style="padding:8px 14px;background:#e05353;color:#fff;border:none;border-radius:6px;cursor: pointer;">Sim</button>
@@ -393,7 +393,7 @@ function renderUserTable(users, tbody) {
                     }
                     
                     // Show success message
-                    alert('Utilizador banido com sucesso. Os avistamentos foram deletados.');
+                    alert('Utilizador banido com sucesso. Os avistamentos foram apagados.');
                     
                     // Reload the users table to show updated status
                     if (typeof window.loadUsers === 'function') {
