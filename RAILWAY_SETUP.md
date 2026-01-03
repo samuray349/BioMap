@@ -86,9 +86,13 @@ PGDATABASE=biomap
 PGUSER=admin
 PGPASSWORD=Passwordbd1!
 PGSSL=true
+PORT=8080
 ```
 
-**Important**: Railway automatically provides a `PORT` variable - use this in your PHP server command.
+**Important Notes:**
+- Railway automatically provides a `PORT` variable (usually `8080` by default)
+- You can explicitly set `PORT=8080` if needed
+- **This port number is what you'll use in the Networking section** when creating a public domain
 
 ## Step 6: Configure CORS for Hostinger
 

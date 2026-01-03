@@ -38,22 +38,17 @@ const NODEJS_API_BASE_URL = detectNodeJsApiBaseUrl();
 // ============================================================================
 function getPhpApiBaseUrl() {
     // Option 1: Railway (external hosting)
-    // Replace with your Railway URL after deployment
-    const RAILWAY_API_URL = 'https://your-app.railway.app'; // TODO: Replace with your Railway URL
+    const RAILWAY_API_URL = 'https://biomap-production.up.railway.app';
     
-    // Option 2: Hostinger (same domain)
+    // Option 2: Hostinger (same domain) - fallback
     // const HOSTINGER_API_URL = window.location.origin + '/public/api/php';
     
     if (typeof window !== 'undefined') {
-        // Use Railway URL if set, otherwise fall back to Hostinger
-        if (RAILWAY_API_URL && !RAILWAY_API_URL.includes('your-app')) {
-            return RAILWAY_API_URL;
-        }
-        // Fallback to Hostinger (same domain)
-        return window.location.origin + '/public/api/php';
+        // Use Railway URL (external PHP API)
+        return RAILWAY_API_URL;
     }
     
-    return RAILWAY_API_URL || '/public/api/php';
+    return RAILWAY_API_URL;
 }
 
 const PHP_API_BASE_URL = getPhpApiBaseUrl();
