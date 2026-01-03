@@ -80,7 +80,9 @@ try {
     
     $sqlQuery .= ' ORDER BY av.data_avistamento DESC';
     echo $sqlQuery;
-    echo $params;
+    foreach ($params as $param) {
+        echo $param;
+    }
     
     $results = Database::query($sqlQuery, $params);
     sendJson($results);
