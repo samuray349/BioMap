@@ -1,20 +1,13 @@
 <?php
 /**
  * PHP API Entry Point for Railway
- * Simple router for PHP built-in server
+ * Router for PHP built-in server
  */
 
-// Set CORS headers
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json');
+require_once __DIR__ . '/config/helpers.php';
 
-// Handle preflight requests
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+setCorsHeaders();
+handlePreflight();
 
 $requestUri = $_SERVER['REQUEST_URI'];
 $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -33,21 +26,25 @@ if ($path === '/health' || $path === '/health.php') {
     exit;
 }
 
-// Route to API endpoints
-// This is a basic router - you may want to use a proper routing library
-// For now, this demonstrates the structure
+// List endpoints
+if ($path === '/list-endpoints.php' || $path === '/list-endpoints') {
+    require __DIR__ . '/list-endpoints.php';
+    exit;
+}
 
-// Example: /api/login -> auth/login.php
-if (preg_match('#^/api/(.*)$#', $path, $matches)) {
+// Route API endpoints
+$routes = [];
+
+// Authentication routes
+if (preg_match('#^/api/(login|signup|check-user|forgot-password|reset-password)$#', $path, $matches)) {
     $endpoint = $matches[1];
-    
-    // Map endpoints to files
     $routes = [
         'login' => 'auth/login.php',
         'signup' => 'auth/signup.php',
-        'check-user' => 'auth/check_user.php'
+        'check-user' => 'auth/check_user.php',
+        'forgot-password' => 'auth/forgot_password.php',
+        'reset-password' => 'auth/reset_password.php'
     ];
-    
     if (isset($routes[$endpoint])) {
         $file = __DIR__ . '/' . $routes[$endpoint];
         if (file_exists($file)) {
@@ -57,6 +54,37 @@ if (preg_match('#^/api/(.*)$#', $path, $matches)) {
     }
 }
 
+// User routes
+if ($requestMethod === 'GET' && $path === '/users') {
+    require __DIR__ . '/users/list.php';
+    exit;
+}
+
+if ($requestMethod === 'GET' && $path === '/users/estados') {
+    require __DIR__ . '/users/estados.php';
+    exit;
+}
+
+if ($requestMethod === 'GET' && $path === '/users/estatutos') {
+    require __DIR__ . '/users/estatutos.php';
+    exit;
+}
+
+if (preg_match('#^/users/(\d+)$#', $path, $matches)) {
+    $id = $matches[1];
+    if ($requestMethod === 'GET') {
+        $_GET['id'] = $id; // Pass ID as query param for get.php
+        require __DIR__ . '/users/get.php';
+        exit;
+    }
+    // PUT and DELETE will be handled by update.php and delete.php when created
+}
+
+// For routes with parameters in path (e.g., /users/123/password)
+// We'll need to parse them and pass as query params or create specific handlers
+// This is a simplified router - for production, consider using a routing library
+
 // 404 Not Found
 http_response_code(404);
-echo json_encode(['error' => 'Endpoint not found']);
+echo json_encode(['error' => 'Endpoint not found', 'path' => $path, 'method' => $requestMethod]);
+?>
