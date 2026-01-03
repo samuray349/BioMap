@@ -1,0 +1,14 @@
+# Nixpacks configuration for PHP API on Railway
+# This configures PHP only and skips Node.js dependencies
+
+[phases.setup]
+nixPkgs = ["php82"]
+
+[phases.install]
+cmds = []
+
+[phases.build]
+cmds = []
+
+[start]
+cmd = "php -S 0.0.0.0:$PORT -t api"
