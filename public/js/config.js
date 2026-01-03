@@ -96,6 +96,9 @@ const ENDPOINT_MAP = {
  * Handles parameterized routes (e.g., users/123 -> users/get.php?id=123)
  */
 function mapToPhpEndpoint(nodeEndpoint) {
+    // Force log to ensure function is called
+    console.log('[PHP API] mapToPhpEndpoint called with:', nodeEndpoint);
+    
     // Split endpoint and query string FIRST - handle empty query strings properly
     let endpoint = nodeEndpoint;
     let queryString = null;
@@ -110,8 +113,16 @@ function mapToPhpEndpoint(nodeEndpoint) {
         }
     }
     
-    // Remove leading slash if present
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    // Remove leading slash if present and trim whitespace
+    const cleanEndpoint = (endpoint.startsWith('/') ? endpoint.substring(1) : endpoint).trim();
+    
+    console.log('[PHP API] Extracted endpoint:', cleanEndpoint, '| Query:', queryString);
+    console.log('[PHP API] ENDPOINT_MAP exists?', typeof ENDPOINT_MAP !== 'undefined');
+    if (typeof ENDPOINT_MAP !== 'undefined') {
+        console.log('[PHP API] ENDPOINT_MAP keys:', Object.keys(ENDPOINT_MAP));
+        console.log('[PHP API] Looking for:', JSON.stringify(cleanEndpoint));
+        console.log('[PHP API] Has property?', ENDPOINT_MAP.hasOwnProperty(cleanEndpoint));
+    }
     
     let phpEndpoint;
     
@@ -122,6 +133,7 @@ function mapToPhpEndpoint(nodeEndpoint) {
         phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
     } else if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint)) {
         phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
+        console.log('[PHP API] ✓ Found mapping:', cleanEndpoint, '→', phpEndpoint);
     } else {
         // Handle parameterized routes (e.g., users/123)
         let matched = false;
