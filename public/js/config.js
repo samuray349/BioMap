@@ -160,27 +160,61 @@ function mapToPhpEndpoint(nodeEndpoint) {
             console.error(`[PHP API] No mapping found for endpoint: "${cleanEndpoint}"`);
             console.error(`[PHP API] Input endpoint was: "${nodeEndpoint}"`);
             console.error(`[PHP API] Available mappings:`, Object.keys(ENDPOINT_MAP));
-            phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
+            // Don't add .php if it already ends with .php
+            if (cleanEndpoint.endsWith('.php')) {
+                phpEndpoint = cleanEndpoint;
+            } else {
+                // Handle different endpoint formats
+                if (cleanEndpoint.startsWith('api_')) {
+                    // Convert api_alerts to alerts/list.php
+                    const withoutApi = cleanEndpoint.replace(/^api_/, '');
+                    phpEndpoint = withoutApi + '/list.php';
+                } else if (cleanEndpoint.startsWith('api/')) {
+                    // Convert api/alerts to alerts/list.php
+                    phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';
+                } else if (cleanEndpoint.includes('/')) {
+                    // Already has path structure, just add .php
+                    phpEndpoint = cleanEndpoint + '.php';
+                } else {
+                    // Single word, add /list.php
+                    phpEndpoint = cleanEndpoint + '/list.php';
+                }
+            }
         }
     }
     
+    // IMPORTANT: Clean query string BEFORE appending to prevent .php contamination
     // Re-append query string if it exists and is not empty (but handle existing query params in phpEndpoint)
     if (queryString && queryString.length > 0) {
-        const trimmedQuery = queryString.trim();
+        let trimmedQuery = queryString.trim();
         if (trimmedQuery.length > 0) {
-            // Safety check: ensure query string doesn't accidentally contain .php extension
-            // This can happen if the endpoint mapping failed and .php got appended incorrectly
-            let cleanQueryString = trimmedQuery;
+            // CRITICAL: Remove .php from query parameter VALUES
+            // Split by & to handle multiple parameters
+            const params = trimmedQuery.split('&');
+            const cleanedParams = params.map(param => {
+                if (param.includes('=')) {
+                    const [key, ...valueParts] = param.split('=');
+                    let value = valueParts.join('='); // Rejoin in case value has = in it
+                    // URL decode, clean .php, then re-encode
+                    try {
+                        value = decodeURIComponent(value);
+                        // Remove .php from anywhere in the value (not just at the end)
+                        value = value.replace(/\.php/g, '');
+                        value = encodeURIComponent(value);
+                    } catch (e) {
+                        // If decoding fails, just remove .php directly
+                        value = value.replace(/\.php/g, '');
+                    }
+                    return key + '=' + value;
+                }
+                // If no = sign, it might be just a value - still clean it
+                return param.replace(/\.php/g, '');
+            });
             
-            // Check if .php appears in the query string value (not just at the end of the whole string)
-            // Example: "search=l.php" should become "search=l"
-            if (cleanQueryString.includes('.php')) {
-                console.warn(`[PHP API] Query string contains .php: "${cleanQueryString}" - cleaning it`);
-                // Remove .php from query parameter values (e.g., search=l.php -> search=l)
-                // Use regex to replace .php in parameter values while preserving the parameter structure
-                cleanQueryString = cleanQueryString.replace(/([^=]+)=([^&]*?)\.php(&|$)/g, '$1=$2$3');
-                cleanQueryString = cleanQueryString.replace(/\.php(&|$)/g, '$1'); // Remove any remaining .php
-                console.warn(`[PHP API] Cleaned query string: "${cleanQueryString}"`);
+            const cleanQueryString = cleanedParams.join('&');
+            
+            if (cleanQueryString !== trimmedQuery) {
+                console.warn(`[PHP API] Cleaned query string from "${trimmedQuery}" to "${cleanQueryString}"`);
             }
             
             const separator = phpEndpoint.includes('?') ? '&' : '?';
