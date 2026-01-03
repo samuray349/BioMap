@@ -152,7 +152,11 @@ function getApiUrl(endpoint) {
     
     if (API_PROVIDER === 'php') {
         const phpEndpoint = mapToPhpEndpoint(cleanEndpoint);
-        return `${PHP_API_BASE_URL}/${phpEndpoint}`;
+        // Remove leading slash from phpEndpoint if present, then join with base URL
+        const cleanPhpEndpoint = phpEndpoint.startsWith('/') ? phpEndpoint.substring(1) : phpEndpoint;
+        // Ensure base URL doesn't have trailing slash
+        const cleanBaseUrl = PHP_API_BASE_URL.endsWith('/') ? PHP_API_BASE_URL.slice(0, -1) : PHP_API_BASE_URL;
+        return `${cleanBaseUrl}/${cleanPhpEndpoint}`;
     } else {
         return `${NODEJS_API_BASE_URL}/${cleanEndpoint}`;
     }
