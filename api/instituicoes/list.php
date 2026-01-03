@@ -38,9 +38,10 @@ try {
     $paramCounter = 1;
     
     if ($search) {
-        $sqlQuery .= " AND (i.nome ILIKE $" . $paramCounter . " OR i.localizacao_texto ILIKE $" . $paramCounter . ")";
+        $sqlQuery .= " AND (i.nome ILIKE $" . $paramCounter . " OR i.localizacao_texto ILIKE $" . ($paramCounter + 1) . ")";
         $params[] = '%' . $search . '%';
-        $paramCounter++;
+        $params[] = '%' . $search . '%';
+        $paramCounter += 2;
     }
     
     $sqlQuery .= ' ORDER BY i.instituicao_id';

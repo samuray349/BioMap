@@ -176,8 +176,10 @@ function mapToPhpEndpoint(nodeEndpoint) {
             // Example: "search=l.php" should become "search=l"
             if (cleanQueryString.includes('.php')) {
                 console.warn(`[PHP API] Query string contains .php: "${cleanQueryString}" - cleaning it`);
-                // Remove .php from query parameter values
-                cleanQueryString = cleanQueryString.replace(/\.php/g, '');
+                // Remove .php from query parameter values (e.g., search=l.php -> search=l)
+                // Use regex to replace .php in parameter values while preserving the parameter structure
+                cleanQueryString = cleanQueryString.replace(/([^=]+)=([^&]*?)\.php(&|$)/g, '$1=$2$3');
+                cleanQueryString = cleanQueryString.replace(/\.php(&|$)/g, '$1'); // Remove any remaining .php
                 console.warn(`[PHP API] Cleaned query string: "${cleanQueryString}"`);
             }
             
@@ -186,6 +188,7 @@ function mapToPhpEndpoint(nodeEndpoint) {
         }
     }
     
+    console.log('[PHP API] Final mapped endpoint:', phpEndpoint);
     return phpEndpoint;
 }
 
@@ -198,7 +201,7 @@ function getApiBaseUrl() {
 
 function getApiUrl(endpoint) {
     // Clean endpoint - remove leading slash if present
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    let cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     
     if (API_PROVIDER === 'php') {
         // Map the endpoint to PHP file path
@@ -222,7 +225,7 @@ function getApiUrl(endpoint) {
                 cleanPhpEndpoint: cleanPhpEndpoint,
                 finalUrl: finalUrl,
                 endpointMapExists: typeof ENDPOINT_MAP !== 'undefined',
-                endpointInMap: typeof ENDPOINT_MAP !== 'undefined' ? ENDPOINT_MAP.hasOwnProperty(cleanEndpoint.split('?')[0]) : false
+                endpointInMap: typeof ENDPOINT_MAP !== 'undefined' && ENDPOINT_MAP.hasOwnProperty(cleanEndpoint.split('?')[0])
             });
         }
         
