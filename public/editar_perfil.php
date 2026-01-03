@@ -101,6 +101,7 @@ $userId = $user['id'] ?? '';
                 }
                 
                 const username = document.getElementById('username').value.trim();
+                const userEmail = user.email || ''; // Get email from session
                 
                 // Basic validation
                 if (!username) {
@@ -114,16 +115,17 @@ $userId = $user['id'] ?? '';
                 submitButton.textContent = 'A atualizar...';
                 
                 try {
-                    // Get API URL
-                    const apiUrl = window.API_CONFIG?.getUrl(`users/${user.id}`) || `/users/${user.id}`;
+                    // Use PHP endpoint for profile update
+                    const apiUrl = 'api/users/update_profile.php';
                     
                     const response = await fetch(apiUrl, {
-                        method: 'PUT',
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            nome_utilizador: username
+                            nome_utilizador: username,
+                            email: userEmail // Include email from session
                         })
                     });
                     
@@ -133,30 +135,21 @@ $userId = $user['id'] ?? '';
                         throw new Error(data?.error || 'Erro ao atualizar perfil.');
                     }
                     
-                    // Update session data
-                    if (user) {
-                        user.name = username;
-                        
-                        // Update cookie
-                        if (SessionHelper) {
-                            SessionHelper.setUser(user);
-                        } else {
-                            setCookie('biomap_user', JSON.stringify(user), 7);
-                        }
+                    // PHP endpoint updates session automatically, but update local storage for JavaScript
+                    if (data.nome_utilizador) {
+                        const updatedUser = {
+                            ...user,
+                            name: data.nome_utilizador,
+                            email: data.email || userEmail
+                        };
                         
                         // Update localStorage (needed for header update)
-                        localStorage.setItem('biomapUser', JSON.stringify(user));
+                        localStorage.setItem('biomapUser', JSON.stringify(updatedUser));
                         
-                        // Update PHP session
-                        fetch('set_session.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ user: user })
-                        }).catch(err => {
-                            console.warn('Failed to update PHP session:', err);
-                        });
+                        // Update cookie for JavaScript compatibility
+                        if (SessionHelper) {
+                            SessionHelper.setUser(updatedUser);
+                        }
                     }
                     
                     // Show success message

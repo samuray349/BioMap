@@ -192,11 +192,11 @@ require_funcao_or_redirect([1,2], 'login.php');
                 setLoading(true);
 
                 try {
-                    const endpointPath = `users/${CURRENT_USER_ID}/password`;
-                    const apiUrl = window.API_CONFIG?.getUrl(endpointPath) || `/${endpointPath}`;
+                    // Use PHP endpoint for password update
+                    const apiUrl = 'api/users/update_password.php';
 
                     const resp = await fetch(apiUrl, {
-                        method: 'PUT',
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
