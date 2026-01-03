@@ -153,15 +153,24 @@ function mapToPhpEndpoint(nodeEndpoint) {
     }
     
     // Re-append query string if it exists and is not empty (but handle existing query params in phpEndpoint)
-    if (queryString && queryString.length > 0 && queryString.trim().length > 0) {
-        // Safety check: ensure query string doesn't accidentally contain .php extension
-        const cleanQueryString = queryString.trim();
-        // Only append if query string is valid (doesn't end with .php)
-        if (!cleanQueryString.endsWith('.php')) {
+    if (queryString && queryString.length > 0) {
+        const trimmedQuery = queryString.trim();
+        if (trimmedQuery.length > 0) {
+            // Safety check: ensure query string doesn't accidentally contain .php extension
+            // This can happen if the endpoint mapping failed and .php got appended incorrectly
+            let cleanQueryString = trimmedQuery;
+            
+            // Check if .php appears in the query string value (not just at the end of the whole string)
+            // Example: "search=l.php" should become "search=l"
+            if (cleanQueryString.includes('.php')) {
+                console.warn(`[PHP API] Query string contains .php: "${cleanQueryString}" - cleaning it`);
+                // Remove .php from query parameter values
+                cleanQueryString = cleanQueryString.replace(/\.php/g, '');
+                console.warn(`[PHP API] Cleaned query string: "${cleanQueryString}"`);
+            }
+            
             const separator = phpEndpoint.includes('?') ? '&' : '?';
             phpEndpoint = phpEndpoint + separator + cleanQueryString;
-        } else {
-            console.error(`[PHP API] Invalid query string detected: "${cleanQueryString}"`);
         }
     }
     
@@ -199,7 +208,9 @@ function getApiUrl(endpoint) {
                 cleanEndpoint: cleanEndpoint,
                 mappedPhpEndpoint: phpEndpoint,
                 cleanPhpEndpoint: cleanPhpEndpoint,
-                finalUrl: finalUrl
+                finalUrl: finalUrl,
+                endpointMapExists: typeof ENDPOINT_MAP !== 'undefined',
+                endpointInMap: typeof ENDPOINT_MAP !== 'undefined' ? ENDPOINT_MAP.hasOwnProperty(cleanEndpoint.split('?')[0]) : false
             });
         }
         
