@@ -15,6 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
+    // Ensure query string is parsed (PHP built-in server with router might not auto-populate $_GET)
+    if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
+        if (empty($_GET)) {
+            parse_str($_SERVER['QUERY_STRING'], $_GET);
+        }
+    }
+    
     $search = getQueryParam('search');
     $families = getQueryParam('families');
     $states = getQueryParam('states');

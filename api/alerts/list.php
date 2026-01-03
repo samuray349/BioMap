@@ -15,6 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
+    // Ensure query string is parsed (PHP built-in server with router might not auto-populate $_GET)
+    if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
+        if (empty($_GET)) {
+            parse_str($_SERVER['QUERY_STRING'], $_GET);
+        }
+    }
+    
     $search = getQueryParam('search');
     $families = getQueryParam('families');
     $states = getQueryParam('states');
@@ -76,6 +83,12 @@ try {
     }
     
     $sqlQuery .= ' ORDER BY av.data_avistamento DESC';
+    
+    // Debug logging (can be removed later)
+    if (!empty($search) || !empty($families) || !empty($states)) {
+        error_log('[Alerts List] Query: ' . $sqlQuery);
+        error_log('[Alerts List] Params: ' . print_r($params, true));
+    }
     
     $results = Database::query($sqlQuery, $params);
     sendJson($results);
