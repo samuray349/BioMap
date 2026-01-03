@@ -114,6 +114,11 @@ if ($requestMethod === 'GET' && $path === '/animais') {
     exit;
 }
 
+if ($requestMethod === 'POST' && $path === '/animais') {
+    require __DIR__ . '/animais/create.php';
+    exit;
+}
+
 if ($requestMethod === 'GET' && $path === '/animais/familias') {
     require __DIR__ . '/animais/familias.php';
     exit;
@@ -129,6 +134,72 @@ if (preg_match('#^/animaisDesc/(\d+)$#', $path, $matches)) {
     $_GET['id'] = $id;
     if ($requestMethod === 'GET') {
         require __DIR__ . '/animais/get.php';
+        exit;
+    }
+}
+
+if (preg_match('#^/animais/(\d+)$#', $path, $matches)) {
+    $id = $matches[1];
+    $_GET['id'] = $id;
+    if ($requestMethod === 'PUT') {
+        require __DIR__ . '/animais/update.php';
+        exit;
+    }
+    if ($requestMethod === 'DELETE') {
+        require __DIR__ . '/animais/delete.php';
+        exit;
+    }
+}
+
+// Institution routes
+if ($requestMethod === 'GET' && $path === '/instituicoes') {
+    require __DIR__ . '/instituicoes/list.php';
+    exit;
+}
+
+if ($requestMethod === 'POST' && $path === '/instituicoes') {
+    require __DIR__ . '/instituicoes/create.php';
+    exit;
+}
+
+if (preg_match('#^/instituicoesDesc/(\d+)$#', $path, $matches)) {
+    $id = $matches[1];
+    $_GET['id'] = $id;
+    if ($requestMethod === 'GET') {
+        require __DIR__ . '/instituicoes/get.php';
+        exit;
+    }
+}
+
+if (preg_match('#^/instituicoes/(\d+)$#', $path, $matches)) {
+    $id = $matches[1];
+    $_GET['id'] = $id;
+    if ($requestMethod === 'PUT') {
+        require __DIR__ . '/instituicoes/update.php';
+        exit;
+    }
+    if ($requestMethod === 'DELETE') {
+        require __DIR__ . '/instituicoes/delete.php';
+        exit;
+    }
+}
+
+// Alert routes
+if ($requestMethod === 'GET' && $path === '/api/alerts') {
+    require __DIR__ . '/alerts/list.php';
+    exit;
+}
+
+if ($requestMethod === 'POST' && $path === '/api/alerts') {
+    require __DIR__ . '/alerts/create.php';
+    exit;
+}
+
+if (preg_match('#^/api/alerts/(\d+)$#', $path, $matches)) {
+    $id = $matches[1];
+    $_GET['id'] = $id;
+    if ($requestMethod === 'DELETE') {
+        require __DIR__ . '/alerts/delete.php';
         exit;
     }
 }

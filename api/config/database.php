@@ -82,12 +82,17 @@ class Database {
     }
     
     /**
-     * Execute an insert and return the last insert ID
+     * Execute an insert and return the inserted row
+     * SQL should include RETURNING clause
      */
     public static function insert($sql, $params = []) {
         try {
             $conn = self::getConnection();
-            $stmt = $conn->prepare($sql . ' RETURNING *');
+            // Check if RETURNING is already in the SQL
+            if (stripos($sql, 'RETURNING') === false) {
+                $sql .= ' RETURNING *';
+            }
+            $stmt = $conn->prepare($sql);
             $stmt->execute($params);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
