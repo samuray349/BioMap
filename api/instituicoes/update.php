@@ -72,6 +72,7 @@ try {
         $errors[] = 'Hora de fecho é obrigatória.';
     }
     
+    
     // Validate location format (optional for update)
     $lat = null;
     $lon = null;
