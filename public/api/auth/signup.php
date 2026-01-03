@@ -22,6 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
+// Check if PostgreSQL PDO extension is available
+if (!extension_loaded('pdo_pgsql')) {
+    error_log('PDO PostgreSQL extension (pdo_pgsql) is not loaded');
+    http_response_code(500);
+    echo json_encode(['error' => 'Servidor não configurado corretamente. Contacte o administrador.']);
+    exit;
+}
+
 require_once __DIR__ . '/../../config/database.php';
 
 try {

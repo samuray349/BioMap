@@ -1,6 +1,3 @@
-<?php
-    echo "aaaaa";
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
