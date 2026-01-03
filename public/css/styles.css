@@ -317,11 +317,20 @@ p {
     text-align: center;
 }
 
+.api-toggle-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
 .api-toggle-switch {
     position: relative;
     width: 50px;
     height: 26px;
     appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     background-color: #FFD700;
     border-radius: 26px;
     outline: none;
@@ -333,7 +342,7 @@ p {
 }
 
 .api-toggle-switch:checked {
-    background-color: #2196F3;
+    background-color: #777bb3;
 }
 
 .api-toggle-slider {

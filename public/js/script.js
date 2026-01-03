@@ -1828,8 +1828,10 @@ const headerTemplate = `
       <div class="api-toggle-container" title="Alterar API (Node.js / PHP)">
         <label class="api-toggle-label">
           <span class="api-toggle-text">JS</span>
-          <input type="checkbox" id="api-toggle-switch" class="api-toggle-switch">
-          <span class="api-toggle-slider"></span>
+          <span class="api-toggle-wrapper">
+            <input type="checkbox" id="api-toggle-switch" class="api-toggle-switch">
+            <span class="api-toggle-slider"></span>
+          </span>
           <span class="api-toggle-text">PHP</span>
         </label>
       </div>
