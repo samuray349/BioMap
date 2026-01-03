@@ -14,7 +14,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy only PHP API files (not Node.js files)
-COPY api/ /app/api/
+COPY api/ /app/
 COPY composer.json composer.lock* /app/
 
 # Install PHP dependencies if composer.json exists (optional)
@@ -27,4 +27,5 @@ COPY composer.json composer.lock* /app/
 EXPOSE 8080
 
 # Start PHP built-in server
-CMD php -S 0.0.0.0:${PORT:-8080} -t api
+# Railway will use startCommand from railway.json, but this is a fallback
+CMD php -S 0.0.0.0:${PORT:-8080} -t .
