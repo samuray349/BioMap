@@ -8,8 +8,19 @@
 // ============================================================================
 // API PROVIDER CONFIGURATION
 // ============================================================================
-// Set to 'nodejs' to use Node.js API (Vercel) or 'php' to use PHP API (Hostinger)
-const API_PROVIDER = 'nodejs'; // Change this to 'php' to use PHP API
+// Set to 'nodejs' to use Node.js API (Vercel) or 'php' to use PHP API (Railway)
+// This can be overridden by localStorage preference set via header toggle
+function getApiProvider() {
+    if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('apiProvider');
+        if (saved === 'nodejs' || saved === 'php') {
+            return saved;
+        }
+    }
+    return 'nodejs'; // Default
+}
+
+const API_PROVIDER = getApiProvider();
 
 // ============================================================================
 // NODE.JS API CONFIGURATION (Vercel)

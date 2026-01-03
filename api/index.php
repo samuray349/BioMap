@@ -32,9 +32,6 @@ if ($path === '/list-endpoints.php' || $path === '/list-endpoints') {
     exit;
 }
 
-// Route API endpoints
-$routes = [];
-
 // Authentication routes
 if (preg_match('#^/api/(login|signup|check-user|forgot-password|reset-password)$#', $path, $matches)) {
     $endpoint = $matches[1];
@@ -46,11 +43,8 @@ if (preg_match('#^/api/(login|signup|check-user|forgot-password|reset-password)$
         'reset-password' => 'auth/reset_password.php'
     ];
     if (isset($routes[$endpoint])) {
-        $file = __DIR__ . '/' . $routes[$endpoint];
-        if (file_exists($file)) {
-            require $file;
-            exit;
-        }
+        require __DIR__ . '/' . $routes[$endpoint];
+        exit;
     }
 }
 
@@ -72,17 +66,72 @@ if ($requestMethod === 'GET' && $path === '/users/estatutos') {
 
 if (preg_match('#^/users/(\d+)$#', $path, $matches)) {
     $id = $matches[1];
+    $_GET['id'] = $id;
     if ($requestMethod === 'GET') {
-        $_GET['id'] = $id; // Pass ID as query param for get.php
         require __DIR__ . '/users/get.php';
         exit;
     }
-    // PUT and DELETE will be handled by update.php and delete.php when created
+    if ($requestMethod === 'PUT') {
+        require __DIR__ . '/users/update.php';
+        exit;
+    }
+    if ($requestMethod === 'DELETE') {
+        require __DIR__ . '/users/delete.php';
+        exit;
+    }
 }
 
-// For routes with parameters in path (e.g., /users/123/password)
-// We'll need to parse them and pass as query params or create specific handlers
-// This is a simplified router - for production, consider using a routing library
+if (preg_match('#^/users/(\d+)/password$#', $path, $matches)) {
+    $id = $matches[1];
+    $_GET['id'] = $id;
+    if ($requestMethod === 'PUT') {
+        require __DIR__ . '/users/update_password.php';
+        exit;
+    }
+}
+
+if (preg_match('#^/users/(\d+)/funcao$#', $path, $matches)) {
+    $id = $matches[1];
+    $_GET['id'] = $id;
+    if ($requestMethod === 'PUT') {
+        require __DIR__ . '/users/update_funcao.php';
+        exit;
+    }
+}
+
+if (preg_match('#^/users/(\d+)/estado$#', $path, $matches)) {
+    $id = $matches[1];
+    $_GET['id'] = $id;
+    if ($requestMethod === 'PUT') {
+        require __DIR__ . '/users/update_estado.php';
+        exit;
+    }
+}
+
+// Animal routes
+if ($requestMethod === 'GET' && $path === '/animais') {
+    require __DIR__ . '/animais/list.php';
+    exit;
+}
+
+if ($requestMethod === 'GET' && $path === '/animais/familias') {
+    require __DIR__ . '/animais/familias.php';
+    exit;
+}
+
+if ($requestMethod === 'GET' && $path === '/animais/estados') {
+    require __DIR__ . '/animais/estados.php';
+    exit;
+}
+
+if (preg_match('#^/animaisDesc/(\d+)$#', $path, $matches)) {
+    $id = $matches[1];
+    $_GET['id'] = $id;
+    if ($requestMethod === 'GET') {
+        require __DIR__ . '/animais/get.php';
+        exit;
+    }
+}
 
 // 404 Not Found
 http_response_code(404);

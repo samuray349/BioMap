@@ -1825,6 +1825,14 @@ const headerTemplate = `
       <a href="doar.php" class="nav-link">Doar</a>
     </nav>
     <div class="user-section">
+      <div class="api-toggle-container" title="Alterar API (Node.js / PHP)">
+        <label class="api-toggle-label">
+          <span class="api-toggle-text">JS</span>
+          <input type="checkbox" id="api-toggle-switch" class="api-toggle-switch">
+          <span class="api-toggle-slider"></span>
+          <span class="api-toggle-text">PHP</span>
+        </label>
+      </div>
       <a href="perfil.php" id="user-name" class="user-name"></a>
       <i class="fas fa-user user-icon" id="user-icon"></i>
       <div id="account-menu" class="account-menu">
@@ -1853,9 +1861,10 @@ async function loadHeader(path = 'header.php') {
       console.warn('loadHeader: failed to set inline template.', err);
     }
   
-    if (typeof initAccountMenu === 'function') initAccountMenu();
-    if (typeof applyHeaderAuthState === 'function') applyHeaderAuthState();
-    if (typeof highlightCurrentPage === 'function') highlightCurrentPage();
+  if (typeof initAccountMenu === 'function') initAccountMenu();
+  if (typeof applyHeaderAuthState === 'function') applyHeaderAuthState();
+  if (typeof highlightCurrentPage === 'function') highlightCurrentPage();
+  if (typeof initApiToggle === 'function') initApiToggle();
 }
   
 function highlightCurrentPage() {
