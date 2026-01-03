@@ -47,16 +47,26 @@ try {
     
     if ($estados) {
         $estadoArray = explode(',', $estados);
-        $sqlQuery .= " AND e.nome_estado = ANY($" . $paramCounter . ")";
-        $params[] = $estadoArray;
-        $paramCounter++;
+        // Use IN clause instead of ANY for compatibility
+        $placeholders = [];
+        foreach ($estadoArray as $estado) {
+            $placeholders[] = '$' . $paramCounter;
+            $params[] = trim($estado);
+            $paramCounter++;
+        }
+        $sqlQuery .= " AND e.nome_estado IN (" . implode(', ', $placeholders) . ")";
     }
     
     if ($estatutos) {
         $estatutoArray = explode(',', $estatutos);
-        $sqlQuery .= " AND f.nome_funcao = ANY($" . $paramCounter . ")";
-        $params[] = $estatutoArray;
-        $paramCounter++;
+        // Use IN clause instead of ANY for compatibility
+        $placeholders = [];
+        foreach ($estatutoArray as $estatuto) {
+            $placeholders[] = '$' . $paramCounter;
+            $params[] = trim($estatuto);
+            $paramCounter++;
+        }
+        $sqlQuery .= " AND f.nome_funcao IN (" . implode(', ', $placeholders) . ")";
     }
     
     $sqlQuery .= ' ORDER BY u.utilizador_id';

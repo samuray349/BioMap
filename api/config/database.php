@@ -23,6 +23,9 @@ class Database {
             $password = getenv('PGPASSWORD') ?: 'Passwordbd1!';
             $ssl = getenv('PGSSL') !== 'false';
             
+            // Build DSN
+            // Note: SSL is typically configured at the system level for PostgreSQL
+            // For Railway/Cloud SQL, SSL should work automatically if configured
             $dsn = "pgsql:host=$host;port=$port;dbname=$database";
             
             $options = [
@@ -30,11 +33,6 @@ class Database {
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ];
-            
-            if ($ssl) {
-                $options[PDO::PGATTR_SSL_MODE] = PDO::PGSQL_SSL_PREFER;
-                $options[PDO::PGATTR_SSL_ROOT_CERT] = null;
-            }
             
             self::$connection = new PDO($dsn, $user, $password, $options);
             
