@@ -1,11 +1,20 @@
 /**
- * API Configuration
- * Auto-detects environment and uses appropriate API URL
+ * API Configuration with PHP/Node.js Switch
+ * Allows switching between Node.js API (Vercel) and PHP API (Hostinger)
+ * 
+ * To switch: Change API_PROVIDER to 'nodejs' or 'php'
  */
 
-// Auto-detect environment
-function detectApiBaseUrl() {
-    // Check if we're on localhost
+// ============================================================================
+// API PROVIDER CONFIGURATION
+// ============================================================================
+// Set to 'nodejs' to use Node.js API (Vercel) or 'php' to use PHP API (Hostinger)
+const API_PROVIDER = 'nodejs'; // Change this to 'php' to use PHP API
+
+// ============================================================================
+// NODE.JS API CONFIGURATION (Vercel)
+// ============================================================================
+function detectNodeJsApiBaseUrl() {
     if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
         const isLocalhost = hostname === 'localhost' || 
@@ -16,33 +25,134 @@ function detectApiBaseUrl() {
                            hostname.endsWith('.local');
         
         if (isLocalhost) {
-            // Use local Node.js server
             return 'http://localhost:3000';
         }
     }
-    
-    // Production: use Vercel API
     return 'https://bio-map-xi.vercel.app';
 }
 
-const API_BASE_URL = detectApiBaseUrl();
+const NODEJS_API_BASE_URL = detectNodeJsApiBaseUrl();
 
-// Helper function to build API URLs
-function getApiUrl(endpoint) {
-    // Remove leading slash if present to avoid double slashes
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
-    return `${API_BASE_URL}/${cleanEndpoint}`;
+// ============================================================================
+// PHP API CONFIGURATION (Railway or Hostinger)
+// ============================================================================
+function getPhpApiBaseUrl() {
+    // Option 1: Railway (external hosting)
+    // Replace with your Railway URL after deployment
+    const RAILWAY_API_URL = 'https://your-app.railway.app'; // TODO: Replace with your Railway URL
+    
+    // Option 2: Hostinger (same domain)
+    // const HOSTINGER_API_URL = window.location.origin + '/public/api/php';
+    
+    if (typeof window !== 'undefined') {
+        // Use Railway URL if set, otherwise fall back to Hostinger
+        if (RAILWAY_API_URL && !RAILWAY_API_URL.includes('your-app')) {
+            return RAILWAY_API_URL;
+        }
+        // Fallback to Hostinger (same domain)
+        return window.location.origin + '/public/api/php';
+    }
+    
+    return RAILWAY_API_URL || '/public/api/php';
 }
 
-// Export for use in other scripts
+const PHP_API_BASE_URL = getPhpApiBaseUrl();
+
+// ============================================================================
+// ENDPOINT MAPPING (Node.js to PHP)
+// ============================================================================
+const ENDPOINT_MAP = {
+    'api/login': 'auth/login.php',
+    'api/signup': 'auth/signup.php',
+    'api/check-user': 'auth/check_user.php',
+    'api/forgot-password': 'auth/forgot_password.php',
+    'api/reset-password': 'auth/reset_password.php',
+    'users': 'users/list.php',
+    'users/estados': 'users/estados.php',
+    'users/estatutos': 'users/estatutos.php',
+    'users/:id': 'users/get.php',
+    'users/:id/password': 'users/update_password.php',
+    'users/:id/funcao': 'users/update_funcao.php',
+    'users/:id/estado': 'users/update_estado.php',
+    'animais': 'animais/list.php',
+    'animais/familias': 'animais/familias.php',
+    'animais/estados': 'animais/estados.php',
+    'animaisDesc/:id': 'animais/get.php',
+    'api/alerts': 'alerts/list.php',
+    'instituicoes': 'instituicoes/list.php',
+    'instituicoesDesc/:id': 'instituicoes/get.php'
+};
+
+/**
+ * Map Node.js endpoint to PHP endpoint
+ * Handles parameterized routes (e.g., users/123 -> users/get.php?id=123)
+ */
+function mapToPhpEndpoint(nodeEndpoint) {
+    const cleanEndpoint = nodeEndpoint.startsWith('/') ? nodeEndpoint.substring(1) : nodeEndpoint;
+    
+    // Check direct mapping first
+    if (ENDPOINT_MAP[cleanEndpoint]) {
+        return ENDPOINT_MAP[cleanEndpoint];
+    }
+    
+    // Handle parameterized routes (e.g., users/123)
+    for (const [nodePattern, phpFile] of Object.entries(ENDPOINT_MAP)) {
+        if (nodePattern.includes(':')) {
+            const regexPattern = '^' + nodePattern.replace(/:\w+/g, '([^/]+)') + '$';
+            const regex = new RegExp(regexPattern);
+            const match = cleanEndpoint.match(regex);
+            
+            if (match) {
+                // Extract ID parameter
+                const id = match[1];
+                // For PHP, we'll use query parameters: users/get.php?id=123
+                const basePhpFile = phpFile.replace(/:id/g, '');
+                return `${basePhpFile}?id=${id}`;
+            }
+        }
+    }
+    
+    // Default: convert endpoint to PHP file name
+    return cleanEndpoint.replace(/\//g, '_') + '.php';
+}
+
+// ============================================================================
+// API URL BUILDER
+// ============================================================================
+function getApiBaseUrl() {
+    return API_PROVIDER === 'php' ? PHP_API_BASE_URL : NODEJS_API_BASE_URL;
+}
+
+function getApiUrl(endpoint) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    
+    if (API_PROVIDER === 'php') {
+        const phpEndpoint = mapToPhpEndpoint(cleanEndpoint);
+        return `${PHP_API_BASE_URL}/${phpEndpoint}`;
+    } else {
+        return `${NODEJS_API_BASE_URL}/${cleanEndpoint}`;
+    }
+}
+
+// ============================================================================
+// EXPORT CONFIGURATION
+// ============================================================================
 if (typeof window !== 'undefined') {
     window.API_CONFIG = {
-        BASE_URL: API_BASE_URL,
-        getUrl: getApiUrl
+        PROVIDER: API_PROVIDER,
+        BASE_URL: getApiBaseUrl(),
+        getUrl: getApiUrl,
+        isNodeJs: () => API_PROVIDER === 'nodejs',
+        isPhp: () => API_PROVIDER === 'php',
+        switchToNodeJs: () => {
+            console.warn('API_PROVIDER is read-only. Change it in config.js file.');
+        },
+        switchToPhp: () => {
+            console.warn('API_PROVIDER is read-only. Change it in config.js file.');
+        }
     };
     
-    // Log API configuration for debugging (only in development)
-    if (API_BASE_URL.includes('localhost')) {
-        console.log('API Configuration: Using localhost API at', API_BASE_URL);
-    }
+    // Log API configuration for debugging
+    console.log(`API Configuration: Using ${API_PROVIDER.toUpperCase()} API`);
+    console.log(`Base URL: ${getApiBaseUrl()}`);
 }

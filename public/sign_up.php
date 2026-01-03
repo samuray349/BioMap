@@ -164,8 +164,43 @@
                 
 
                 try {
-                    // Use PHP endpoint for signup (handles duplicate checking internally)
-                    const apiUrl = 'api/auth/signup.php';
+                    // First check if name or email already exists
+                    const checkApiUrl = window.API_CONFIG?.getUrl('api/check-user') || '/api/check-user';
+                    const checkResponse = await fetch(checkApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ name, email })
+                    });
+
+                    const checkData = await checkResponse.json();
+
+                    if (!checkResponse.ok) {
+                        throw new Error(checkData?.error || 'Erro ao verificar dados.');
+                    }
+
+                    // Check for duplicates and show appropriate error notifications
+                    if (checkData.nameExists && checkData.emailExists) {
+                        showError('Nome e email já existentes');
+                        setLoading(false);
+                        return;
+                    }
+
+                    if (checkData.nameExists) {
+                        showError('Este nome já existe');
+                        setLoading(false);
+                        return;
+                    }
+
+                    if (checkData.emailExists) {
+                        showError('Este email já existe');
+                        setLoading(false);
+                        return;
+                    }
+
+                    // If no duplicates, proceed with signup
+                    const apiUrl = window.API_CONFIG?.getUrl('api/signup') || '/api/signup';
                     const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: {

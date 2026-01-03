@@ -122,8 +122,7 @@
                 setLoading(true);
 
                 try {
-                    // Use PHP endpoint for authentication
-                    const apiUrl = 'api/auth/login.php';
+                    const apiUrl = window.API_CONFIG?.getUrl('api/login') || '/api/login';
                     const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: {
@@ -142,15 +141,33 @@
                         successMessage.style.display = 'block';
                     }
 
-                    // PHP endpoint sets session and cookie automatically
-                    // Just store in localStorage for JavaScript compatibility
+                    // Persist session data for both PHP and JavaScript
                     if (data?.user) {
+                        // Store in localStorage (for JavaScript - keeps existing functionality)
                         localStorage.setItem('biomapUser', JSON.stringify(data.user));
                         
-                        // Also update cookie for JavaScript (PHP already set it, but ensure compatibility)
+                        // Store in cookie (accessible by both PHP and JavaScript)
                         if (typeof SessionHelper !== 'undefined') {
                             SessionHelper.setUser(data.user);
+                        } else {
+                            // Fallback: set cookie manually if SessionHelper not loaded
+                            const cookieData = JSON.stringify(data.user);
+                            const expires = new Date();
+                            expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days
+                            document.cookie = `biomap_user=${encodeURIComponent(cookieData)}; expires=${expires.toUTCString()}; path=/`;
                         }
+                        
+                        // Also set PHP session on server side
+                        fetch('set_session.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ user: data.user })
+                        }).catch(err => {
+                            console.warn('Failed to set PHP session:', err);
+                            // Continue anyway - cookie is set
+                        });
                     }
 
                     setTimeout(() => {
