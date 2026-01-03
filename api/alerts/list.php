@@ -18,9 +18,6 @@ try {
     $search = getQueryParam('search');
     $families = getQueryParam('families');
     $states = getQueryParam('states');
-    echo $search;
-    echo $families;
-    echo $states;
     
     // Optimized query - use INNER JOIN where possible, only LEFT JOIN when necessary
     $sqlQuery = '
@@ -79,10 +76,6 @@ try {
     }
     
     $sqlQuery .= ' ORDER BY av.data_avistamento DESC';
-    echo $sqlQuery;
-    foreach ($params as $param) {
-        echo $param;
-    }
     
     $results = Database::query($sqlQuery, $params);
     sendJson($results);
