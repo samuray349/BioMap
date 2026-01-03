@@ -181,7 +181,8 @@ async function fetchUsers(filters = {}) {
             params.append('estatutos', filters.estatutos.join(','));
         }
         
-        const apiUrl = getApiUrl(`users?${params.toString()}`);
+        const queryString = params.toString();
+        const apiUrl = getApiUrl(queryString ? `users?${queryString}` : 'users');
         const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

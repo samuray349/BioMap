@@ -96,13 +96,25 @@ const ENDPOINT_MAP = {
  * Handles parameterized routes (e.g., users/123 -> users/get.php?id=123)
  */
 function mapToPhpEndpoint(nodeEndpoint) {
-    // Split endpoint and query string
-    const [endpoint, queryString] = nodeEndpoint.split('?');
+    // Split endpoint and query string FIRST - handle empty query strings properly
+    let endpoint = nodeEndpoint;
+    let queryString = null;
+    
+    const questionMarkIndex = nodeEndpoint.indexOf('?');
+    if (questionMarkIndex !== -1) {
+        endpoint = nodeEndpoint.substring(0, questionMarkIndex);
+        const afterQuestion = nodeEndpoint.substring(questionMarkIndex + 1);
+        // Only set queryString if there's actual content after the ?
+        if (afterQuestion && afterQuestion.trim().length > 0) {
+            queryString = afterQuestion;
+        }
+    }
+    
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     
     let phpEndpoint;
     
-    // Check direct mapping first
+    // Check direct mapping first (without query string)
     if (ENDPOINT_MAP[cleanEndpoint]) {
         phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
     } else {
@@ -126,13 +138,15 @@ function mapToPhpEndpoint(nodeEndpoint) {
         }
         
         if (!matched) {
-            // Default: convert endpoint to PHP file name
+            // Default: convert endpoint to PHP file name (last resort)
+            // But this shouldn't happen if all endpoints are mapped
+            console.warn(`No mapping found for endpoint: ${cleanEndpoint}, using fallback conversion`);
             phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
         }
     }
     
-    // Re-append query string if it exists (but handle existing query params in phpEndpoint)
-    if (queryString) {
+    // Re-append query string if it exists and is not empty (but handle existing query params in phpEndpoint)
+    if (queryString && queryString.length > 0) {
         const separator = phpEndpoint.includes('?') ? '&' : '?';
         phpEndpoint = phpEndpoint + separator + queryString;
     }
@@ -156,7 +170,14 @@ function getApiUrl(endpoint) {
         const cleanPhpEndpoint = phpEndpoint.startsWith('/') ? phpEndpoint.substring(1) : phpEndpoint;
         // Ensure base URL doesn't have trailing slash
         const cleanBaseUrl = PHP_API_BASE_URL.endsWith('/') ? PHP_API_BASE_URL.slice(0, -1) : PHP_API_BASE_URL;
-        return `${cleanBaseUrl}/${cleanPhpEndpoint}`;
+        const finalUrl = `${cleanBaseUrl}/${cleanPhpEndpoint}`;
+        
+        // Debug logging (can be removed in production)
+        if (typeof console !== 'undefined' && console.debug) {
+            console.debug('PHP API URL:', { endpoint, cleanEndpoint, phpEndpoint, cleanPhpEndpoint, finalUrl });
+        }
+        
+        return finalUrl;
     } else {
         return `${NODEJS_API_BASE_URL}/${cleanEndpoint}`;
     }

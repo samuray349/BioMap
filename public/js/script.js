@@ -930,7 +930,8 @@ async function loadAvistamentos() {
     }
 
     // Fetch avistamentos from API
-    const apiUrl = getApiUrl(`api/alerts?${params.toString()}`);
+    const queryString = params.toString();
+    const apiUrl = getApiUrl(queryString ? `api/alerts?${queryString}` : 'api/alerts');
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -1104,7 +1105,8 @@ async function loadInstituicoes() {
     }
 
     // Fetch instituições from API
-    const apiUrl = getApiUrl(`instituicoes?${params.toString()}`);
+    const queryString = params.toString();
+    const apiUrl = getApiUrl(queryString ? `instituicoes?${queryString}` : 'instituicoes');
     console.log('loadInstituicoes: Fetching from', apiUrl);
     const response = await fetch(apiUrl);
     if (!response.ok) {
