@@ -116,8 +116,11 @@ function mapToPhpEndpoint(nodeEndpoint) {
     let phpEndpoint;
     
     // Check direct mapping first (without query string)
-    // Use hasOwnProperty to ensure exact match
-    if (Object.prototype.hasOwnProperty.call(ENDPOINT_MAP, cleanEndpoint)) {
+    // Use hasOwnProperty to ensure exact match and log if ENDPOINT_MAP is undefined
+    if (typeof ENDPOINT_MAP === 'undefined') {
+        console.error('[PHP API] ENDPOINT_MAP is undefined!');
+        phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
+    } else if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint)) {
         phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
     } else {
         // Handle parameterized routes (e.g., users/123)
@@ -150,9 +153,16 @@ function mapToPhpEndpoint(nodeEndpoint) {
     }
     
     // Re-append query string if it exists and is not empty (but handle existing query params in phpEndpoint)
-    if (queryString && queryString.length > 0) {
-        const separator = phpEndpoint.includes('?') ? '&' : '?';
-        phpEndpoint = phpEndpoint + separator + queryString;
+    if (queryString && queryString.length > 0 && queryString.trim().length > 0) {
+        // Safety check: ensure query string doesn't accidentally contain .php extension
+        const cleanQueryString = queryString.trim();
+        // Only append if query string is valid (doesn't end with .php)
+        if (!cleanQueryString.endsWith('.php')) {
+            const separator = phpEndpoint.includes('?') ? '&' : '?';
+            phpEndpoint = phpEndpoint + separator + cleanQueryString;
+        } else {
+            console.error(`[PHP API] Invalid query string detected: "${cleanQueryString}"`);
+        }
     }
     
     return phpEndpoint;
@@ -166,14 +176,20 @@ function getApiBaseUrl() {
 }
 
 function getApiUrl(endpoint) {
+    // Clean endpoint - remove leading slash if present
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     
     if (API_PROVIDER === 'php') {
+        // Map the endpoint to PHP file path
         const phpEndpoint = mapToPhpEndpoint(cleanEndpoint);
-        // Remove leading slash from phpEndpoint if present, then join with base URL
+        
+        // Remove leading slash from phpEndpoint if present
         const cleanPhpEndpoint = phpEndpoint.startsWith('/') ? phpEndpoint.substring(1) : phpEndpoint;
+        
         // Ensure base URL doesn't have trailing slash
         const cleanBaseUrl = PHP_API_BASE_URL.endsWith('/') ? PHP_API_BASE_URL.slice(0, -1) : PHP_API_BASE_URL;
+        
+        // Construct final URL
         const finalUrl = `${cleanBaseUrl}/${cleanPhpEndpoint}`;
         
         // Debug logging for PHP API - always log to help diagnose issues
@@ -189,6 +205,7 @@ function getApiUrl(endpoint) {
         
         return finalUrl;
     } else {
+        // Node.js API - just prepend base URL
         return `${NODEJS_API_BASE_URL}/${cleanEndpoint}`;
     }
 }
