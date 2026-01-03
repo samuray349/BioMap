@@ -67,6 +67,8 @@ const PHP_API_BASE_URL = getPhpApiBaseUrl();
 // ============================================================================
 // ENDPOINT MAPPING (Node.js to PHP)
 // ============================================================================
+// Map Node.js endpoints to PHP file paths
+// PHP API files are accessed directly (e.g., users/list.php)
 const ENDPOINT_MAP = {
     'api/login': 'auth/login.php',
     'api/signup': 'auth/signup.php',
@@ -90,36 +92,52 @@ const ENDPOINT_MAP = {
 };
 
 /**
- * Map Node.js endpoint to PHP endpoint
+ * Map Node.js endpoint to PHP file path
  * Handles parameterized routes (e.g., users/123 -> users/get.php?id=123)
  */
 function mapToPhpEndpoint(nodeEndpoint) {
-    const cleanEndpoint = nodeEndpoint.startsWith('/') ? nodeEndpoint.substring(1) : nodeEndpoint;
+    // Split endpoint and query string
+    const [endpoint, queryString] = nodeEndpoint.split('?');
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    
+    let phpEndpoint;
     
     // Check direct mapping first
     if (ENDPOINT_MAP[cleanEndpoint]) {
-        return ENDPOINT_MAP[cleanEndpoint];
-    }
-    
-    // Handle parameterized routes (e.g., users/123)
-    for (const [nodePattern, phpFile] of Object.entries(ENDPOINT_MAP)) {
-        if (nodePattern.includes(':')) {
-            const regexPattern = '^' + nodePattern.replace(/:\w+/g, '([^/]+)') + '$';
-            const regex = new RegExp(regexPattern);
-            const match = cleanEndpoint.match(regex);
-            
-            if (match) {
-                // Extract ID parameter
-                const id = match[1];
-                // For PHP, we'll use query parameters: users/get.php?id=123
-                const basePhpFile = phpFile.replace(/:id/g, '');
-                return `${basePhpFile}?id=${id}`;
+        phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
+    } else {
+        // Handle parameterized routes (e.g., users/123)
+        let matched = false;
+        for (const [nodePattern, phpFile] of Object.entries(ENDPOINT_MAP)) {
+            if (nodePattern.includes(':')) {
+                const regexPattern = '^' + nodePattern.replace(/:\w+/g, '([^/]+)') + '$';
+                const regex = new RegExp(regexPattern);
+                const match = cleanEndpoint.match(regex);
+                
+                if (match) {
+                    // Extract ID parameter
+                    const id = match[1];
+                    // For PHP, use query parameters: users/get.php?id=123
+                    phpEndpoint = phpFile + '?id=' + id;
+                    matched = true;
+                    break;
+                }
             }
+        }
+        
+        if (!matched) {
+            // Default: convert endpoint to PHP file name
+            phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
         }
     }
     
-    // Default: convert endpoint to PHP file name
-    return cleanEndpoint.replace(/\//g, '_') + '.php';
+    // Re-append query string if it exists (but handle existing query params in phpEndpoint)
+    if (queryString) {
+        const separator = phpEndpoint.includes('?') ? '&' : '?';
+        phpEndpoint = phpEndpoint + separator + queryString;
+    }
+    
+    return phpEndpoint;
 }
 
 // ============================================================================
