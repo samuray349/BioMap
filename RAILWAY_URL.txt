@@ -1,9 +1,0 @@
-Railway PHP API URL:
-https://biomap-production.up.railway.app
-
-This URL is configured in:
-- public/js/config.js (PHP_API_BASE_URL)
-
-To switch between Node.js and PHP API:
-- Edit public/js/config.js
-- Change API_PROVIDER to 'nodejs' or 'php'
