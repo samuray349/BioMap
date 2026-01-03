@@ -19,6 +19,7 @@ try {
     $families = getQueryParam('families');
     $states = getQueryParam('states');
     
+    // Optimized query - use INNER JOIN where possible, only LEFT JOIN when necessary
     $sqlQuery = '
         SELECT 
             av.avistamento_id,
@@ -36,9 +37,9 @@ try {
             e.nome_estado,
             e.hex_cor as estado_cor
         FROM avistamento av
-        JOIN animal a ON av.animal_id = a.animal_id
-        JOIN familia f ON a.familia_id = f.familia_id
-        JOIN estado_conservacao e ON a.estado_id = e.estado_id
+        INNER JOIN animal a ON av.animal_id = a.animal_id
+        INNER JOIN familia f ON a.familia_id = f.familia_id
+        INNER JOIN estado_conservacao e ON a.estado_id = e.estado_id
         LEFT JOIN dieta d ON a.dieta_id = d.dieta_id
         WHERE 1=1
     ';

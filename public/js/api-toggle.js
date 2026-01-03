@@ -13,15 +13,20 @@ function initApiToggle() {
     }
     
     // Set initial state based on localStorage or default
+    // Read from localStorage which should persist across pages
     const saved = localStorage.getItem('apiProvider');
     const currentProvider = (saved === 'nodejs' || saved === 'php') ? saved : 'nodejs';
     toggle.checked = currentProvider === 'php';
     
+    // Remove any existing listeners to prevent duplicates
+    const newToggle = toggle.cloneNode(true);
+    toggle.parentNode.replaceChild(newToggle, toggle);
+    
     // Add change event listener
-    toggle.addEventListener('change', function() {
+    newToggle.addEventListener('change', function() {
         const newProvider = this.checked ? 'php' : 'nodejs';
         
-        // Save preference to localStorage
+        // Save preference to localStorage (persists across pages)
         localStorage.setItem('apiProvider', newProvider);
         
         // Reload the page to apply the new API provider

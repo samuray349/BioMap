@@ -59,6 +59,7 @@ require_funcao_or_redirect([1,2], 'login.php');
     
     <!-- Scripts -->
     <script src="js/config.js"></script>
+    <script src="js/api-toggle.js"></script>
     <script src="js/script.js"></script>
     <script>
     // Expose current user id and role to JS

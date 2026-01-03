@@ -15,6 +15,7 @@ checkAccess(ACCESS_ADMIN);
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
     <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/api-toggle.js"></script>
     <style>
         .preview-section {
             max-width: 1200px;

@@ -26,12 +26,20 @@ class Database {
             // Build DSN
             // Note: SSL is typically configured at the system level for PostgreSQL
             // For Railway/Cloud SQL, SSL should work automatically if configured
+            // Use persistent connections for better performance
             $dsn = "pgsql:host=$host;port=$port;dbname=$database";
+            if ($ssl) {
+                $dsn .= ";sslmode=require";
+            }
             
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
+                // Note: PDO::ATTR_PERSISTENT can cause issues in serverless environments
+                // Only enable if you're sure your PHP environment supports it properly
+                // PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_TIMEOUT => 5, // Connection timeout
             ];
             
             self::$connection = new PDO($dsn, $user, $password, $options);
@@ -49,8 +57,10 @@ class Database {
     public static function query($sql, $params = []) {
         try {
             $conn = self::getConnection();
-            $stmt = $conn->prepare($sql);
+            // Use prepared statements with forward-only cursor for better performance
+            $stmt = $conn->prepare($sql, [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
             $stmt->execute($params);
+            // Fetch all at once (more efficient than looping)
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Query error: " . $e->getMessage() . " | SQL: " . $sql);

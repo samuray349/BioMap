@@ -9,6 +9,7 @@
     <link href="css/styles.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
     <script src="js/config.js"></script>
+    <script src="js/api-toggle.js"></script>
 </head>
 <body>
     <div id="header-placeholder"></div>

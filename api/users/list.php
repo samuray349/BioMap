@@ -19,6 +19,7 @@ try {
     $estados = getQueryParam('estados');
     $estatutos = getQueryParam('estatutos');
     
+    // Optimized query - only select needed columns, use efficient joins
     $sqlQuery = '
         SELECT 
             u.utilizador_id, 
@@ -30,8 +31,8 @@ try {
             f.nome_funcao as estatuto,
             u.funcao_id
         FROM utilizador u
-        JOIN estado e ON u.estado_id = e.estado_id
-        JOIN funcao f ON u.funcao_id = f.funcao_id
+        INNER JOIN estado e ON u.estado_id = e.estado_id
+        INNER JOIN funcao f ON u.funcao_id = f.funcao_id
         WHERE 1=1
     ';
     

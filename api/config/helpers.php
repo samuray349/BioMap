@@ -5,12 +5,18 @@
 
 /**
  * Set CORS headers
+ * Optimized to avoid unnecessary processing
  */
 function setCorsHeaders() {
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
-    header('Content-Type: application/json');
+    // Only set headers if not already sent
+    if (!headers_sent()) {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        header('Content-Type: application/json; charset=utf-8');
+        // Add cache control for API responses (can be overridden per endpoint if needed)
+        header('Cache-Control: no-cache, must-revalidate');
+    }
 }
 
 /**

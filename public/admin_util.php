@@ -21,6 +21,7 @@ checkAccess(ACCESS_ADMIN);
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
     <script src="js/config.js"></script>
     <script src="js/session.js"></script>
+    <script src="js/api-toggle.js"></script>
 </head>
 <body>
     <!-- Header Placeholder -->

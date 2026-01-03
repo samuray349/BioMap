@@ -20,6 +20,7 @@ checkAccess(ACCESS_ADMIN);
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/api-toggle.js"></script>
     <style>
         /* Error styling for form fields */
         .input-field input.field-error,
