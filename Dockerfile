@@ -23,9 +23,11 @@ COPY composer.json composer.lock* /app/
 #     php composer.phar install --no-dev --optimize-autoloader; \
 #     fi
 
+# Make startup script executable
+RUN chmod +x /app/start-server.sh
+
 # Expose port (Railway will set $PORT)
 EXPOSE 8080
 
-# Start PHP built-in server
-# Railway will use startCommand from railway.json, but this is a fallback
-CMD php -S 0.0.0.0:${PORT:-8080} -t .
+# Start PHP built-in server using the startup script
+CMD ["/app/start-server.sh"]
