@@ -1,6 +1,12 @@
 # Frontend files - not needed for API deployment
 public/
 
+# PHP API files - deployed to Railway, not Vercel
+api/*.php
+api/**/*.php
+api/start-server.sh
+api/list-endpoints.php
+
 # PHP dependencies - not needed for Node.js API
 vendor/
 composer.json
