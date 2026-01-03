@@ -110,12 +110,14 @@ function mapToPhpEndpoint(nodeEndpoint) {
         }
     }
     
+    // Remove leading slash if present
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     
     let phpEndpoint;
     
     // Check direct mapping first (without query string)
-    if (ENDPOINT_MAP[cleanEndpoint]) {
+    // Use hasOwnProperty to ensure exact match
+    if (Object.prototype.hasOwnProperty.call(ENDPOINT_MAP, cleanEndpoint)) {
         phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
     } else {
         // Handle parameterized routes (e.g., users/123)
@@ -140,7 +142,9 @@ function mapToPhpEndpoint(nodeEndpoint) {
         if (!matched) {
             // Default: convert endpoint to PHP file name (last resort)
             // But this shouldn't happen if all endpoints are mapped
-            console.warn(`No mapping found for endpoint: ${cleanEndpoint}, using fallback conversion`);
+            console.error(`[PHP API] No mapping found for endpoint: "${cleanEndpoint}"`);
+            console.error(`[PHP API] Input endpoint was: "${nodeEndpoint}"`);
+            console.error(`[PHP API] Available mappings:`, Object.keys(ENDPOINT_MAP));
             phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
         }
     }
@@ -172,9 +176,15 @@ function getApiUrl(endpoint) {
         const cleanBaseUrl = PHP_API_BASE_URL.endsWith('/') ? PHP_API_BASE_URL.slice(0, -1) : PHP_API_BASE_URL;
         const finalUrl = `${cleanBaseUrl}/${cleanPhpEndpoint}`;
         
-        // Debug logging (can be removed in production)
-        if (typeof console !== 'undefined' && console.debug) {
-            console.debug('PHP API URL:', { endpoint, cleanEndpoint, phpEndpoint, cleanPhpEndpoint, finalUrl });
+        // Debug logging for PHP API - always log to help diagnose issues
+        if (typeof console !== 'undefined' && API_PROVIDER === 'php') {
+            console.log('[PHP API URL Mapping]', {
+                originalInput: endpoint,
+                cleanEndpoint: cleanEndpoint,
+                mappedPhpEndpoint: phpEndpoint,
+                cleanPhpEndpoint: cleanPhpEndpoint,
+                finalUrl: finalUrl
+            });
         }
         
         return finalUrl;
