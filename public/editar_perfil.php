@@ -232,7 +232,6 @@ $userId = $user['id'] ?? '';
                     setTimeout(() => {
                         window.location.href = 'perfil.php';
                     }, 1000);
-                });
                     
                 } catch (error) {
                     errorMessage.textContent = error.message || 'Erro ao atualizar perfil. Por favor, tente novamente.';
