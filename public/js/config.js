@@ -139,16 +139,25 @@ function mapToPhpEndpoint(nodeEndpoint) {
     if (typeof ENDPOINT_MAP === 'undefined') {
         console.error('[PHP API] ENDPOINT_MAP is undefined!');
         phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
-    } else if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint)) {
-        phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
-        directMappingFound = true;
-        console.log('[PHP API] ✓ Found direct mapping:', cleanEndpoint, '→', phpEndpoint, '(skipping fallback)');
-        // For base paths like 'api/alerts', keep them as-is so router can handle GET/POST
-        // Don't process further if it's already a base path mapping
+        directMappingFound = false;
+    } else {
+        // Debug: log the check
+        const hasMapping = ENDPOINT_MAP.hasOwnProperty(cleanEndpoint);
+        console.log('[PHP API] Checking mapping for:', cleanEndpoint, 'hasMapping:', hasMapping);
+        if (hasMapping) {
+            phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
+            directMappingFound = true;
+            console.log('[PHP API] ✓ Found direct mapping:', cleanEndpoint, '→', phpEndpoint, '(will skip fallback)');
+            // For base paths like 'api/alerts', keep them as-is so router can handle GET/POST
+        } else {
+            directMappingFound = false;
+            console.log('[PHP API] ✗ No direct mapping for:', cleanEndpoint, '- will use fallback');
+        }
     }
     
     // Only do fallback mapping if direct mapping wasn't found
     if (!directMappingFound) {
+        console.log('[PHP API] Executing fallback mapping for:', cleanEndpoint);
         // Handle parameterized routes (e.g., users/123)
         let matched = false;
         for (const [nodePattern, phpFile] of Object.entries(ENDPOINT_MAP)) {
@@ -197,9 +206,11 @@ function mapToPhpEndpoint(nodeEndpoint) {
                 phpEndpoint = withoutApi + '/list.php';
             } else if (cleanEndpoint.startsWith('api/')) {
                 // For api/alerts, keep as api/alerts (router handles GET/POST)
-                // Only convert to list.php if we're in the fallback (shouldn't happen)
+                // This fallback should only happen if direct mapping wasn't found
                 if (cleanEndpoint === 'api/alerts') {
+                    // This should have been caught by direct mapping, but if we're here, use router path
                     phpEndpoint = 'api/alerts'; // Keep base path for router
+                    console.warn('[PHP API] api/alerts not found in direct mapping, using fallback');
                 } else {
                     // Convert other api/* endpoints to */list.php
                     phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';

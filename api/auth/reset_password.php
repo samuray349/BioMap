@@ -37,7 +37,7 @@ try {
         'SELECT prt.token_id, prt.utilizador_id, prt.expires_at, prt.used, u.email
          FROM password_reset_tokens prt
          JOIN utilizador u ON prt.utilizador_id = u.utilizador_id
-         WHERE prt.token = $1',
+         WHERE prt.token = ?',
         [trim($token)]
     );
     
@@ -62,13 +62,13 @@ try {
     
     // Update password
     Database::execute(
-        'UPDATE utilizador SET password_hash = $1 WHERE utilizador_id = $2',
+        'UPDATE utilizador SET password_hash = ? WHERE utilizador_id = ?',
         [$passwordHash, $tokenData['utilizador_id']]
     );
     
     // Mark token as used
     Database::execute(
-        'UPDATE password_reset_tokens SET used = TRUE WHERE token_id = $1',
+        'UPDATE password_reset_tokens SET used = TRUE WHERE token_id = ?',
         [$tokenData['token_id']]
     );
     

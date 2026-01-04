@@ -23,7 +23,7 @@ try {
     
     $users = Database::query(
         'SELECT utilizador_id, nome_utilizador, email, password_hash, estado_id, funcao_id 
-         FROM utilizador WHERE email = $1 LIMIT 1',
+         FROM utilizador WHERE email = ? LIMIT 1',
         [$email]
     );
     

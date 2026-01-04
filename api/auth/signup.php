@@ -24,13 +24,13 @@ try {
     
     // Check if name already exists
     $existingName = Database::query(
-        'SELECT utilizador_id FROM utilizador WHERE nome_utilizador = $1',
+        'SELECT utilizador_id FROM utilizador WHERE nome_utilizador = ?',
         [$name]
     );
     
     // Check if email already exists
     $existingEmail = Database::query(
-        'SELECT utilizador_id FROM utilizador WHERE email = $1',
+        'SELECT utilizador_id FROM utilizador WHERE email = ?',
         [$email]
     );
     
@@ -61,7 +61,7 @@ try {
     
     $result = Database::insert(
         'INSERT INTO utilizador (nome_utilizador, email, password_hash, funcao_id, estado_id, data_criacao) 
-         VALUES ($1, $2, $3, 2, 1, NOW())',
+         VALUES (?, ?, ?, 2, 1, NOW())',
         [$name, $email, $passwordHash]
     );
     

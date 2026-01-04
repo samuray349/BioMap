@@ -32,7 +32,7 @@ try {
     
     // Check if user exists
     $users = Database::query(
-        'SELECT utilizador_id, nome_utilizador, email FROM utilizador WHERE email = $1',
+        'SELECT utilizador_id, nome_utilizador, email FROM utilizador WHERE email = ?',
         [$email]
     );
     
@@ -68,13 +68,13 @@ try {
     
     // Invalidate any existing tokens for this user
     Database::execute(
-        'UPDATE password_reset_tokens SET used = TRUE WHERE utilizador_id = $1 AND used = FALSE',
+        'UPDATE password_reset_tokens SET used = TRUE WHERE utilizador_id = ? AND used = FALSE',
         [$user['utilizador_id']]
     );
     
     // Store token in database
     Database::insert(
-        'INSERT INTO password_reset_tokens (utilizador_id, token, expires_at) VALUES ($1, $2, $3)',
+        'INSERT INTO password_reset_tokens (utilizador_id, token, expires_at) VALUES (?, ?, ?)',
         [$user['utilizador_id'], $resetToken, $expiresAt]
     );
     

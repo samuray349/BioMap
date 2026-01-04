@@ -37,7 +37,7 @@ try {
     
     // Check if avistamento exists and get creator ID
     $avistamento = Database::queryOne(
-        'SELECT utilizador_id FROM avistamento WHERE avistamento_id = $1',
+        'SELECT utilizador_id FROM avistamento WHERE avistamento_id = ?',
         [$id]
     );
     
@@ -55,7 +55,7 @@ try {
     
     // Delete avistamento
     Database::execute(
-        'DELETE FROM avistamento WHERE avistamento_id = $1',
+        'DELETE FROM avistamento WHERE avistamento_id = ?',
         [$id]
     );
     

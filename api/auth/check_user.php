@@ -28,7 +28,7 @@ try {
     
     if ($name) {
         $result = Database::query(
-            'SELECT utilizador_id FROM utilizador WHERE nome_utilizador = $1',
+            'SELECT utilizador_id FROM utilizador WHERE nome_utilizador = ?',
             [trim($name)]
         );
         $nameExists = count($result) > 0;
@@ -36,7 +36,7 @@ try {
     
     if ($email) {
         $result = Database::query(
-            'SELECT utilizador_id FROM utilizador WHERE email = $1',
+            'SELECT utilizador_id FROM utilizador WHERE email = ?',
             [trim($email)]
         );
         $emailExists = count($result) > 0;
