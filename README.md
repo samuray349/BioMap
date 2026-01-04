@@ -32,7 +32,7 @@ A preferência do utilizador é guardada no `localStorage` do navegador e persis
 
 | Propriedade | Node.js API | PHP API |
 |------------|-------------|---------|
-| **Hospedagem** | Vercel | Railway |
+| **Hosting** | Vercel | Railway |
 | **URL Local** | `http://localhost:3000` | `https://biomap-production.up.railway.app` |
 | **URL Produção** | `https://bio-map-xi.vercel.app` | `https://biomap-production.up.railway.app` |
 | **Framework** | Express.js (Node.js) | Slim Framework (PHP) |
