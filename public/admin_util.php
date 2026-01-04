@@ -140,7 +140,7 @@ checkAccess(ACCESS_ADMIN);
     
     <!-- Scripts -->
     <script src="js/script.js"></script>
-    <script src="js/users.js?v=2"></script>
+    <script src="js/users.js"></script>
     <script>
         // Load header when page loads
         document.addEventListener('DOMContentLoaded', function () {

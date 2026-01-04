@@ -11,11 +11,11 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
   <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
 
-  <link rel="stylesheet" href="css/styles.css?v=5">
-  <script src="js/config.js?v=<?php echo time(); ?>"></script>
-  <script src="js/session.js?v=<?php echo time(); ?>"></script>
-  <script src="js/api-toggle.js?v=<?php echo time(); ?>"></script>
-  <script src="js/script.js?v=<?php echo time(); ?>"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/config.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/api-toggle.js"></script>
+  <script src="js/script.js"></script>
   
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMap&loading=async">
@@ -222,7 +222,7 @@
   <!-- Notification Container -->
   <div id="notification-container" class="notification-container"></div>
 
-  <script src="js/animals.js?v=<?php echo time(); ?>"></script>
+  <script src="js/animals.js"></script>
   
   
 <script>

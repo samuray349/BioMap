@@ -14,7 +14,7 @@ checkAccess(ACCESS_ADMIN);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
-    <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/config.js"></script>
     <script src="js/api-toggle.js"></script>
     <style>
         .preview-section {
@@ -873,7 +873,7 @@ checkAccess(ACCESS_ADMIN);
             </section>
     </main>
 
-    <script src="js/script.js?v=<?php echo time(); ?>"></script>
+    <script src="js/script.js"></script>
 <script>
     loadHeader();
     highlightCurrentPage();
