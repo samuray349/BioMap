@@ -132,6 +132,7 @@ function mapToPhpEndpoint(nodeEndpoint) {
     }
     
     let phpEndpoint;
+    let directMappingFound = false;
     
     // Check direct mapping first (without query string)
     // Use hasOwnProperty to ensure exact match and log if ENDPOINT_MAP is undefined
@@ -140,10 +141,14 @@ function mapToPhpEndpoint(nodeEndpoint) {
         phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
     } else if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint)) {
         phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
-        console.log('[PHP API] ✓ Found mapping:', cleanEndpoint, '→', phpEndpoint);
+        directMappingFound = true;
+        console.log('[PHP API] ✓ Found direct mapping:', cleanEndpoint, '→', phpEndpoint, '(skipping fallback)');
         // For base paths like 'api/alerts', keep them as-is so router can handle GET/POST
         // Don't process further if it's already a base path mapping
-    } else {
+    }
+    
+    // Only do fallback mapping if direct mapping wasn't found
+    if (!directMappingFound) {
         // Handle parameterized routes (e.g., users/123)
         let matched = false;
         for (const [nodePattern, phpFile] of Object.entries(ENDPOINT_MAP)) {
@@ -174,6 +179,7 @@ function mapToPhpEndpoint(nodeEndpoint) {
             }
         }
         
+        // Only do fallback if no parameterized route matched
         if (!matched) {
             // Default: convert endpoint to PHP file name (last resort)
             // But this shouldn't happen if all endpoints are mapped
