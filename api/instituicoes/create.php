@@ -152,8 +152,8 @@ try {
                 trim($localizacao_texto),
                 trim($telefone_contacto),
                 $finalImageUrl,
-                $lon,
-                $lat,
+                $lon,  // ST_MakePoint expects (longitude, latitude) - first parameter is longitude (X)
+                $lat,  // Second parameter is latitude (Y)
                 trim($dias_aberto),
                 trim($hora_abertura),
                 trim($hora_fecho)

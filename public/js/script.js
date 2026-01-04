@@ -1127,13 +1127,16 @@ async function loadInstituicoes() {
     }
 
     instituicoes.forEach((instituicao, index) => {
-      // Extract coordinates from API (same format as avistamentos)
-      const lat = parseFloat(instituicao.latitude);
-      const lng = parseFloat(instituicao.longitude);
+      // Extract coordinates from API
+      // Note: The API returns latitude/longitude, but due to how PostGIS stores them,
+      // we need to swap the values: the "latitude" field contains longitude and vice versa
+      const apiLat = parseFloat(instituicao.latitude);
+      const apiLng = parseFloat(instituicao.longitude);
       
+      // Swap them: API's "latitude" field contains longitude value, and "longitude" field contains latitude value
       const position = {
-        lat: lat,
-        lng: lng
+        lat: apiLng,  // Use longitude field value as latitude
+        lng: apiLat   // Use latitude field value as longitude
       };
 
       console.log(`loadInstituicoes: Processing instituição ${index + 1}/${instituicoes.length}:`, {
