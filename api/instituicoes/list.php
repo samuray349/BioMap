@@ -49,13 +49,11 @@ try {
     ';
     
     $params = [];
-    $paramCounter = 1;
     
     if ($search) {
-        $sqlQuery .= " AND (i.nome ILIKE $" . $paramCounter . " OR i.localizacao_texto ILIKE $" . ($paramCounter + 1) . ")";
+        $sqlQuery .= " AND (i.nome ILIKE ? OR i.localizacao_texto ILIKE ?)";
         $params[] = '%' . $search . '%';
         $params[] = '%' . $search . '%';
-        $paramCounter += 2;
     }
     
     $sqlQuery .= ' ORDER BY i.instituicao_id';

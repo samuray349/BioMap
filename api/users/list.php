@@ -44,13 +44,11 @@ try {
     ';
     
     $params = [];
-    $paramCounter = 1;
     
     if ($search) {
-        $sqlQuery .= " AND (u.nome_utilizador ILIKE $" . $paramCounter . " OR u.email ILIKE $" . ($paramCounter + 1) . ")";
+        $sqlQuery .= " AND (u.nome_utilizador ILIKE ? OR u.email ILIKE ?)";
         $params[] = '%' . $search . '%';
         $params[] = '%' . $search . '%';
-        $paramCounter += 2;
     }
     
     if ($estados) {
@@ -58,9 +56,8 @@ try {
         // Use IN clause instead of ANY for compatibility
         $placeholders = [];
         foreach ($estadoArray as $estado) {
-            $placeholders[] = '$' . $paramCounter;
+            $placeholders[] = '?';
             $params[] = trim($estado);
-            $paramCounter++;
         }
         $sqlQuery .= " AND e.nome_estado IN (" . implode(', ', $placeholders) . ")";
     }
@@ -70,9 +67,8 @@ try {
         // Use IN clause instead of ANY for compatibility
         $placeholders = [];
         foreach ($estatutoArray as $estatuto) {
-            $placeholders[] = '$' . $paramCounter;
+            $placeholders[] = '?';
             $params[] = trim($estatuto);
-            $paramCounter++;
         }
         $sqlQuery .= " AND f.nome_funcao IN (" . implode(', ', $placeholders) . ")";
     }

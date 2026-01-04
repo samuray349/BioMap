@@ -35,7 +35,7 @@ class Database {
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_EMULATE_PREPARES => true, // Enable emulation to support ? placeholders
                 // Note: PDO::ATTR_PERSISTENT can cause issues in serverless environments
                 // Only enable if you're sure your PHP environment supports it properly
                 // PDO::ATTR_PERSISTENT => true,

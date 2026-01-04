@@ -52,21 +52,18 @@ try {
     ';
     
     $params = [];
-    $paramCounter = 1;
     
     if ($search) {
-        $sqlQuery .= " AND (a.nome_comum ILIKE $" . $paramCounter . ")";
+        $sqlQuery .= " AND (a.nome_comum ILIKE ?)";
         $params[] = '%' . $search . '%';
-        $paramCounter++;
     }
     
     if ($families) {
         $familyArray = explode(',', $families);
         $placeholders = [];
         foreach ($familyArray as $family) {
-            $placeholders[] = '$' . $paramCounter;
+            $placeholders[] = '?';
             $params[] = trim($family);
-            $paramCounter++;
         }
         $sqlQuery .= " AND f.nome_familia IN (" . implode(', ', $placeholders) . ")";
     }
@@ -75,9 +72,8 @@ try {
         $stateArray = explode(',', $states);
         $placeholders = [];
         foreach ($stateArray as $state) {
-            $placeholders[] = '$' . $paramCounter;
+            $placeholders[] = '?';
             $params[] = trim($state);
-            $paramCounter++;
         }
         $sqlQuery .= " AND e.nome_estado IN (" . implode(', ', $placeholders) . ")";
     }
