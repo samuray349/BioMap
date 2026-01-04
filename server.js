@@ -1782,8 +1782,8 @@ app.get('/instituicoes', async (req, res) => {
         i.dias_aberto,
         i.hora_abertura,
         i.hora_fecho,
-        ST_Y(i."localização"::geometry) as latitude,
-        ST_X(i."localização"::geometry) as longitude
+        CAST(ST_Y(i."localização"::geometry) AS NUMERIC(10, 8)) as latitude,
+        CAST(ST_X(i."localização"::geometry) AS NUMERIC(11, 8)) as longitude
       FROM instituicao i
       WHERE 1=1
     `;
@@ -1827,8 +1827,8 @@ app.get('/instituicoesDesc/:id', async (req, res) => {
         i.dias_aberto,
         i.hora_abertura,
         i.hora_fecho,
-        ST_Y(i."localização"::geometry) as latitude,
-        ST_X(i."localização"::geometry) as longitude
+        CAST(ST_Y(i."localização"::geometry) AS NUMERIC(10, 8)) as latitude,
+        CAST(ST_X(i."localização"::geometry) AS NUMERIC(11, 8)) as longitude
       FROM instituicao i
       WHERE i.instituicao_id = $1
     `;
@@ -2185,9 +2185,10 @@ app.put('/instituicoes/:id', async (req, res) => {
     }
 
     // Add location if provided
+    // ST_MakePoint expects (longitude, latitude) - first parameter is longitude (X)
     if (localizacao && !isNaN(lat) && !isNaN(lon)) {
-      updateQuery += `, "localização" = ST_SetSRID(ST_MakePoint($${updateParams.length + 2}, $${updateParams.length + 1}), 4326)::geography`;
-      updateParams.push(lon, lat);
+      updateQuery += `, "localização" = ST_SetSRID(ST_MakePoint($${updateParams.length + 1}, $${updateParams.length + 2}), 4326)::geography`;
+      updateParams.push(lon, lat);  // Push lon first, then lat
     }
 
     updateQuery += ` WHERE instituicao_id = $${updateParams.length + 1}`;

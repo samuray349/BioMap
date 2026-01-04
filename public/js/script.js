@@ -1127,10 +1127,14 @@ async function loadInstituicoes() {
     }
 
     instituicoes.forEach((instituicao, index) => {
-      // Extract coordinates from API
+      // Extract coordinates from API - handle both numeric and string formats
+      // Both PHP and Node.js APIs return latitude/longitude fields
+      const latValue = instituicao.latitude != null ? instituicao.latitude : instituicao.lat;
+      const lngValue = instituicao.longitude != null ? instituicao.longitude : (instituicao.lng != null ? instituicao.lng : instituicao.lon);
+      
       const position = {
-        lat: parseFloat(instituicao.latitude),
-        lng: parseFloat(instituicao.longitude)
+        lat: typeof latValue === 'number' ? latValue : parseFloat(latValue),
+        lng: typeof lngValue === 'number' ? lngValue : parseFloat(lngValue)
       };
 
 

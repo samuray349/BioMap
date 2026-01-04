@@ -551,20 +551,26 @@ checkAccess(ACCESS_ADMIN);
                     if (typeof window.selectedLatLng !== 'undefined' && window.selectedLatLng) {
                         const lat = typeof window.selectedLatLng.lat === 'function' ? window.selectedLatLng.lat() : window.selectedLatLng.lat;
                         const lng = typeof window.selectedLatLng.lng === 'function' ? window.selectedLatLng.lng() : window.selectedLatLng.lng;
+                        // Ensure coordinates are numbers
                         localizacao = {
-                            lat: lat,
-                            lon: lng
+                            lat: typeof lat === 'number' ? lat : parseFloat(lat),
+                            lon: typeof lng === 'number' ? lng : parseFloat(lng)
                         };
                     } else {
                         // Fallback: try to parse coordinates from input if it's still in coordinate format
+                        // Format should be "latitude,longitude" (lat first, then lon)
                         const locationInputValue = document.getElementById('location-search')?.value?.trim();
                         if (locationInputValue) {
                             const coordsMatch = locationInputValue.match(/(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)/);
-                            if (coordsMatch) {
-                                localizacao = {
-                                    lat: parseFloat(coordsMatch[1]),
-                                    lon: parseFloat(coordsMatch[2])
-                                };
+                            if (coordsMatch && coordsMatch.length === 3) {
+                                const parsedLat = parseFloat(coordsMatch[1]);
+                                const parsedLon = parseFloat(coordsMatch[2]);
+                                if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
+                                    localizacao = {
+                                        lat: parsedLat,
+                                        lon: parsedLon
+                                    };
+                                }
                             }
                         }
                     }

@@ -36,8 +36,8 @@ try {
             i.dias_aberto,
             i.hora_abertura,
             i.hora_fecho,
-            ST_Y(i."localização"::geometry) as latitude,
-            ST_X(i."localização"::geometry) as longitude
+            CAST(ST_Y(i."localização"::geometry) AS NUMERIC(10, 8)) as latitude,
+            CAST(ST_X(i."localização"::geometry) AS NUMERIC(11, 8)) as longitude
          FROM instituicao i
          WHERE i.instituicao_id = ?',
         [$id]
@@ -45,6 +45,14 @@ try {
     
     if (!$instituicao) {
         sendError('Instituição not found', 404);
+    }
+    
+    // Ensure coordinates are numeric (convert from string to float if needed)
+    if (isset($instituicao['latitude'])) {
+        $instituicao['latitude'] = (float)$instituicao['latitude'];
+    }
+    if (isset($instituicao['longitude'])) {
+        $instituicao['longitude'] = (float)$instituicao['longitude'];
     }
     
     sendJson($instituicao);

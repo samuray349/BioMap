@@ -34,8 +34,8 @@ try {
             i.dias_aberto,
             i.hora_abertura,
             i.hora_fecho,
-            ST_Y(i."localização"::geometry) as latitude,
-            ST_X(i."localização"::geometry) as longitude
+            CAST(ST_Y(i."localização"::geometry) AS NUMERIC(10, 8)) as latitude,
+            CAST(ST_X(i."localização"::geometry) AS NUMERIC(11, 8)) as longitude
         FROM instituicao i
         WHERE 1=1
     ';
@@ -51,6 +51,18 @@ try {
     $sqlQuery .= ' ORDER BY i.instituicao_id';
     
     $results = Database::query($sqlQuery, $params);
+    
+    // Ensure coordinates are numeric (convert from string to float if needed)
+    foreach ($results as &$row) {
+        if (isset($row['latitude'])) {
+            $row['latitude'] = (float)$row['latitude'];
+        }
+        if (isset($row['longitude'])) {
+            $row['longitude'] = (float)$row['longitude'];
+        }
+    }
+    unset($row); // Break reference
+    
     sendJson($results);
 } catch (Exception $e) {
     error_log('Erro ao executar a query: ' . $e->getMessage());
