@@ -1143,12 +1143,14 @@ async function loadInstituicoes() {
         nome: instituicao.nome,
         latitude: instituicao.latitude,
         longitude: instituicao.longitude,
-        parsed_lat: lat,
-        parsed_lng: lng
+        parsed_lat: apiLat,
+        parsed_lng: apiLng,
+        swapped_lat: position.lat,
+        swapped_lng: position.lng
       });
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
-        console.warn('Invalid coordinates for instituição:', instituicao.nome, 'lat:', lat, 'lng:', lng, 'raw data:', instituicao);
+        console.warn('Invalid coordinates for instituição:', instituicao.nome, 'lat:', position.lat, 'lng:', position.lng, 'raw data:', instituicao);
         return;
       }
 
