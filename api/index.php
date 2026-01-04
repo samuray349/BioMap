@@ -12,8 +12,15 @@ handlePreflight();
 $requestUri = $_SERVER['REQUEST_URI'];
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-// Remove query string
+// Parse URL to get path and query string
 $path = parse_url($requestUri, PHP_URL_PATH);
+$queryString = parse_url($requestUri, PHP_URL_QUERY);
+
+// Ensure $_GET is populated from query string (PHP built-in server with router might not auto-populate)
+if (!empty($queryString)) {
+    parse_str($queryString, $queryParams);
+    $_GET = array_merge($_GET, $queryParams);
+}
 
 // Health check
 if ($path === '/health' || $path === '/health.php') {
