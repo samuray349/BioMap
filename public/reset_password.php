@@ -6,10 +6,10 @@
     <title>BioMap - Atualizar Password</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/styles.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
-    <script src="js/config.js"></script>
-    <script src="js/api-toggle.js"></script>
+    <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/api-toggle.js?v=<?php echo time(); ?>"></script>
 </head>
 <body>
     <div id="header-placeholder"></div>
@@ -58,8 +58,8 @@
     </div>
 
     <script src="../../shared/js/form-utils.js"></script>
-    <script src="js/script-login.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/script-login.js?v=<?php echo time(); ?>"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
     <script>
         if (typeof loadHeader === 'function') {
             loadHeader();

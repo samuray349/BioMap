@@ -19,7 +19,7 @@ require_once 'session_helper.php';
 <head>
     <meta charset="UTF-8">
     <title>Session Example - PHP + JavaScript</title>
-    <script src="js/session.js"></script>
+    <script src="js/session.js?v=<?php echo time(); ?>"></script>
 </head>
 <body>
     <h1>Session Example</h1>

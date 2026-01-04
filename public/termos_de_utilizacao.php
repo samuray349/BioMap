@@ -9,11 +9,11 @@
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
     
-    <script src="js/config.js"></script>
-    <script src="js/api-toggle.js"></script>
+    <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/api-toggle.js?v=<?php echo time(); ?>"></script>
 
     <style>
         .terms-content {
@@ -202,7 +202,7 @@
         </div>
     </main>
     
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
     <script>
         // Load header and highlight nav link
         if (typeof loadHeader === 'function') {

@@ -12,10 +12,10 @@ checkAccess(ACCESS_ADMIN);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
-    <script src="js/config.js"></script>
-    <script src="js/api-toggle.js"></script>
+    <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/api-toggle.js?v=<?php echo time(); ?>"></script>
     <style>
         /* Error styling for form fields */
         .input-field input.field-error,
@@ -377,7 +377,7 @@ checkAccess(ACCESS_ADMIN);
     </div>
 
     <!-- Scripts -->
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
     <!-- Google Maps API with callback to the global function in script.js -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPikkMWW5AerEd4av-nwnTgqksXuaUiws&callback=initMapPicker&libraries=places&v=weekly&loading=async" defer></script>
     

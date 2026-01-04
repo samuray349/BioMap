@@ -17,11 +17,11 @@ checkAccess(ACCESS_ADMIN);
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
-    <script src="js/config.js"></script>
-    <script src="js/session.js"></script>
-    <script src="js/api-toggle.js"></script>
+    <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/session.js?v=<?php echo time(); ?>"></script>
+    <script src="js/api-toggle.js?v=<?php echo time(); ?>"></script>
 </head>
 <body>
     <!-- Header Placeholder -->
@@ -139,8 +139,8 @@ checkAccess(ACCESS_ADMIN);
     </main>
     
     <!-- Scripts -->
-    <script src="js/script.js"></script>
-    <script src="js/users.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
+    <script src="js/users.js?v=<?php echo time(); ?>"></script>
     <script>
         // Load header when page loads
         document.addEventListener('DOMContentLoaded', function () {

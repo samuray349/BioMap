@@ -18,9 +18,9 @@ checkAccess(ACCESS_ADMIN);
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="js/config.js"></script>
-    <script src="js/api-toggle.js"></script>
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
+    <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/api-toggle.js?v=<?php echo time(); ?>"></script>
     <style>
         /* Error styling for form fields */
         .input-field input.field-error,
@@ -249,8 +249,8 @@ checkAccess(ACCESS_ADMIN);
     </div>
     
     <!-- Scripts -->
-    <script src="js/script.js"></script>
-    <script src="js/animals.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
+    <script src="js/animals.js?v=<?php echo time(); ?>"></script>
     <script>
         // Tag arrays specific to admin_animal.php
         let adminFamilyTags = [];

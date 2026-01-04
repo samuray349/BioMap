@@ -5,6 +5,7 @@ checkAccess(ACCESS_USER);
 // Get current user data
 $user = getCurrentUser();
 $userName = $user['name'] ?? '';
+$userEmail = $user['email'] ?? '';
 $userId = $user['id'] ?? '';
 ?>
 <!DOCTYPE html>
@@ -57,6 +58,13 @@ $userId = $user['id'] ?? '';
                         </div>
                     </div>
                     
+                    <div class="form-group">
+                        <label for="email" style="color: var(--accent-color); display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($userEmail); ?>" required>
+                        </div>
+                    </div>
+                    
                     <div id="errorMessage" class="error-message" style="display: none;"></div>
                     <div id="successMessage" class="success-message" style="display: none;"></div>
                     
@@ -102,11 +110,25 @@ $userId = $user['id'] ?? '';
                 }
                 
                 const username = document.getElementById('username').value.trim();
-                const userEmail = user.email || ''; // Get email from session
+                const email = document.getElementById('email').value.trim();
                 
                 // Basic validation
                 if (!username) {
                     errorMessage.textContent = 'Por favor, preencha o campo do nome.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                if (!email) {
+                    errorMessage.textContent = 'Por favor, preencha o campo do email.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Email format validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    errorMessage.textContent = 'Por favor, insira um email válido.';
                     errorMessage.style.display = 'block';
                     return;
                 }
@@ -125,7 +147,8 @@ $userId = $user['id'] ?? '';
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            nome_utilizador: username
+                            nome_utilizador: username,
+                            email: email
                         })
                     });
                     
@@ -135,27 +158,51 @@ $userId = $user['id'] ?? '';
                         throw new Error(data?.error || 'Erro ao atualizar perfil.');
                     }
                     
-                    // Update session data
+                    // Update session data with API response data
+                    // Map API response fields to session format
+                    // API returns: utilizador_id, nome_utilizador, email (and possibly funcao_id, estado_id)
+                    // Session expects: id, name, email, funcao_id, etc.
                     if (user) {
-                        user.name = username;
+                        // Update with API response data if available
+                        if (data.nome_utilizador !== undefined) {
+                            user.name = data.nome_utilizador;
+                        } else {
+                            user.name = username; // Fallback to form value
+                        }
                         
-                        // Update cookie
-                        if (SessionHelper) {
+                        if (data.email !== undefined) {
+                            user.email = data.email;
+                        } else {
+                            user.email = email; // Fallback to form value
+                        }
+                        
+                        // Preserve other session fields that weren't updated
+                        // (funcao_id, estado_id, etc. should remain unchanged)
+                        
+                        // Update cookie (used by PHP and JavaScript)
+                        if (typeof SessionHelper !== 'undefined' && SessionHelper.setUser) {
                             SessionHelper.setUser(user);
                         } else {
                             setCookie('biomap_user', JSON.stringify(user), 7);
                         }
                         
-                        // Update localStorage (needed for header update)
+                        // Update localStorage (needed for header update and JavaScript)
                         localStorage.setItem('biomapUser', JSON.stringify(user));
                         
-                        // Update PHP session
-                        fetch('set_session.php', {
+                        // Update PHP session on server side and wait for it to complete
+                        await fetch('set_session.php', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({ user: user })
+                        }).then(response => {
+                            if (!response.ok) {
+                                console.warn('Failed to update PHP session:', response.statusText);
+                            } else {
+                                console.log('Session updated successfully');
+                            }
+                            return response;
                         }).catch(err => {
                             console.warn('Failed to update PHP session:', err);
                         });
@@ -165,22 +212,27 @@ $userId = $user['id'] ?? '';
                     successMessage.textContent = 'Perfil atualizado com sucesso!';
                     successMessage.style.display = 'block';
                     
-                    // Update banner
+                    // Update banner with updated name from session
                     const profileName = document.querySelector('.profile-name');
-                    if (profileName) profileName.textContent = username;
+                    if (profileName && user && user.name) {
+                        profileName.textContent = user.name;
+                    }
                     
-                    // Update header with new name
+                    // Update header with new name (triggers header refresh)
                     if (typeof applyHeaderAuthState === 'function') {
                         applyHeaderAuthState();
                     }
                     
-                    // Redirect to canonical profile page
-                    const redirectUrl = 'perfil.php';
+                    // Also trigger a header reload if available
+                    if (typeof loadHeader === 'function') {
+                        loadHeader();
+                    }
                     
-                    // Redirect after 1.5 seconds
+                    // Redirect to canonical profile page after a short delay
                     setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 1500);
+                        window.location.href = 'perfil.php';
+                    }, 1000);
+                });
                     
                 } catch (error) {
                     errorMessage.textContent = error.message || 'Erro ao atualizar perfil. Por favor, tente novamente.';

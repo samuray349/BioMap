@@ -75,7 +75,7 @@
     <div id="notification-container" class="notification-container"></div>
 
     <script src="../../shared/js/form-utils.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
     <script>
         (function() {
             const form = document.getElementById('signupForm');

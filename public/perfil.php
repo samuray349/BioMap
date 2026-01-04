@@ -27,11 +27,11 @@ $profileEmail = htmlspecialchars($user['email'] ?? '[Email]', ENT_QUOTES | ENT_S
     <title>BioMap - <?= $isAdmin ? 'Perfil Admin' : 'Perfil' ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
-    <script src="js/config.js"></script>
-    <script src="js/session.js"></script>
-    <script src="js/api-toggle.js"></script>
+    <script src="js/config.js?v=<?php echo time(); ?>"></script>
+    <script src="js/session.js?v=<?php echo time(); ?>"></script>
+    <script src="js/api-toggle.js?v=<?php echo time(); ?>"></script>
 </head>
 <body<?= $isAdmin ? ' class="admin-dashboard-page"' : '' ?>>
     <div id="header-placeholder"></div>
@@ -154,7 +154,7 @@ $profileEmail = htmlspecialchars($user['email'] ?? '[Email]', ENT_QUOTES | ENT_S
         </a>
     </footer>
 
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=<?php echo time(); ?>"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof loadHeader === 'function') loadHeader();
