@@ -365,7 +365,6 @@ function renderUserTable(users, tbody) {
                 
             } catch (error) {
                 console.error('Erro ao atualizar estatuto:', error);
-                alert(error.message || 'Erro ao atualizar estatuto. Por favor, tente novamente.');
                 this.textContent = originalText;
             } finally {
                 this.style.pointerEvents = 'auto';
@@ -413,7 +412,6 @@ function renderUserTable(users, tbody) {
                     
                 } catch (error) {
                     console.error('Erro ao suspender utilizador:', error);
-                    alert(error.message || 'Erro ao suspender utilizador. Por favor, tente novamente.');
                 }
             }, function onCancel() {
                 // No-op on cancel
@@ -451,9 +449,6 @@ function renderUserTable(users, tbody) {
                         throw new Error(result?.error || 'Erro ao reverter suspensão.');
                     }
                     
-                    // Show success message
-                    alert('Suspensão revertida com sucesso. O utilizador foi restaurado para o estado normal.');
-                    
                     // Reload the users table to show updated status
                     if (typeof window.loadUsers === 'function') {
                         window.loadUsers();
@@ -463,7 +458,6 @@ function renderUserTable(users, tbody) {
                     
                 } catch (error) {
                     console.error('Erro ao reverter suspensão:', error);
-                    alert(error.message || 'Erro ao reverter suspensão. Por favor, tente novamente.');
                 }
             }, function onCancel() {
                 // No-op on cancel
@@ -504,9 +498,6 @@ function renderUserTable(users, tbody) {
                         throw new Error(result?.error || 'Erro ao banir utilizador.');
                     }
                     
-                    // Show success message
-                    alert('Utilizador banido com sucesso. Os avistamentos foram apagados.');
-                    
                     // Reload the users table to show updated status
                     if (typeof window.loadUsers === 'function') {
                         window.loadUsers();
@@ -516,7 +507,6 @@ function renderUserTable(users, tbody) {
                     
                 } catch (error) {
                     console.error('Erro ao banir utilizador:', error);
-                    alert(error.message || 'Erro ao banir utilizador. Por favor, tente novamente.');
                 }
             }, function onCancel() {
                 // No-op on cancel
@@ -558,9 +548,6 @@ function renderUserTable(users, tbody) {
                         throw new Error(result?.error || 'Erro ao reverter banimento.');
                     }
                     
-                    // Show success message
-                    alert('Banimento revertido com sucesso. O utilizador foi restaurado para o estado normal.');
-                    
                     // Reload the users table to show updated status
                     if (typeof window.loadUsers === 'function') {
                         window.loadUsers();
@@ -570,7 +557,6 @@ function renderUserTable(users, tbody) {
                     
                 } catch (error) {
                     console.error('Erro ao reverter banimento:', error);
-                    alert(error.message || 'Erro ao reverter banimento. Por favor, tente novamente.');
                 }
             }, function onCancel() {
                 // No-op on cancel
