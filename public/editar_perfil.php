@@ -94,18 +94,41 @@ $userId = $user['id'] ?? '';
             const successMessage = document.getElementById('successMessage');
             const submitButton = form.querySelector('.confirm-button');
             
+            function showError(message) {
+                // Show notification for errors
+                if (typeof showNotification === 'function') {
+                    showNotification(message, 'error');
+                }
+                // Also show in error message div for backwards compatibility
+                if (errorMessage) {
+                    errorMessage.textContent = message;
+                    errorMessage.style.display = 'block';
+                }
+            }
+            
+            function showSuccess(message) {
+                // Show notification for success
+                if (typeof showNotification === 'function') {
+                    showNotification(message, 'success');
+                }
+                // Also show in success message div for backwards compatibility
+                if (successMessage) {
+                    successMessage.textContent = message;
+                    successMessage.style.display = 'block';
+                }
+            }
+            
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 // Hide previous messages
-                errorMessage.style.display = 'none';
-                successMessage.style.display = 'none';
+                if (errorMessage) errorMessage.style.display = 'none';
+                if (successMessage) successMessage.style.display = 'none';
                 
                 // Get current user from session
                 const user = SessionHelper?.getCurrentUser() || JSON.parse(getCookie('biomap_user') || '{}');
                 if (!user || !user.id) {
-                    errorMessage.textContent = 'Erro: Sessão inválida. Por favor, inicie sessão novamente.';
-                    errorMessage.style.display = 'block';
+                    showError('Erro: Sessão inválida. Por favor, inicie sessão novamente.');
                     return;
                 }
                 
@@ -114,22 +137,19 @@ $userId = $user['id'] ?? '';
                 
                 // Basic validation
                 if (!username) {
-                    errorMessage.textContent = 'Por favor, preencha o campo do nome.';
-                    errorMessage.style.display = 'block';
+                    showError('Por favor, preencha o campo do nome.');
                     return;
                 }
                 
                 if (!email) {
-                    errorMessage.textContent = 'Por favor, preencha o campo do email.';
-                    errorMessage.style.display = 'block';
+                    showError('Por favor, preencha o campo do email.');
                     return;
                 }
                 
                 // Email format validation
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
-                    errorMessage.textContent = 'Por favor, insira um email válido.';
-                    errorMessage.style.display = 'block';
+                    showError('Por favor, insira um email válido.');
                     return;
                 }
                 
@@ -155,7 +175,9 @@ $userId = $user['id'] ?? '';
                     const data = await response.json();
                     
                     if (!response.ok) {
-                        throw new Error(data?.error || 'Erro ao atualizar perfil.');
+                        const errorMsg = data?.error || 'Erro ao atualizar perfil.';
+                        showError(errorMsg);
+                        throw new Error(errorMsg);
                     }
                     
                     // Update session data with API response data
@@ -208,9 +230,8 @@ $userId = $user['id'] ?? '';
                         });
                     }
                     
-                    // Show success message
-                    successMessage.textContent = 'Perfil atualizado com sucesso!';
-                    successMessage.style.display = 'block';
+                    // Show success notification
+                    showSuccess('Perfil atualizado com sucesso!');
                     
                     // Update banner with updated name from session
                     const profileName = document.querySelector('.profile-name');
@@ -234,8 +255,10 @@ $userId = $user['id'] ?? '';
                     }, 1000);
                     
                 } catch (error) {
-                    errorMessage.textContent = error.message || 'Erro ao atualizar perfil. Por favor, tente novamente.';
-                    errorMessage.style.display = 'block';
+                    // Error notification is already shown in the try block, but show it here as fallback
+                    if (!error.message || error.message === 'Erro ao atualizar perfil.') {
+                        showError('Erro ao atualizar perfil. Por favor, tente novamente.');
+                    }
                 } finally {
                     submitButton.disabled = false;
                     submitButton.textContent = 'Confirmar Alterações';
@@ -285,6 +308,9 @@ $userId = $user['id'] ?? '';
             document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
         }
     </script>
+    
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
 </body>
 </html>
 

@@ -91,11 +91,7 @@ require_funcao_or_redirect([1,2], 'login.php');
                     
                     <button type="submit" class="confirm-button">Confirmar Alterações</button>
                     <div class="error-message" id="formError" role="alert" style="display:none;margin-top:10px"></div>
-                    <div class="success-message" id="successMessage" style="display:none;margin-top:10px">
-                        <div class="success-icon">✓</div>
-                        <h3>Password atualizada com sucesso!</h3>
-                        <p>Redirecionando...</p>
-                    </div>
+                    <div class="success-message" id="successMessage" style="display:none;margin-top:10px"></div>
                     
                     <a href="perfil.php" class="back-link">&lt; Voltar</a>
                 </form>
@@ -221,8 +217,10 @@ require_funcao_or_redirect([1,2], 'login.php');
                         return;
                     }
 
-                    // Success
-                    if (successMessage) successMessage.style.display = 'block';
+                    // Success - show notification
+                    if (typeof showNotification === 'function') {
+                        showNotification('Password atualizada com sucesso!', 'success');
+                    }
 
                     // Clear sensitive inputs
                     currentPasswordInput.value = '';
