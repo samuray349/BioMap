@@ -86,6 +86,7 @@ const ENDPOINT_MAP = {
     'animais/familias': 'animais/familias.php',
     'animais/estados': 'animais/estados.php',
     'animaisDesc/:id': 'animais/get.php',
+    'animais/:id': 'animais/update.php', // For PUT/DELETE, router will handle method
     'api/alerts': 'alerts/list.php',
     'instituicoes': 'instituicoes/list.php',
     'instituicoesDesc/:id': 'instituicoes/get.php'
@@ -146,8 +147,17 @@ function mapToPhpEndpoint(nodeEndpoint) {
                 if (match) {
                     // Extract ID parameter
                     const id = match[1];
-                    // For PHP, use query parameters: users/get.php?id=123
-                    phpEndpoint = phpFile + '?id=' + id;
+                    
+                    // For animais/:id and users/:id with PUT/DELETE, keep path structure
+                    // Router expects /animais/4 or /users/4 for PUT/DELETE
+                    if ((nodePattern === 'animais/:id' || nodePattern === 'users/:id') && 
+                        (cleanEndpoint.startsWith('animais/') || cleanEndpoint.startsWith('users/'))) {
+                        // Keep as-is: animais/4 or users/4 (router will handle method)
+                        phpEndpoint = cleanEndpoint;
+                    } else {
+                        // For GET requests, use query parameters: animais/get.php?id=123
+                        phpEndpoint = phpFile + '?id=' + id;
+                    }
                     matched = true;
                     break;
                 }
@@ -164,21 +174,40 @@ function mapToPhpEndpoint(nodeEndpoint) {
             if (cleanEndpoint.endsWith('.php')) {
                 phpEndpoint = cleanEndpoint;
             } else {
-                // Handle different endpoint formats
-                if (cleanEndpoint.startsWith('api_')) {
-                    // Convert api_alerts to alerts/list.php
-                    const withoutApi = cleanEndpoint.replace(/^api_/, '');
-                    phpEndpoint = withoutApi + '/list.php';
-                } else if (cleanEndpoint.startsWith('api/')) {
-                    // Convert api/alerts to alerts/list.php
-                    phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';
-                } else if (cleanEndpoint.includes('/')) {
-                    // Already has path structure, just add .php
+            // Handle different endpoint formats
+            if (cleanEndpoint.startsWith('api_')) {
+                // Convert api_alerts to alerts/list.php
+                const withoutApi = cleanEndpoint.replace(/^api_/, '');
+                phpEndpoint = withoutApi + '/list.php';
+            } else if (cleanEndpoint.startsWith('api/')) {
+                // Convert api/alerts to alerts/list.php
+                phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';
+            } else if (cleanEndpoint.includes('/')) {
+                // Already has path structure, check if it matches a known endpoint
+                // For endpoints like "animais" that map to list.php, ensure we use the correct path
+                if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint.split('/')[0])) {
+                    // If the first part is in the map, use the mapped path
+                    const firstPart = cleanEndpoint.split('/')[0];
+                    if (ENDPOINT_MAP[firstPart].endsWith('/list.php')) {
+                        phpEndpoint = cleanEndpoint.replace(/^[^/]+\//, ENDPOINT_MAP[firstPart].replace('/list.php', '/'));
+                        if (!phpEndpoint.endsWith('.php')) {
+                            phpEndpoint += 'list.php';
+                        }
+                    } else {
+                        phpEndpoint = cleanEndpoint + '.php';
+                    }
+                } else {
                     phpEndpoint = cleanEndpoint + '.php';
+                }
+            } else {
+                // Single word, check if it's in the map first
+                if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint)) {
+                    phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
                 } else {
                     // Single word, add /list.php
                     phpEndpoint = cleanEndpoint + '/list.php';
                 }
+            }
             }
         }
     }

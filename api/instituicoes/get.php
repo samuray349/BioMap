@@ -39,7 +39,7 @@ try {
             ST_X(i."localização"::geometry) as latitude,
             ST_Y(i."localização"::geometry) as longitude
          FROM instituicao i
-         WHERE i.instituicao_id = $1',
+         WHERE i.instituicao_id = ?',
         [$id]
     );
     

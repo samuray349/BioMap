@@ -140,7 +140,7 @@ try {
     try {
         // Check if institution exists
         $existing = Database::queryOne(
-            'SELECT instituicao_id FROM instituicao WHERE instituicao_id = $1',
+            'SELECT instituicao_id FROM instituicao WHERE instituicao_id = ?',
             [$id]
         );
         if (!$existing) {
@@ -150,7 +150,7 @@ try {
         
         // Check for duplicate name (excluding current)
         $duplicate = Database::queryOne(
-            'SELECT instituicao_id FROM instituicao WHERE LOWER(TRIM(nome)) = LOWER(TRIM($1)) AND instituicao_id != $2 LIMIT 1',
+            'SELECT instituicao_id FROM instituicao WHERE LOWER(TRIM(nome)) = LOWER(TRIM(?)) AND instituicao_id != ? LIMIT 1',
             [trim($nome), $id]
         );
         if ($duplicate) {
@@ -170,26 +170,24 @@ try {
         ];
         
         $params = array_values($updateFields);
-        $paramCounter = count($params) + 1;
+        $paramCounter = count($params);
         
-        $sql = 'UPDATE instituicao SET nome = $1, descricao = $2, localizacao_texto = $3, telefone_contacto = $4, dias_aberto = $5, hora_abertura = $6, hora_fecho = $7';
+        $sql = 'UPDATE instituicao SET nome = ?, descricao = ?, localizacao_texto = ?, telefone_contacto = ?, dias_aberto = ?, hora_abertura = ?, hora_fecho = ?';
         
         // Add url_imagem if provided
         if ($url_imagem !== null) {
-            $sql .= ', url_imagem = $' . $paramCounter;
+            $sql .= ', url_imagem = ?';
             $params[] = trim($url_imagem) ?: 'img/placeholder.jpg';
-            $paramCounter++;
         }
         
         // Add location if provided
         if ($localizacao !== null && $lat !== null && $lon !== null && !is_nan($lat) && !is_nan($lon)) {
-            $sql .= ', "localização" = ST_SetSRID(ST_MakePoint($' . $paramCounter . ', $' . ($paramCounter + 1) . '), 4326)::geography';
+            $sql .= ', "localização" = ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography';
             $params[] = $lon;
             $params[] = $lat;
-            $paramCounter += 2;
         }
         
-        $sql .= ' WHERE instituicao_id = $' . $paramCounter;
+        $sql .= ' WHERE instituicao_id = ?';
         $params[] = $id;
         
         Database::execute($sql, $params);

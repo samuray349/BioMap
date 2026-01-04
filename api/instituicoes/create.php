@@ -134,7 +134,7 @@ try {
     try {
         // Check for duplicate institution name
         $duplicate = Database::queryOne(
-            'SELECT instituicao_id FROM instituicao WHERE LOWER(TRIM(nome)) = LOWER(TRIM($1)) LIMIT 1',
+            'SELECT instituicao_id FROM instituicao WHERE LOWER(TRIM(nome)) = LOWER(TRIM(?)) LIMIT 1',
             [trim($nome)]
         );
         if ($duplicate) {
@@ -145,7 +145,7 @@ try {
         // Insert institution with PostGIS geography
         $instituicao = Database::insert(
             'INSERT INTO instituicao (nome, descricao, localizacao_texto, telefone_contacto, url_imagem, "localização", dias_aberto, hora_abertura, hora_fecho)
-             VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_MakePoint($6, $7), 4326)::geography, $8, $9, $10)',
+             VALUES (?, ?, ?, ?, ?, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?, ?, ?)',
             [
                 trim($nome),
                 trim($descricao),

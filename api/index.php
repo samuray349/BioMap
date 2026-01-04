@@ -128,7 +128,7 @@ if (preg_match('#^/users/(\d+)/estado$#', $path, $matches) || preg_match('#^/use
 }
 
 // Animal routes - support both /animais and direct file paths
-if ($requestMethod === 'GET' && ($path === '/animais' || $path === '/animais/list.php')) {
+if ($requestMethod === 'GET' && (preg_match('#^/animais(/list\.php)?$#', $path) || $path === '/animais' || $path === '/animais/list.php')) {
     require __DIR__ . '/animais/list.php';
     exit;
 }

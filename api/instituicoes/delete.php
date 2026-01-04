@@ -31,7 +31,7 @@ try {
     try {
         // Check if institution exists and get image URL
         $instituicao = Database::queryOne(
-            'SELECT url_imagem FROM instituicao WHERE instituicao_id = $1',
+            'SELECT url_imagem FROM instituicao WHERE instituicao_id = ?',
             [$id]
         );
         
@@ -42,7 +42,7 @@ try {
         
         // Delete the institution
         Database::execute(
-            'DELETE FROM instituicao WHERE instituicao_id = $1',
+            'DELETE FROM instituicao WHERE instituicao_id = ?',
             [$id]
         );
         
