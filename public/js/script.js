@@ -1146,6 +1146,7 @@ async function loadInstituicoes() {
         lng: apiLat   // Use latitude field value as longitude
       };
 
+
       console.log(`loadInstituicoes: Processing instituição ${index + 1}/${instituicoes.length}:`, {
         nome: instituicao.nome,
         latitude: instituicao.latitude,
