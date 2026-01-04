@@ -39,6 +39,8 @@ try {
     }
     
     // Validate coordinates
+    // Note: Frontend sends latitude/longitude, but ST_MakePoint expects (longitude, latitude)
+    // So we store them as received: $lon (from longitude field) and $lat (from latitude field)
     $lat = (float)$latitude;
     $lon = (float)$longitude;
     if (is_nan($lat) || is_nan($lon) || $lat < -90 || $lat > 90 || $lon < -180 || $lon > 180) {
@@ -67,13 +69,15 @@ try {
     $avistamentoDate = $data_avistamento ?: date('c');
     
     // Insert avistamento with PostGIS geography
+    // ST_MakePoint expects (longitude, latitude), so we pass ($lon, $lat) as received
+    // When reading back, ST_X returns longitude and ST_Y returns latitude
     $avistamento = Database::insert(
         'INSERT INTO avistamento (data_avistamento, "localização", animal_id, utilizador_id)
          VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography, $4, $5)',
         [
             $avistamentoDate,
-            $lon,
-            $lat,
+            $lon,  // longitude (X coordinate)
+            $lat,  // latitude (Y coordinate)
             $animal_id,
             $utilizador_id
         ]

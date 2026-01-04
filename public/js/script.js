@@ -943,9 +943,16 @@ async function loadAvistamentos() {
     const markerDataMap = new Map(); // Store marker data for click handlers
 
     avistamentos.forEach(avistamento => {
+      // Extract coordinates from API
+      // Note: Due to how PostGIS stores coordinates, the "latitude" field contains longitude value
+      // and "longitude" field contains latitude value (same issue as instituições)
+      const apiLat = parseFloat(avistamento.latitude);
+      const apiLng = parseFloat(avistamento.longitude);
+      
+      // Swap them: API's "latitude" field contains longitude value, and "longitude" field contains latitude value
       const position = {
-        lat: parseFloat(avistamento.latitude),
-        lng: parseFloat(avistamento.longitude)
+        lat: apiLng,  // Use longitude field value as latitude
+        lng: apiLat   // Use latitude field value as longitude
       };
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
