@@ -73,8 +73,7 @@ const ENDPOINT_MAP = {
     'api/login': 'auth/login.php',
     'api/signup': 'auth/signup.php',
     'api/check-user': 'auth/check_user.php',
-    'api/forgot-password': 'auth/forgot_password.php',
-    'api/reset-password': 'auth/reset_password.php',
+    // Password reset endpoints removed - always use Node.js API
     'users': 'users', // Base path - router handles GET/POST based on method
     'users/list.php': 'users/list.php', // Direct file access
     'users/estados': 'users/estados.php',
@@ -298,6 +297,16 @@ function getApiBaseUrl() {
 function getApiUrl(endpoint) {
     // Clean endpoint - remove leading slash if present
     let cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    
+    // Password reset endpoints always use Node.js API, even if PHP is selected
+    const passwordResetEndpoints = ['api/forgot-password', 'api/reset-password'];
+    const isPasswordReset = passwordResetEndpoints.some(ep => cleanEndpoint.startsWith(ep));
+    
+    // Force Node.js API for password reset
+    if (isPasswordReset) {
+        console.log('[API] Password reset endpoint detected - forcing Node.js API:', cleanEndpoint);
+        return `${NODEJS_API_BASE_URL}/${cleanEndpoint}`;
+    }
     
     if (API_PROVIDER === 'php') {
         // Map the endpoint to PHP file path

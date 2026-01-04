@@ -39,15 +39,13 @@ if ($path === '/list-endpoints.php' || $path === '/list-endpoints') {
     exit;
 }
 
-// Authentication routes
-if (preg_match('#^/api/(login|signup|check-user|forgot-password|reset-password)$#', $path, $matches)) {
+// Authentication routes (password reset removed - always use Node.js API)
+if (preg_match('#^/api/(login|signup|check-user)$#', $path, $matches)) {
     $endpoint = $matches[1];
     $routes = [
         'login' => 'auth/login.php',
         'signup' => 'auth/signup.php',
-        'check-user' => 'auth/check_user.php',
-        'forgot-password' => 'auth/forgot_password.php',
-        'reset-password' => 'auth/reset_password.php'
+        'check-user' => 'auth/check_user.php'
     ];
     if (isset($routes[$endpoint])) {
         require __DIR__ . '/' . $routes[$endpoint];
