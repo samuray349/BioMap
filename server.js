@@ -1782,8 +1782,8 @@ app.get('/instituicoes', async (req, res) => {
         i.dias_aberto,
         i.hora_abertura,
         i.hora_fecho,
-        ST_X(i."localização"::geometry) as latitude,
-        ST_Y(i."localização"::geometry) as longitude
+        ST_Y(i."localização"::geometry) as latitude,
+        ST_X(i."localização"::geometry) as longitude
       FROM instituicao i
       WHERE 1=1
     `;
@@ -1827,8 +1827,8 @@ app.get('/instituicoesDesc/:id', async (req, res) => {
         i.dias_aberto,
         i.hora_abertura,
         i.hora_fecho,
-        ST_X(i."localização"::geometry) as latitude,
-        ST_Y(i."localização"::geometry) as longitude
+        ST_Y(i."localização"::geometry) as latitude,
+        ST_X(i."localização"::geometry) as longitude
       FROM instituicao i
       WHERE i.instituicao_id = $1
     `;
