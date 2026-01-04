@@ -1707,8 +1707,8 @@ app.post('/api/alerts', async (req, res) => {
 
     const { rows } = await pool.query(insertQuery, [
       avistamentoDate,
-      lon,
-      lat,
+      lon,  // longitude (X coordinate) - ST_MakePoint expects (longitude, latitude)
+      lat,  // latitude (Y coordinate)
       animal_id,
       utilizador_id
     ]);

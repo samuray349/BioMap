@@ -944,9 +944,20 @@ async function loadAvistamentos() {
 
     avistamentos.forEach(avistamento => {
       // Extract coordinates from API
-      const position = {
-        lat: parseFloat(avistamento.latitude),
-        lng: parseFloat(avistamento.longitude)
+      // Note: Both APIs return ST_Y as latitude and ST_X as longitude, which is correct
+      // However, if using Node.js API and coordinates appear reversed, we may need to swap them
+      // Check which API is being used
+      const apiLat = parseFloat(avistamento.latitude);
+      const apiLng = parseFloat(avistamento.longitude);
+      
+      // For Node.js API, coordinates may need to be swapped when reading back
+      // This is a workaround if the data was stored with swapped values
+      const position = API_PROVIDER === 'nodejs' ? {
+        lat: apiLng,  // Swap for Node.js API
+        lng: apiLat
+      } : {
+        lat: apiLat,  // PHP API is correct
+        lng: apiLng
       };
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
