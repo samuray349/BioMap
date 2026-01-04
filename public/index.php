@@ -12,9 +12,9 @@
   <link rel="icon" type="image/x-icon" href="./img/biomap-icon.png">
 
   <link rel="stylesheet" href="css/styles.css?v=5">
-  <script src="js/config.js"></script>
-  <script src="js/session.js"></script>
-  <script src="js/api-toggle.js"></script>
+  <script src="js/config.js?v=<?php echo time(); ?>"></script>
+  <script src="js/session.js?v=<?php echo time(); ?>"></script>
+  <script src="js/api-toggle.js?v=<?php echo time(); ?>"></script>
   <script src="js/script.js?v=<?php echo time(); ?>"></script>
   
   <script async defer
@@ -222,7 +222,7 @@
   <!-- Notification Container -->
   <div id="notification-container" class="notification-container"></div>
 
-  <script src="js/animals.js"></script>
+  <script src="js/animals.js?v=<?php echo time(); ?>"></script>
   
   
 <script>
