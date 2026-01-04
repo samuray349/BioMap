@@ -224,7 +224,7 @@ if ($requestMethod === 'GET') {
     }
 }
 
-if ($requestMethod === 'POST' && ($path === '/api/alerts' || $path === '/alerts/create.php')) {
+if ($requestMethod === 'POST' && (preg_match('#^/api/alerts/?$#', $path) || $path === '/api/alerts' || $path === '/alerts/create.php' || preg_match('#^/alerts/create\.php/?$#', $path))) {
     require __DIR__ . '/alerts/create.php';
     exit;
 }

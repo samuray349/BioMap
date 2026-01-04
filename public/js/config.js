@@ -141,6 +141,8 @@ function mapToPhpEndpoint(nodeEndpoint) {
     } else if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint)) {
         phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
         console.log('[PHP API] ✓ Found mapping:', cleanEndpoint, '→', phpEndpoint);
+        // For base paths like 'api/alerts', keep them as-is so router can handle GET/POST
+        // Don't process further if it's already a base path mapping
     } else {
         // Handle parameterized routes (e.g., users/123)
         let matched = false;
@@ -188,8 +190,14 @@ function mapToPhpEndpoint(nodeEndpoint) {
                 const withoutApi = cleanEndpoint.replace(/^api_/, '');
                 phpEndpoint = withoutApi + '/list.php';
             } else if (cleanEndpoint.startsWith('api/')) {
-                // Convert api/alerts to alerts/list.php
-                phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';
+                // For api/alerts, keep as api/alerts (router handles GET/POST)
+                // Only convert to list.php if we're in the fallback (shouldn't happen)
+                if (cleanEndpoint === 'api/alerts') {
+                    phpEndpoint = 'api/alerts'; // Keep base path for router
+                } else {
+                    // Convert other api/* endpoints to */list.php
+                    phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';
+                }
             } else if (cleanEndpoint.includes('/')) {
                 // Already has path structure, check if it matches a known endpoint
                 // For endpoints like "animais" that map to list.php, ensure we use the correct path

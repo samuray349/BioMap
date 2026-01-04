@@ -16,10 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 try {
     // Ensure query string is parsed (PHP built-in server with router might not auto-populate $_GET)
-    if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
-        if (empty($_GET)) {
-            parse_str($_SERVER['QUERY_STRING'], $_GET);
-        }
+    // Always parse from REQUEST_URI to ensure we get all query parameters
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $queryString = parse_url($requestUri, PHP_URL_QUERY);
+    if (!empty($queryString)) {
+        parse_str($queryString, $queryParams);
+        $_GET = array_merge($_GET, $queryParams);
     }
     
     $search = getQueryParam('search');
@@ -55,7 +57,8 @@ try {
     $params = [];
     
     if ($search) {
-        $sqlQuery .= " AND (a.nome_comum ILIKE ?)";
+        $sqlQuery .= " AND (a.nome_comum ILIKE ? OR a.nome_cientifico ILIKE ?)";
+        $params[] = '%' . $search . '%';
         $params[] = '%' . $search . '%';
     }
     
