@@ -70,9 +70,9 @@ const PHP_API_BASE_URL = getPhpApiBaseUrl();
 // Map Node.js endpoints to PHP file paths
 // PHP API files are accessed directly (e.g., users/list.php)
 const ENDPOINT_MAP = {
-    'api/login': 'auth/login.php',
-    'api/signup': 'auth/signup.php',
-    'api/check-user': 'auth/check_user.php',
+    'api/login': 'api/login', // Keep as-is for router to handle
+    'api/signup': 'api/signup', // Keep as-is for router to handle
+    'api/check-user': 'api/check-user', // Keep as-is for router to handle
     // Password reset endpoints removed - always use Node.js API
     'users': 'users', // Base path - router handles GET/POST based on method
     'users/list.php': 'users/list.php', // Direct file access
@@ -313,12 +313,18 @@ function getApiUrl(endpoint) {
         const phpEndpoint = mapToPhpEndpoint(cleanEndpoint);
         
         // Remove leading slash from phpEndpoint if present
-        const cleanPhpEndpoint = phpEndpoint.startsWith('/') ? phpEndpoint.substring(1) : phpEndpoint;
+        let cleanPhpEndpoint = phpEndpoint.startsWith('/') ? phpEndpoint.substring(1) : phpEndpoint;
+        
+        // If endpoint maps back to itself (e.g., 'api/login' → 'api/login'), it means router handles it
+        // Keep the original endpoint structure for router-based endpoints
+        if (phpEndpoint === cleanEndpoint && cleanEndpoint.startsWith('api/')) {
+            cleanPhpEndpoint = cleanEndpoint;
+        }
         
         // Ensure base URL doesn't have trailing slash
         const cleanBaseUrl = PHP_API_BASE_URL.endsWith('/') ? PHP_API_BASE_URL.slice(0, -1) : PHP_API_BASE_URL;
         
-        // Construct final URL
+        // Construct final URL - router expects paths like /api/login
         const finalUrl = `${cleanBaseUrl}/${cleanPhpEndpoint}`;
         
         // Debug logging for PHP API - always log to help diagnose issues
