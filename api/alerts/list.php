@@ -77,7 +77,9 @@ try {
         $placeholders = [];
         foreach ($stateArray as $state) {
             $placeholders[] = '?';
-            $params[] = trim($state);
+            // URL decode to handle multi-word statuses like "Em Perigo" (spaces encoded as + or %20)
+            $decodedState = urldecode(trim($state));
+            $params[] = $decodedState;
         }
         $sqlQuery .= " AND e.nome_estado IN (" . implode(', ', $placeholders) . ")";
     }

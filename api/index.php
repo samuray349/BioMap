@@ -224,9 +224,12 @@ if ($requestMethod === 'GET') {
     }
 }
 
-if ($requestMethod === 'POST' && (preg_match('#^/api/alerts/?$#', $path) || $path === '/api/alerts' || $path === '/alerts/create.php' || preg_match('#^/alerts/create\.php/?$#', $path))) {
-    require __DIR__ . '/alerts/create.php';
-    exit;
+if ($requestMethod === 'POST') {
+    if ($path === '/api/alerts' || $path === '/api/alerts/' || preg_match('#^/api/alerts/?$#', $path) || 
+        $path === '/alerts/create.php' || preg_match('#^/alerts/create\.php/?$#', $path)) {
+        require __DIR__ . '/alerts/create.php';
+        exit;
+    }
 }
 
 if (preg_match('#^/api/alerts/(\d+)$#', $path, $matches) || preg_match('#^/alerts/delete\.php$#', $path)) {
