@@ -34,8 +34,8 @@ try {
             av.avistamento_id,
             av.data_avistamento,
             av.utilizador_id,
-            ST_Y(av."localização"::geometry) as latitude,
-            ST_X(av."localização"::geometry) as longitude,
+            CAST(ST_Y(av."localização"::geometry) AS NUMERIC(10, 8)) as latitude,
+            CAST(ST_X(av."localização"::geometry) AS NUMERIC(11, 8)) as longitude,
             a.animal_id,
             a.nome_comum,
             a.nome_cientifico,
@@ -93,6 +93,18 @@ try {
     }
     
     $results = Database::query($sqlQuery, $params);
+    
+    // Ensure coordinates are numeric (convert from string to float if needed)
+    foreach ($results as &$row) {
+        if (isset($row['latitude'])) {
+            $row['latitude'] = (float)$row['latitude'];
+        }
+        if (isset($row['longitude'])) {
+            $row['longitude'] = (float)$row['longitude'];
+        }
+    }
+    unset($row); // Break reference
+    
     sendJson($results);
 } catch (Exception $e) {
     error_log('Erro ao buscar avistamentos: ' . $e->getMessage());

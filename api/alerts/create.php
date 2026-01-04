@@ -49,7 +49,7 @@ try {
     
     // Check if animal exists
     $animal = Database::queryOne(
-        'SELECT animal_id FROM animal WHERE animal_id = $1',
+        'SELECT animal_id FROM animal WHERE animal_id = ?',
         [$animal_id]
     );
     if (!$animal) {
@@ -58,7 +58,7 @@ try {
     
     // Check if user exists
     $user = Database::queryOne(
-        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = ?',
         [$utilizador_id]
     );
     if (!$user) {
@@ -73,7 +73,7 @@ try {
     // When reading back, ST_X returns longitude and ST_Y returns latitude
     $avistamento = Database::insert(
         'INSERT INTO avistamento (data_avistamento, "localização", animal_id, utilizador_id)
-         VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography, $4, $5)',
+         VALUES (?, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?, ?)',
         [
             $avistamentoDate,
             $lon,  // longitude (X coordinate)
