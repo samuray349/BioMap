@@ -133,7 +133,7 @@ if ($requestMethod === 'GET' && (preg_match('#^/animais(/list\.php)?/?$#', $path
     exit;
 }
 
-if ($requestMethod === 'POST' && ($path === '/animais' || $path === '/animais/create.php')) {
+if ($requestMethod === 'POST' && (preg_match('#^/animais(/create\.php)?/?$#', $path) || $path === '/animais' || $path === '/animais/create.php' || $path === '/animais/')) {
     require __DIR__ . '/animais/create.php';
     exit;
 }
@@ -182,7 +182,7 @@ if ($requestMethod === 'GET' && (preg_match('#^/instituicoes(/list\.php)?/?$#', 
     exit;
 }
 
-if ($requestMethod === 'POST' && ($path === '/instituicoes' || $path === '/instituicoes/create.php')) {
+if ($requestMethod === 'POST' && (preg_match('#^/instituicoes(/create\.php)?/?$#', $path) || $path === '/instituicoes' || $path === '/instituicoes/create.php' || $path === '/instituicoes/')) {
     require __DIR__ . '/instituicoes/create.php';
     exit;
 }

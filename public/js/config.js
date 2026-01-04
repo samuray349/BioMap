@@ -75,21 +75,25 @@ const ENDPOINT_MAP = {
     'api/check-user': 'auth/check_user.php',
     'api/forgot-password': 'auth/forgot_password.php',
     'api/reset-password': 'auth/reset_password.php',
-    'users': 'users/list.php',
+    'users': 'users', // Base path - router handles GET/POST based on method
+    'users/list.php': 'users/list.php', // Direct file access
     'users/estados': 'users/estados.php',
     'users/estatutos': 'users/estatutos.php',
     'users/:id': 'users/get.php',
     'users/:id/password': 'users/update_password.php',
     'users/:id/funcao': 'users/update_funcao.php',
     'users/:id/estado': 'users/update_estado.php',
-    'animais': 'animais/list.php',
+    'animais': 'animais', // Base path - router handles GET/POST based on method
+    'animais/list.php': 'animais/list.php', // Direct file access
     'animais/familias': 'animais/familias.php',
     'animais/estados': 'animais/estados.php',
     'animaisDesc/:id': 'animais/get.php',
     'animais/:id': 'animais/update.php', // For PUT/DELETE, router will handle method
-    'api/alerts': 'alerts/list.php',
+    'api/alerts': 'api/alerts', // Base path - router handles GET/POST based on method
+    'alerts/list.php': 'alerts/list.php', // Direct file access
     'api/alerts/:id': 'alerts/delete.php', // For DELETE, router will handle method
-    'instituicoes': 'instituicoes/list.php',
+    'instituicoes': 'instituicoes', // Base path - router handles GET/POST based on method
+    'instituicoes/list.php': 'instituicoes/list.php', // Direct file access
     'instituicoesDesc/:id': 'instituicoes/get.php',
     'instituicoes/:id': 'instituicoes/update.php' // For PUT/DELETE, router will handle method
 };
