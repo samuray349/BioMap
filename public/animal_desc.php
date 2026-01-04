@@ -305,9 +305,7 @@
     
             // 2. Extract the 'id' parameter
             const animalId = params.get('id');
-            console.log(animalId);
             if (!animalId) {
-                console.error("ID do animal não encontrado");
                 return;
             }
             if (!/^\d+$/.test(animalId)) {
@@ -323,7 +321,7 @@
             renderAnimalDesc(animal);   
 
           } catch (error) {
-              console.error("Erro ao buscar animal:", error);
+              // Error fetching animal
           }
         }
         function renderAnimalDesc(animal) {
@@ -365,7 +363,6 @@
                         alert('Link copiado para a área de transferência!');
                     }
                 } catch (error) {
-                    console.error('Erro ao copiar link:', error);
                     // Fallback: show URL in prompt
                     prompt('Copie o link:', window.location.href);
                 }

@@ -166,7 +166,6 @@
                             },
                             body: JSON.stringify({ user: data.user })
                         }).catch(err => {
-                            console.warn('Failed to set PHP session:', err);
                             // Continue anyway - cookie is set
                         });
                     }

@@ -50,7 +50,7 @@ function showConfirmBan(onConfirm, onCancel) {
         try {
             await onConfirm();
         } catch (error) {
-            console.error('Error in onConfirm:', error);
+            // Error in onConfirm
         }
         document.body.removeChild(overlay);
     });
@@ -103,7 +103,7 @@ function showConfirmSuspend(onConfirm, onCancel) {
         try {
             await onConfirm();
         } catch (error) {
-            console.error('Error in onConfirm:', error);
+            // Error in onConfirm
         }
         document.body.removeChild(overlay);
     });
@@ -156,7 +156,7 @@ function showConfirmUnsuspend(onConfirm, onCancel) {
         try {
             await onConfirm();
         } catch (error) {
-            console.error('Error in onConfirm:', error);
+            // Error in onConfirm
         }
         document.body.removeChild(overlay);
     });
@@ -209,7 +209,7 @@ function showConfirmUnban(onConfirm, onCancel) {
         try {
             await onConfirm();
         } catch (error) {
-            console.error('Error in onConfirm:', error);
+            // Error in onConfirm
         }
         document.body.removeChild(overlay);
     });
@@ -243,7 +243,6 @@ async function fetchUsers(filters = {}) {
         const users = await response.json();
         return users;
     } catch (error) {
-        console.error("Erro ao buscar utilizadores:", error);
         throw error;
     }
 }
@@ -259,7 +258,6 @@ function renderUserTable(users, tbody) {
         : tbody;
     
     if (!tbodyEl) {
-        console.error('Table body not found for renderUserTable');
         return;
     }
     
@@ -276,7 +274,6 @@ function renderUserTable(users, tbody) {
         // Check if user is banned (estado_id = 3) or suspended (estado_id = 2)
         const isBanned = user.estado_id === 3;
         const isSuspended = user.estado_id === 2;
-        console.log('User:', user.utilizador_id, 'estado_id:', user.estado_id, 'isBanned:', isBanned, 'isSuspended:', isSuspended);
         
         // Determina a classe do distintivo com base no estado
         let badgeClass = 'status-badge';
@@ -332,7 +329,6 @@ function renderUserTable(users, tbody) {
             const currentFuncaoId = parseInt(this.getAttribute('data-current-funcao'));
             
             if (!userId || !newFuncaoId) {
-                console.error('Missing data attributes for estatuto cell');
                 return;
             }
             
@@ -364,7 +360,6 @@ function renderUserTable(users, tbody) {
                 this.setAttribute('data-new-funcao', currentFuncaoId);
                 
             } catch (error) {
-                console.error('Erro ao atualizar estatuto:', error);
                 this.textContent = originalText;
             } finally {
                 this.style.pointerEvents = 'auto';
@@ -382,7 +377,6 @@ function renderUserTable(users, tbody) {
             const userId = this.getAttribute('data-user-id');
             
             if (!userId) {
-                console.error('Missing user ID for suspend icon');
                 return;
             }
             
@@ -411,7 +405,7 @@ function renderUserTable(users, tbody) {
                     }
                     
                 } catch (error) {
-                    console.error('Erro ao suspender utilizador:', error);
+                    // Error suspending user
                 }
             }, function onCancel() {
                 // No-op on cancel
@@ -428,7 +422,6 @@ function renderUserTable(users, tbody) {
             const userId = this.getAttribute('data-user-id');
             
             if (!userId) {
-                console.error('Missing user ID for suspended check icon');
                 return;
             }
             
@@ -457,7 +450,7 @@ function renderUserTable(users, tbody) {
                     }
                     
                 } catch (error) {
-                    console.error('Erro ao reverter suspensão:', error);
+                    // Error reverting suspension
                 }
             }, function onCancel() {
                 // No-op on cancel
@@ -474,7 +467,6 @@ function renderUserTable(users, tbody) {
             const userId = this.getAttribute('data-user-id');
             
             if (!userId) {
-                console.error('Missing user ID for ban icon');
                 return;
             }
             
@@ -506,7 +498,7 @@ function renderUserTable(users, tbody) {
                     }
                     
                 } catch (error) {
-                    console.error('Erro ao banir utilizador:', error);
+                    // Error banning user
                 }
             }, function onCancel() {
                 // No-op on cancel
@@ -516,18 +508,14 @@ function renderUserTable(users, tbody) {
     
     // Add click handlers for banned check icons (to unban users)
     const bannedCheckIcons = tbodyEl.querySelectorAll('.banned-check-icon');
-    console.log('Found', bannedCheckIcons.length, 'banned check icons');
     bannedCheckIcons.forEach(icon => {
-        console.log('Attaching click handler to banned check icon for user:', icon.getAttribute('data-user-id'));
         icon.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Banned check icon clicked for user:', this.getAttribute('data-user-id'));
             
             const userId = this.getAttribute('data-user-id');
             
             if (!userId) {
-                console.error('Missing user ID for banned check icon');
                 return;
             }
             
@@ -556,7 +544,7 @@ function renderUserTable(users, tbody) {
                     }
                     
                 } catch (error) {
-                    console.error('Erro ao reverter banimento:', error);
+                    // Error reverting ban
                 }
             }, function onCancel() {
                 // No-op on cancel

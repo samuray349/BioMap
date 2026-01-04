@@ -1,4 +1,3 @@
-console.log('📜 script.js LOADED - Version with instituições support');
 let map;
 let familyTags = [];
 let stateTags = [];
@@ -43,7 +42,7 @@ function getCurrentUser() {
             return JSON.parse(userData);
         }
     } catch (error) {
-        console.error('Error getting current user:', error);
+        // Error getting current user
     }
     return null;
 }
@@ -87,7 +86,6 @@ async function fetchFamilyOptions() {
         const families = await response.json();
         return families.map(f => f.nome_familia);
     } catch (error) {
-        console.error('Erro ao buscar famílias:', error);
         return [];
     }
 }
@@ -103,7 +101,6 @@ async function fetchStateOptions() {
         const states = await response.json();
         return states.map(s => s.nome_estado);
     } catch (error) {
-        console.error('Erro ao buscar estados de conservação:', error);
         return [];
     }
 }
@@ -194,7 +191,6 @@ const SpeciesPanel = {
       // If we are not on the map page, this is expected
       return;
     }
-    console.log('Species panel element found:', this.elements.container);
 
     this.elements.image = document.getElementById('species-panel-image');
     this.elements.imageContainer = this.elements.container?.querySelector('.species-panel__image');
@@ -272,7 +268,6 @@ const SpeciesPanel = {
 
   async deleteAvistamento() {
     if (!this.currentAvistamentoId) {
-      console.error('No avistamento ID available');
       return;
     }
 
@@ -324,7 +319,6 @@ const SpeciesPanel = {
         loadAvistamentos();
       }
     } catch (error) {
-      console.error('Erro ao eliminar avistamento:', error);
       alert(error?.message || 'Erro ao eliminar avistamento. Por favor, tente novamente.');
     }
   },
@@ -335,7 +329,6 @@ const SpeciesPanel = {
     }
     
     if (!this.elements.container) {
-      console.error('Cannot open panel: container not found');
       return;
     }
     
@@ -648,14 +641,10 @@ const SpeciesPanel = {
 
 
 function initMap() {
-  console.log('🚀🚀🚀 INITMAP CALLED 🚀🚀🚀');
-  console.log('initMap: Function called');
   const mapElement = document.getElementById("map");
   if (!mapElement) {
-    console.warn('initMap: map element not found');
     return;
   }
-  console.log('initMap: Map element found, initializing...');
 
   const center = { lat: 39.09903420850493, lng: -9.283192320989297 };
 
@@ -730,24 +719,12 @@ function initMap() {
   
   // Load and display instituições dynamically (ensure icon is ready)
   // houseMarkerIcon is initialized just before this, so it should be ready
-  console.log('initMap: About to call loadInstituicoes', { 
-    houseMarkerIcon: !!houseMarkerIcon,
-    houseMarkerIconValue: houseMarkerIcon,
-    map: !!map 
-  });
   if (houseMarkerIcon) {
-    console.log('initMap: houseMarkerIcon is ready, calling loadInstituicoes NOW');
     loadInstituicoes();
   } else {
-    console.error('initMap: houseMarkerIcon NOT ready!', houseMarkerIcon);
-    console.warn('initMap: Will retry loadInstituicoes in 200ms');
     setTimeout(() => {
-      console.log('initMap: Retry check - houseMarkerIcon:', !!houseMarkerIcon);
       if (houseMarkerIcon) {
-        console.log('initMap: houseMarkerIcon ready after retry, calling loadInstituicoes');
         loadInstituicoes();
-      } else {
-        console.error('initMap: houseMarkerIcon still not ready after retry');
       }
     }, 200);
   }
@@ -763,7 +740,6 @@ function initMap() {
       initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", familyTags, familyOptions);
       initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, stateOptions);
     } catch (error) {
-      console.error('Erro ao carregar opções de filtros:', error);
       // Fallback to empty arrays if API fails
       initTagInputWithDropdown("family-input", "family-tags", "family-dropdown", familyTags, []);
       initTagInputWithDropdown("state-input", "state-tags", "state-dropdown", stateTags, []);
@@ -949,7 +925,6 @@ async function loadAvistamentos() {
       };
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
-        console.warn('Invalid coordinates for avistamento:', avistamento);
         return;
       }
 
@@ -1055,7 +1030,7 @@ async function loadAvistamentos() {
                   SpeciesPanel.open(details);
                 }
               } catch (error) {
-                console.error('Error opening panel:', error);
+                // Error opening panel
               }
             });
           }
@@ -1068,32 +1043,19 @@ async function loadAvistamentos() {
       }, newMarkers.length * 20 + 100);
     }, 300);
   } catch (error) {
-    console.error('Erro ao carregar avistamentos:', error);
+    // Error loading avistamentos
   }
 }
 
 async function loadInstituicoes() {
-  console.log('=== loadInstituicoes: FUNCTION CALLED ===', { 
-    map: !!map, 
-    houseMarkerIcon: !!houseMarkerIcon,
-    mapType: typeof map,
-    iconType: typeof houseMarkerIcon
-  });
-  
   if (!map) {
-    console.error('loadInstituicoes: map not initialized - ABORTING');
     return;
   }
   if (!houseMarkerIcon) {
-    console.error('loadInstituicoes: houseMarkerIcon not initialized - ABORTING');
-    console.error('loadInstituicoes: houseMarkerIcon value:', houseMarkerIcon);
     return;
   }
-  
-  console.log('loadInstituicoes: Both map and houseMarkerIcon are ready, proceeding to API call...');
 
   try {
-    console.log('loadInstituicoes: Starting to load instituições...');
     // Get current search filter
     const searchInput = document.getElementById('search-input');
     const searchTerm = searchInput ? searchInput.value.trim() : '';
@@ -1107,22 +1069,17 @@ async function loadInstituicoes() {
     // Fetch instituições from API
     const queryString = params.toString();
     const apiUrl = getApiUrl(queryString ? `instituicoes?${queryString}` : 'instituicoes');
-    console.log('loadInstituicoes: Fetching from', apiUrl);
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      console.error('loadInstituicoes: HTTP error! status:', response.status);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const instituicoes = await response.json();
-    console.log('loadInstituicoes: Received', instituicoes.length, 'instituições');
-    console.log('loadInstituicoes: Sample instituição data:', instituicoes[0]);
 
     // Create new markers first (but don't add to map yet to avoid flicker)
     const newMarkers = [];
     const markerDataMap = new Map(); // Store marker data for click handlers
 
     if (!instituicoes || instituicoes.length === 0) {
-      console.log('loadInstituicoes: No instituições found');
       return;
     }
 
@@ -1137,30 +1094,18 @@ async function loadInstituicoes() {
         lng: typeof lngValue === 'number' ? lngValue : parseFloat(lngValue)
       };
 
-
-      console.log(`loadInstituicoes: Processing instituição ${index + 1}/${instituicoes.length}:`, {
-        nome: instituicao.nome,
-        latitude: instituicao.latitude,
-        longitude: instituicao.longitude,
-        parsed_lat: position.lat,
-        parsed_lng: position.lng
-      });
-
       if (isNaN(position.lat) || isNaN(position.lng)) {
-        console.warn('Invalid coordinates for instituição:', instituicao.nome, 'lat:', position.lat, 'lng:', position.lng, 'raw data:', instituicao);
         return;
       }
 
       // Validate coordinates are within reasonable bounds (Portugal is roughly 36-42°N, 6-10°W)
       if (position.lat < 30 || position.lat > 45 || position.lng < -15 || position.lng > 0) {
-        console.warn('Coordinates out of bounds for instituição:', instituicao.nome, 'lat:', position.lat, 'lng:', position.lng);
-        // Don't return - still try to show it, but log the warning
+        // Coordinates out of bounds, but still try to show it
       }
 
       // Format location coordinates
       const locationText = `${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}`;
       
-      console.log(`loadInstituicoes: Creating marker for ${instituicao.nome} at (${position.lat}, ${position.lng})`);
 
       // Create details object for SpeciesPanel
       const details = {
@@ -1185,7 +1130,6 @@ async function loadInstituicoes() {
       const scale = Math.pow(1.15, clampedZoom - baseZoom);
       const fontSize = Math.round(baseFontSize * scale);
       
-      console.log(`loadInstituicoes: Creating marker with icon:`, houseMarkerIcon);
       const marker = new google.maps.Marker({
         position: position,
         map: null, // Don't add to map yet
@@ -1199,14 +1143,10 @@ async function loadInstituicoes() {
         title: instituicao.nome
       });
 
-      console.log(`loadInstituicoes: Marker created:`, marker, 'Position:', marker.getPosition());
-
       // Store marker and its data
       markerDataMap.set(marker, details);
       newMarkers.push(marker);
     });
-
-    console.log('loadInstituicoes: Created', newMarkers.length, 'markers');
 
     // Now update markers with smooth transitions
     // First, fade out old markers
@@ -1224,23 +1164,12 @@ async function loadInstituicoes() {
     }
     
     // Then add new markers with fade in animation
-    console.log('loadInstituicoes: Adding', newMarkers.length, 'markers to map');
     setTimeout(() => {
       newMarkers.forEach((marker, index) => {
         // Stagger the appearance slightly for a smoother effect
         setTimeout(() => {
           try {
-            const markerPosition = marker.getPosition();
-            console.log(`loadInstituicoes: About to add marker ${index + 1} to map. Position:`, markerPosition, 'Map:', map);
             marker.setMap(map);
-            console.log('loadInstituicoes: Added marker', index + 1, 'to map. Marker visible:', marker.getVisible(), 'Map:', marker.getMap());
-            
-            // Verify marker is actually on the map
-            setTimeout(() => {
-              const actualMap = marker.getMap();
-              const actualPosition = marker.getPosition();
-              console.log(`loadInstituicoes: Marker ${index + 1} verification - Map:`, actualMap, 'Position:', actualPosition, 'Visible:', marker.getVisible());
-            }, 100);
             
             // Attach click handler
             const details = markerDataMap.get(marker);
@@ -1254,12 +1183,12 @@ async function loadInstituicoes() {
                     SpeciesPanel.open(details);
                   }
                 } catch (error) {
-                  console.error('Error opening panel:', error);
+                  // Error opening panel
                 }
               });
             }
           } catch (error) {
-            console.error('Error adding marker to map:', error, marker);
+            // Error adding marker to map
           }
         }, index * 20); // 20ms delay between each marker
       });
@@ -1267,11 +1196,10 @@ async function loadInstituicoes() {
       // Update the markers array after a short delay
       setTimeout(() => {
         instituicaoMarkers = newMarkers;
-        console.log('loadInstituicoes: Updated instituicaoMarkers array with', newMarkers.length, 'markers');
       }, newMarkers.length * 20 + 100);
     }, 300);
   } catch (error) {
-    console.error('Erro ao carregar instituições:', error);
+    // Error loading instituições
   }
 }
 
@@ -1591,7 +1519,6 @@ function initAlertAnimalMenu() {
         emptyMessage: 'Nenhum animal encontrado.'
       });
     } catch (error) {
-      console.error("Erro ao carregar animais:", error);
       if (cardsGrid) {
         cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
       }
@@ -1610,7 +1537,6 @@ function initAlertAnimalMenu() {
         initTagInputWithDropdown("popup-family-input", "popup-family-tags", "popup-family-dropdown", popupFamilyTags, familyOptions);
         initTagInputWithDropdown("popup-state-input", "popup-state-tags", "popup-state-dropdown", popupStateTags, stateOptions);
       } catch (error) {
-        console.error('Erro ao carregar opções de filtros do popup:', error);
         // Fallback to empty arrays if API fails
         initTagInputWithDropdown("popup-family-input", "popup-family-tags", "popup-family-dropdown", popupFamilyTags, []);
         initTagInputWithDropdown("popup-state-input", "popup-state-tags", "popup-state-dropdown", popupStateTags, []);
@@ -1777,7 +1703,6 @@ function initAlertAnimalMenu() {
           loadAvistamentos();
         }
       } catch (error) {
-        console.error('Erro ao criar alerta:', error);
         alert(error?.message || 'Erro ao criar alerta. Por favor, tente novamente.');
       } finally {
         // Re-enable button
@@ -1864,7 +1789,7 @@ async function loadHeader(path = 'header.php') {
     try {
       placeholder.innerHTML = headerTemplate;
     } catch (err) {
-      console.warn('loadHeader: failed to set inline template.', err);
+      // Error setting inline template
     }
   
   if (typeof initAccountMenu === 'function') initAccountMenu();
@@ -2196,7 +2121,6 @@ window.initMapPicker = initMapPicker;
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       openPickerFor(btn);
-      console.log('Time picker opened for', btn.dataset.target);
     });
   });
 

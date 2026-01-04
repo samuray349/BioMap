@@ -102,9 +102,6 @@ const ENDPOINT_MAP = {
  * Handles parameterized routes (e.g., users/123 -> users/get.php?id=123)
  */
 function mapToPhpEndpoint(nodeEndpoint) {
-    // Force log to ensure function is called
-    console.log('[PHP API] mapToPhpEndpoint called with:', nodeEndpoint);
-    
     // Split endpoint and query string FIRST - handle empty query strings properly
     let endpoint = nodeEndpoint;
     let queryString = null;
@@ -122,41 +119,27 @@ function mapToPhpEndpoint(nodeEndpoint) {
     // Remove leading slash if present and trim whitespace
     const cleanEndpoint = (endpoint.startsWith('/') ? endpoint.substring(1) : endpoint).trim();
     
-    console.log('[PHP API] Extracted endpoint:', cleanEndpoint, '| Query:', queryString);
-    console.log('[PHP API] ENDPOINT_MAP exists?', typeof ENDPOINT_MAP !== 'undefined');
-    if (typeof ENDPOINT_MAP !== 'undefined') {
-        console.log('[PHP API] ENDPOINT_MAP keys:', Object.keys(ENDPOINT_MAP));
-        console.log('[PHP API] Looking for:', JSON.stringify(cleanEndpoint));
-        console.log('[PHP API] Has property?', ENDPOINT_MAP.hasOwnProperty(cleanEndpoint));
-    }
-    
     let phpEndpoint;
     let directMappingFound = false;
     
     // Check direct mapping first (without query string)
-    // Use hasOwnProperty to ensure exact match and log if ENDPOINT_MAP is undefined
+    // Use hasOwnProperty to ensure exact match
     if (typeof ENDPOINT_MAP === 'undefined') {
-        console.error('[PHP API] ENDPOINT_MAP is undefined!');
         phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
         directMappingFound = false;
     } else {
-        // Debug: log the check
         const hasMapping = ENDPOINT_MAP.hasOwnProperty(cleanEndpoint);
-        console.log('[PHP API] Checking mapping for:', cleanEndpoint, 'hasMapping:', hasMapping);
         if (hasMapping) {
             phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
             directMappingFound = true;
-            console.log('[PHP API] ✓ Found direct mapping:', cleanEndpoint, '→', phpEndpoint, '(will skip fallback)');
             // For base paths like 'api/alerts', keep them as-is so router can handle GET/POST
         } else {
             directMappingFound = false;
-            console.log('[PHP API] ✗ No direct mapping for:', cleanEndpoint, '- will use fallback');
         }
     }
     
     // Only do fallback mapping if direct mapping wasn't found
     if (!directMappingFound) {
-        console.log('[PHP API] Executing fallback mapping for:', cleanEndpoint);
         // Handle parameterized routes (e.g., users/123)
         let matched = false;
         for (const [nodePattern, phpFile] of Object.entries(ENDPOINT_MAP)) {
@@ -191,9 +174,6 @@ function mapToPhpEndpoint(nodeEndpoint) {
         if (!matched) {
             // Default: convert endpoint to PHP file name (last resort)
             // But this shouldn't happen if all endpoints are mapped
-            console.error(`[PHP API] No mapping found for endpoint: "${cleanEndpoint}"`);
-            console.error(`[PHP API] Input endpoint was: "${nodeEndpoint}"`);
-            console.error(`[PHP API] Available mappings:`, Object.keys(ENDPOINT_MAP));
             // Don't add .php if it already ends with .php
             if (cleanEndpoint.endsWith('.php')) {
                 phpEndpoint = cleanEndpoint;
@@ -209,7 +189,6 @@ function mapToPhpEndpoint(nodeEndpoint) {
                 if (cleanEndpoint === 'api/alerts') {
                     // This should have been caught by direct mapping, but if we're here, use router path
                     phpEndpoint = 'api/alerts'; // Keep base path for router
-                    console.warn('[PHP API] api/alerts not found in direct mapping, using fallback');
                 } else {
                     // Convert other api/* endpoints to */list.php
                     phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';
@@ -274,16 +253,11 @@ function mapToPhpEndpoint(nodeEndpoint) {
             
             const cleanQueryString = cleanedParams.join('&');
             
-            if (cleanQueryString !== trimmedQuery) {
-                console.warn(`[PHP API] Cleaned query string from "${trimmedQuery}" to "${cleanQueryString}"`);
-            }
-            
             const separator = phpEndpoint.includes('?') ? '&' : '?';
             phpEndpoint = phpEndpoint + separator + cleanQueryString;
         }
     }
     
-    console.log('[PHP API] Final mapped endpoint:', phpEndpoint);
     return phpEndpoint;
 }
 
@@ -304,7 +278,6 @@ function getApiUrl(endpoint) {
     
     // Force Node.js API for password reset
     if (isPasswordReset) {
-        console.log('[API] Password reset endpoint detected - forcing Node.js API:', cleanEndpoint);
         return `${NODEJS_API_BASE_URL}/${cleanEndpoint}`;
     }
     
@@ -327,19 +300,6 @@ function getApiUrl(endpoint) {
         // Construct final URL - router expects paths like /api/login
         const finalUrl = `${cleanBaseUrl}/${cleanPhpEndpoint}`;
         
-        // Debug logging for PHP API - always log to help diagnose issues
-        if (typeof console !== 'undefined' && API_PROVIDER === 'php') {
-            console.log('[PHP API URL Mapping]', {
-                originalInput: endpoint,
-                cleanEndpoint: cleanEndpoint,
-                mappedPhpEndpoint: phpEndpoint,
-                cleanPhpEndpoint: cleanPhpEndpoint,
-                finalUrl: finalUrl,
-                endpointMapExists: typeof ENDPOINT_MAP !== 'undefined',
-                endpointInMap: typeof ENDPOINT_MAP !== 'undefined' && ENDPOINT_MAP.hasOwnProperty(cleanEndpoint.split('?')[0])
-            });
-        }
-        
         return finalUrl;
     } else {
         // Node.js API - just prepend base URL
@@ -358,14 +318,10 @@ if (typeof window !== 'undefined') {
         isNodeJs: () => API_PROVIDER === 'nodejs',
         isPhp: () => API_PROVIDER === 'php',
         switchToNodeJs: () => {
-            console.warn('API_PROVIDER is read-only. Change it in config.js file.');
+            // API_PROVIDER is read-only. Change it in config.js file.
         },
         switchToPhp: () => {
-            console.warn('API_PROVIDER is read-only. Change it in config.js file.');
+            // API_PROVIDER is read-only. Change it in config.js file.
         }
     };
-    
-    // Log API configuration for debugging
-    console.log(`API Configuration: Using ${API_PROVIDER.toUpperCase()} API`);
-    console.log(`Base URL: ${getApiBaseUrl()}`);
 }

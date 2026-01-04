@@ -234,7 +234,6 @@ require_funcao_or_redirect([1,2], 'login.php');
                     }, 900);
 
                 } catch (err) {
-                    console.error('Erro ao chamar API de alterar password', err);
                     showError('Erro de rede ao tentar atualizar a password.');
                 } finally {
                     setLoading(false);

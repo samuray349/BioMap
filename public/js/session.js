@@ -58,7 +58,6 @@ function getCurrentUserFromCookie() {
     try {
         return JSON.parse(userData);
     } catch (e) {
-        console.error('Error parsing user cookie:', e);
         return null;
     }
 }

@@ -30,7 +30,6 @@ async function fetchAnimals(filters = {}) {
         const animals = await response.json();
         return animals;
     } catch (error) {
-        console.error("Erro ao buscar animais:", error);
         throw error;
     }
 }
@@ -60,7 +59,6 @@ function renderAnimalCards(animals, container, options = {}) {
         : container;
     
     if (!containerEl) {
-        console.error('Container not found for renderAnimalCards');
         return;
     }
     
@@ -143,7 +141,6 @@ function renderAnimalTable(animals, tbody) {
         : tbody;
     
     if (!tbodyEl) {
-        console.error('Table body not found for renderAnimalTable');
         return;
     }
     

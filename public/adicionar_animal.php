@@ -893,14 +893,12 @@ checkAccess(ACCESS_ADMIN);
             if (typeof fetchFamilyOptions === 'function') {
                 familyOptions = await fetchFamilyOptions();
             } else {
-                console.error('fetchFamilyOptions function not available');
                 if (typeof showNotification === 'function') {
                     showNotification('Erro: Função de carregamento de famílias não disponível. Recarregue a página.', 'error');
                 }
                 return;
             }
         } catch (error) {
-            console.error('Error fetching family options:', error);
             return;
         }
         
@@ -1507,7 +1505,7 @@ checkAccess(ACCESS_ADMIN);
                         familyOptions = await fetchFamilyOptions();
                     }
                 } catch (error) {
-                    console.error('Error fetching family options:', error);
+                    // Error fetching family options
                 }
 
                 // Check if the entered family exists in the list
@@ -1657,7 +1655,7 @@ checkAccess(ACCESS_ADMIN);
                                 headers: { 'Content-Type': 'application/json' }
                             });
                         } catch (deleteError) {
-                            console.error('Error deleting animal after image upload failure:', deleteError);
+                            // Error deleting animal after image upload failure
                         }
                     }
                     
@@ -1699,7 +1697,7 @@ checkAccess(ACCESS_ADMIN);
                                 headers: { 'Content-Type': 'application/json' }
                             });
                         } catch (deleteError) {
-                            console.error('Error deleting animal after image update failure:', deleteError);
+                            // Error deleting animal after image update failure
                         }
                         
                         setMessage(''); // Clear loading message
@@ -1721,7 +1719,6 @@ checkAccess(ACCESS_ADMIN);
                     document.querySelector('.ghost-btn')?.click();
                 }, 2500);
             } catch (error) {
-                console.error('Erro ao submeter animal', error);
                 const errorMessage = error?.message || '';
                 setMessage(''); // Clear loading message
                 

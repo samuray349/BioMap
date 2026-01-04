@@ -100,7 +100,6 @@
                         emptyMessage: 'Nenhum animal encontrado.'
                     });
                 } catch (error) {
-                    console.error("Erro ao carregar animais:", error);
                     if (cardsGrid) cardsGrid.innerHTML = '<p>Erro ao carregar dados.</p>';
                 }
             }

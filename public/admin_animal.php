@@ -525,7 +525,7 @@ checkAccess(ACCESS_ADMIN);
                 try {
                     await onConfirm();
                 } catch (error) {
-                    console.error('Error in onConfirm:', error);
+                    // Error in onConfirm
                 }
                 document.body.removeChild(overlay);
             });
@@ -577,7 +577,7 @@ checkAccess(ACCESS_ADMIN);
                         alert('Animal eliminado com sucesso!');
                     }
                 } catch (error) {
-                    console.error('Erro ao deletar animal:', error);
+                    // Error deleting animal
                     const errorMessage = error?.message || `Erro ao eliminar animal (ID: ${animalId}). Verifique a sua ligação à internet.`;
                     if (typeof showNotification === 'function') {
                         showNotification(errorMessage, 'error');
@@ -707,7 +707,6 @@ checkAccess(ACCESS_ADMIN);
                 // Prevent body scroll when modal is open
                 document.body.style.overflow = 'hidden';
             } catch (error) {
-                console.error('Erro ao abrir modal de atualização:', error);
                 const errorMessage = `Erro ao carregar dados do animal (ID: ${animalId}): ${error?.message || 'Não foi possível carregar os dados. Verifique a sua ligação à internet.'}`;
                 if (typeof showNotification === 'function') {
                     showNotification(errorMessage, 'error');
@@ -803,7 +802,6 @@ checkAccess(ACCESS_ADMIN);
                 
                 updateFamilyDropdownInitialized = true;
             } catch (error) {
-                console.error('Erro ao inicializar dropdown de família:', error);
                 if (typeof showNotification === 'function') {
                     showNotification(`Erro ao inicializar o campo Família no formulário: ${error?.message || 'Erro desconhecido'}`, 'error');
                 }
@@ -1038,13 +1036,11 @@ checkAccess(ACCESS_ADMIN);
                 
                 // Reload animals in background (don't wait for it)
                 loadAnimals().catch(err => {
-                    console.error('Error reloading animals:', err);
                     if (typeof showNotification === 'function') {
                         showNotification('Animal atualizado, mas erro ao atualizar a lista: ' + (err?.message || 'Erro desconhecido'), 'error');
                     }
                 });
             } catch (error) {
-                console.error('Erro ao atualizar animal:', error);
                 const errorMessage = error.message || '';
                 
                 // Check if error is about family not found

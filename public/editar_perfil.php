@@ -219,14 +219,9 @@ $userId = $user['id'] ?? '';
                             },
                             body: JSON.stringify({ user: user })
                         }).then(response => {
-                            if (!response.ok) {
-                                console.warn('Failed to update PHP session:', response.statusText);
-                            } else {
-                                console.log('Session updated successfully');
-                            }
                             return response;
                         }).catch(err => {
-                            console.warn('Failed to update PHP session:', err);
+                            // Failed to update PHP session
                         });
                     }
                     

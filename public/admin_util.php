@@ -189,7 +189,6 @@ checkAccess(ACCESS_ADMIN);
                 estadoOptions = await response.json();
                 return estadoOptions;
             } catch (error) {
-                console.error("Erro ao buscar opções de estado:", error);
                 return [];
             }
         }
@@ -205,7 +204,6 @@ checkAccess(ACCESS_ADMIN);
                 estatutoOptions = await response.json();
                 return estatutoOptions;
             } catch (error) {
-                console.error("Erro ao buscar opções de estatuto:", error);
                 return [];
             }
         }
@@ -235,7 +233,7 @@ checkAccess(ACCESS_ADMIN);
                             currentUserId = currentUser ? currentUser.id : null;
                         }
                     } catch (e) {
-                        console.warn('Could not get current user ID:', e);
+                        // Could not get current user ID
                     }
                 }
 
@@ -250,7 +248,6 @@ checkAccess(ACCESS_ADMIN);
                 updatePagination();
                 renderCurrentPage();
             } catch (error) {
-                console.error("Erro ao carregar utilizadores:", error);
                 if (tbody) {
                     tbody.innerHTML = '<tr><td colspan="6">Erro ao carregar dados.</td></tr>';
                 }

@@ -790,7 +790,7 @@ checkAccess(ACCESS_ADMIN);
                                     headers: { 'Content-Type': 'application/json' }
                                 });
                             } catch (deleteError) {
-                                console.error('Error deleting institution after image upload failure:', deleteError);
+                                // Error deleting institution after image upload failure
                             }
                         }
                         
@@ -831,7 +831,7 @@ checkAccess(ACCESS_ADMIN);
                                     headers: { 'Content-Type': 'application/json' }
                                 });
                             } catch (deleteError) {
-                                console.error('Error deleting institution after image update failure:', deleteError);
+                                // Error deleting institution after image update failure
                             }
                             
                             setMessage('');
@@ -878,7 +878,6 @@ checkAccess(ACCESS_ADMIN);
                         }
                     }, 2000);
                 } catch (error) {
-                    console.error('Erro ao submeter instituição', error);
                     setMessage('');
                     if (typeof showNotification === 'function') {
                         showNotification('Erro ao criar instituição. Verifique os campos e tente novamente.', 'error');
