@@ -1139,8 +1139,8 @@ async function loadInstituicoes() {
         nome: instituicao.nome,
         latitude: instituicao.latitude,
         longitude: instituicao.longitude,
-        parsed_lat: apiLat,
-        parsed_lng: apiLng
+        parsed_lat: position.lat,
+        parsed_lng: position.lng
       });
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
