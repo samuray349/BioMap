@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
 }
 
 try {
-    $input = getJsonInput();
+    $input = getJsonInput() ?? [];
     
     // Get ID from query string or path
     $id = getQueryParam('id');
@@ -32,7 +32,7 @@ try {
     $funcao_id = $input['funcao_id'] ?? null;
     
     if (!$utilizador_id || !$funcao_id) {
-        sendError('Autenticação necessária.', 401);
+        sendError('Autenticação necessária. utilizador_id e funcao_id são obrigatórios.', 401);
     }
     
     // Check target user exists
@@ -53,14 +53,19 @@ try {
     }
     
     // Delete user
-    Database::execute(
+    $deleteResult = Database::execute(
         'DELETE FROM utilizador WHERE utilizador_id = ?',
         [$id]
     );
     
+    if ($deleteResult === false) {
+        sendError('Erro ao eliminar utilizador da base de dados.', 500);
+    }
+    
     sendJson(['message' => 'Utilizador eliminado com sucesso.']);
 } catch (Exception $e) {
     error_log('Erro ao eliminar utilizador: ' . $e->getMessage());
-    sendError('Erro ao eliminar utilizador.', 500);
+    error_log('Stack trace: ' . $e->getTraceAsString());
+    sendError('Erro ao eliminar utilizador: ' . $e->getMessage(), 500);
 }
 ?>

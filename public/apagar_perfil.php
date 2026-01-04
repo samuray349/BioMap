@@ -133,6 +133,9 @@ require_funcao_or_redirect([1,2], 'login.php');
 
                         const endpointPath = `users/${CURRENT_USER_ID}`;
                         const apiUrl = window.API_CONFIG?.getUrl(endpointPath) || `/${endpointPath}`;
+                        
+                        console.log('[Delete Account] API URL:', apiUrl);
+                        console.log('[Delete Account] Request body:', { utilizador_id: CURRENT_USER_ID, funcao_id: CURRENT_USER_FUNCAO });
 
                         const resp = await fetch(apiUrl, {
                             method: 'DELETE',
@@ -141,8 +144,20 @@ require_funcao_or_redirect([1,2], 'login.php');
                             },
                             body: JSON.stringify({ utilizador_id: CURRENT_USER_ID, funcao_id: CURRENT_USER_FUNCAO })
                         });
+                        
+                        console.log('[Delete Account] Response status:', resp.status);
 
-                        const data = await resp.json().catch(() => ({}));
+                        let data = {};
+                        try {
+                            const text = await resp.text();
+                            if (text) {
+                                data = JSON.parse(text);
+                            }
+                        } catch (e) {
+                            console.error('[Delete Account] Failed to parse response:', e);
+                        }
+                        
+                        console.log('[Delete Account] Response data:', data);
 
                         if (!resp.ok) {
                             const msg = (resp.status === 401 || resp.status === 403) ? (data?.error || 'Não autorizado.') : (data?.error || 'Erro ao eliminar conta.');
