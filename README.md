@@ -35,7 +35,6 @@ A preferência do utilizador é guardada no `localStorage` do navegador e persis
 | **Hosting** | Vercel | Railway |
 | **URL** | `https://bio-map-xi.vercel.app` | `https://biomap-production.up.railway.app` |
 | **Framework** | Express.js (Node.js) | PHP |
-| **Endpoints Password Reset** | Sempre utilizado | Não suportado (usa Node.js) |
 
 ### Endpoints especiais
 
