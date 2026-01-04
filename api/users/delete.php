@@ -37,7 +37,7 @@ try {
     
     // Check target user exists
     $userCheck = Database::query(
-        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = ?',
         [$id]
     );
     
@@ -54,7 +54,7 @@ try {
     
     // Delete user
     Database::execute(
-        'DELETE FROM utilizador WHERE utilizador_id = $1',
+        'DELETE FROM utilizador WHERE utilizador_id = ?',
         [$id]
     );
     

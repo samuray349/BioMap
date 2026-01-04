@@ -31,7 +31,7 @@ try {
     try {
         // Check if animal exists and get image URL
         $animal = Database::queryOne(
-            'SELECT url_imagem FROM animal WHERE animal_id = $1',
+            'SELECT url_imagem FROM animal WHERE animal_id = ?',
             [$id]
         );
         
@@ -45,19 +45,19 @@ try {
         // Delete related records (cascading deletes)
         // 1. Delete avistamentos
         Database::execute(
-            'DELETE FROM avistamento WHERE animal_id = $1',
+            'DELETE FROM avistamento WHERE animal_id = ?',
             [$id]
         );
         
         // 2. Delete animal_ameaca relationships
         Database::execute(
-            'DELETE FROM animal_ameaca WHERE animal_id = $1',
+            'DELETE FROM animal_ameaca WHERE animal_id = ?',
             [$id]
         );
         
         // 3. Delete the animal
         Database::execute(
-            'DELETE FROM animal WHERE animal_id = $1',
+            'DELETE FROM animal WHERE animal_id = ?',
             [$id]
         );
         

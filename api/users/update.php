@@ -47,7 +47,7 @@ try {
     
     // Check if user exists
     $userCheck = Database::query(
-        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = ?',
         [$id]
     );
     
@@ -57,7 +57,7 @@ try {
     
     // Check if email is already taken by another user
     $emailCheck = Database::query(
-        'SELECT utilizador_id FROM utilizador WHERE email = $1 AND utilizador_id != $2',
+        'SELECT utilizador_id FROM utilizador WHERE email = ? AND utilizador_id != ?',
         [trim($email), $id]
     );
     
@@ -67,14 +67,14 @@ try {
     
     // Update user profile
     Database::execute(
-        'UPDATE utilizador SET nome_utilizador = $1, email = $2 WHERE utilizador_id = $3',
+        'UPDATE utilizador SET nome_utilizador = ?, email = ? WHERE utilizador_id = ?',
         [trim($nome_utilizador), trim($email), $id]
     );
     
     // Get updated user data
     $updatedUser = Database::queryOne(
         'SELECT utilizador_id, nome_utilizador, email, funcao_id, estado_id
-         FROM utilizador WHERE utilizador_id = $1',
+         FROM utilizador WHERE utilizador_id = ?',
         [$id]
     );
     

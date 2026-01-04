@@ -87,7 +87,7 @@ try {
     try {
         // Check if animal exists
         $animalCheck = Database::queryOne(
-            'SELECT animal_id FROM animal WHERE animal_id = $1',
+            'SELECT animal_id FROM animal WHERE animal_id = ?',
             [$id]
         );
         if (!$animalCheck) {
@@ -97,7 +97,7 @@ try {
         
         // Get familia_id
         $familia = Database::queryOne(
-            'SELECT familia_id FROM familia WHERE TRIM(nome_familia) = TRIM($1) LIMIT 1',
+            'SELECT familia_id FROM familia WHERE TRIM(nome_familia) = TRIM(?) LIMIT 1',
             [trim($familia_nome)]
         );
         if (!$familia) {
@@ -107,7 +107,7 @@ try {
         
         // Get dieta_id
         $dieta = Database::queryOne(
-            'SELECT dieta_id FROM dieta WHERE TRIM(nome_dieta) = TRIM($1) LIMIT 1',
+            'SELECT dieta_id FROM dieta WHERE TRIM(nome_dieta) = TRIM(?) LIMIT 1',
             [trim($dieta_nome)]
         );
         if (!$dieta) {
@@ -117,7 +117,7 @@ try {
         
         // Get estado_id
         $estado = Database::queryOne(
-            'SELECT estado_id FROM estado_conservacao WHERE TRIM(nome_estado) = TRIM($1) LIMIT 1',
+            'SELECT estado_id FROM estado_conservacao WHERE TRIM(nome_estado) = TRIM(?) LIMIT 1',
             [trim($estado_nome)]
         );
         if (!$estado) {
@@ -128,7 +128,7 @@ try {
         // Update animal
         if ($imagem_url !== null && $imagem_url !== '') {
             Database::execute(
-                'UPDATE animal SET nome_comum = $1, nome_cientifico = $2, descricao = $3, facto_interessante = $4, populacao_estimada = $5, dieta_id = $6, familia_id = $7, estado_id = $8, url_imagem = $9 WHERE animal_id = $10',
+                'UPDATE animal SET nome_comum = ?, nome_cientifico = ?, descricao = ?, facto_interessante = ?, populacao_estimada = ?, dieta_id = ?, familia_id = ?, estado_id = ?, url_imagem = ? WHERE animal_id = ?',
                 [
                     trim($nome_comum),
                     trim($nome_cientifico),
@@ -144,7 +144,7 @@ try {
             );
         } else {
             Database::execute(
-                'UPDATE animal SET nome_comum = $1, nome_cientifico = $2, descricao = $3, facto_interessante = $4, populacao_estimada = $5, dieta_id = $6, familia_id = $7, estado_id = $8 WHERE animal_id = $9',
+                'UPDATE animal SET nome_comum = ?, nome_cientifico = ?, descricao = ?, facto_interessante = ?, populacao_estimada = ?, dieta_id = ?, familia_id = ?, estado_id = ? WHERE animal_id = ?',
                 [
                     trim($nome_comum),
                     trim($nome_cientifico),
@@ -161,7 +161,7 @@ try {
         
         // Handle ameacas - delete existing and insert new
         Database::execute(
-            'DELETE FROM animal_ameaca WHERE animal_id = $1',
+            'DELETE FROM animal_ameaca WHERE animal_id = ?',
             [$id]
         );
         
@@ -175,7 +175,7 @@ try {
             foreach ($uniqueThreats as $threat) {
                 // Check if threat exists
                 $existing = Database::queryOne(
-                    'SELECT ameaca_id FROM ameaca WHERE descricao = $1 LIMIT 1',
+                    'SELECT ameaca_id FROM ameaca WHERE descricao = ? LIMIT 1',
                     [$threat]
                 );
                 
@@ -184,7 +184,7 @@ try {
                 } else {
                     // Create new threat
                     $newThreat = Database::insert(
-                        'INSERT INTO ameaca (descricao) VALUES ($1)',
+                        'INSERT INTO ameaca (descricao) VALUES (?)',
                         [$threat]
                     );
                     $threatId = $newThreat['ameaca_id'];
@@ -193,7 +193,7 @@ try {
                 // Link threat to animal
                 try {
                     Database::execute(
-                        'INSERT INTO animal_ameaca (animal_id, ameaca_id) VALUES ($1, $2)',
+                        'INSERT INTO animal_ameaca (animal_id, ameaca_id) VALUES (?, ?)',
                         [$id, $threatId]
                     );
                 } catch (Exception $e) {

@@ -39,7 +39,7 @@ try {
     try {
         // Check if user exists
         $userCheck = Database::query(
-            'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+            'SELECT utilizador_id FROM utilizador WHERE utilizador_id = ?',
             [$id]
         );
         
@@ -50,7 +50,7 @@ try {
         
         // Check if estado exists
         $estadoCheck = Database::query(
-            'SELECT estado_id FROM estado WHERE estado_id = $1',
+            'SELECT estado_id FROM estado WHERE estado_id = ?',
             [$estado_id]
         );
         
@@ -62,7 +62,7 @@ try {
         // If user is being banned (estado_id = 3), delete all their avistamentos
         if ((int)$estado_id === 3) {
             $deletedCount = Database::execute(
-                'DELETE FROM avistamento WHERE utilizador_id = $1',
+                'DELETE FROM avistamento WHERE utilizador_id = ?',
                 [$id]
             );
             error_log("Deleted $deletedCount avistamentos for banned user $id");
@@ -70,7 +70,7 @@ try {
         
         // Update user estado_id
         Database::execute(
-            'UPDATE utilizador SET estado_id = $1 WHERE utilizador_id = $2',
+            'UPDATE utilizador SET estado_id = ? WHERE utilizador_id = ?',
             [$estado_id, $id]
         );
         
@@ -79,7 +79,7 @@ try {
             'SELECT u.utilizador_id, u.estado_id, e.nome_estado, e.hex_cor as estado_cor
              FROM utilizador u
              JOIN estado e ON u.estado_id = e.estado_id
-             WHERE u.utilizador_id = $1',
+             WHERE u.utilizador_id = ?',
             [$id]
         );
         

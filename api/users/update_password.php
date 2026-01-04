@@ -37,7 +37,7 @@ try {
     
     // Check if user exists and get current password hash
     $userCheck = Database::query(
-        'SELECT utilizador_id, password_hash FROM utilizador WHERE utilizador_id = $1',
+        'SELECT utilizador_id, password_hash FROM utilizador WHERE utilizador_id = ?',
         [$id]
     );
     
@@ -63,7 +63,7 @@ try {
     
     // Update password
     Database::execute(
-        'UPDATE utilizador SET password_hash = $1 WHERE utilizador_id = $2',
+        'UPDATE utilizador SET password_hash = ? WHERE utilizador_id = ?',
         [$newPasswordHash, $id]
     );
     

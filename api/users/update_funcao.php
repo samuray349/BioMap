@@ -36,7 +36,7 @@ try {
     
     // Check if user exists
     $userCheck = Database::query(
-        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = $1',
+        'SELECT utilizador_id FROM utilizador WHERE utilizador_id = ?',
         [$id]
     );
     
@@ -46,7 +46,7 @@ try {
     
     // Check if funcao exists
     $funcaoCheck = Database::query(
-        'SELECT funcao_id FROM funcao WHERE funcao_id = $1',
+        'SELECT funcao_id FROM funcao WHERE funcao_id = ?',
         [$funcao_id]
     );
     
@@ -56,7 +56,7 @@ try {
     
     // Update user funcao_id
     Database::execute(
-        'UPDATE utilizador SET funcao_id = $1 WHERE utilizador_id = $2',
+        'UPDATE utilizador SET funcao_id = ? WHERE utilizador_id = ?',
         [$funcao_id, $id]
     );
     
@@ -65,7 +65,7 @@ try {
         'SELECT u.utilizador_id, u.funcao_id, f.nome_funcao as estatuto
          FROM utilizador u
          JOIN funcao f ON u.funcao_id = f.funcao_id
-         WHERE u.utilizador_id = $1',
+         WHERE u.utilizador_id = ?',
         [$id]
     );
     

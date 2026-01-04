@@ -17,14 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 try {
     // Ensure query string is parsed (PHP built-in server with router might not auto-populate $_GET)
     if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
-        if (empty($_GET)) {
-            parse_str($_SERVER['QUERY_STRING'], $_GET);
-        }
+        parse_str($_SERVER['QUERY_STRING'], $parsedGet);
+        $_GET = array_merge($_GET, $parsedGet);
     }
     
     $search = getQueryParam('search');
     $families = getQueryParam('families');
     $states = getQueryParam('states');
+    
+    // Debug logging
+    error_log('[Animais List] REQUEST_URI: ' . ($_SERVER['REQUEST_URI'] ?? 'not set'));
+    error_log('[Animais List] QUERY_STRING: ' . ($_SERVER['QUERY_STRING'] ?? 'not set'));
+    error_log('[Animais List] $_GET: ' . print_r($_GET, true));
+    error_log('[Animais List] Search: ' . ($search ?? 'null') . ' | Families: ' . ($families ?? 'null') . ' | States: ' . ($states ?? 'null'));
     
     // Optimized query - use INNER JOIN for better performance
     $sqlQuery = '

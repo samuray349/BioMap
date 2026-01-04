@@ -42,7 +42,7 @@ try {
          LEFT JOIN familia f ON a.familia_id = f.familia_id
          LEFT JOIN estado_conservacao e ON a.estado_id = e.estado_id
          LEFT JOIN dieta d ON a.dieta_id = d.dieta_id
-         WHERE a.animal_id = $1',
+         WHERE a.animal_id = ?',
         [$id]
     );
     
@@ -55,7 +55,7 @@ try {
         'SELECT a.descricao
          FROM ameaca a 
          JOIN animal_ameaca aa ON a.ameaca_id = aa.ameaca_id 
-         WHERE aa.animal_id = $1',
+         WHERE aa.animal_id = ?',
         [$id]
     );
     

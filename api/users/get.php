@@ -23,7 +23,7 @@ try {
     
     $users = Database::query(
         'SELECT utilizador_id, nome_utilizador, email, funcao_id, estado_id
-         FROM utilizador WHERE utilizador_id = $1',
+         FROM utilizador WHERE utilizador_id = ?',
         [$id]
     );
     

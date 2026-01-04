@@ -80,7 +80,7 @@ try {
     try {
         // Check for duplicate animal name
         $duplicate = Database::query(
-            'SELECT animal_id FROM animal WHERE LOWER(TRIM(nome_comum)) = LOWER(TRIM($1)) LIMIT 1',
+            'SELECT animal_id FROM animal WHERE LOWER(TRIM(nome_comum)) = LOWER(TRIM(?)) LIMIT 1',
             [trim($nome_comum)]
         );
         if (!empty($duplicate)) {
@@ -90,7 +90,7 @@ try {
         
         // Get familia_id
         $familia = Database::queryOne(
-            'SELECT familia_id FROM familia WHERE TRIM(nome_familia) = TRIM($1) LIMIT 1',
+            'SELECT familia_id FROM familia WHERE TRIM(nome_familia) = TRIM(?) LIMIT 1',
             [trim($familia_nome)]
         );
         if (!$familia) {
@@ -100,7 +100,7 @@ try {
         
         // Get dieta_id
         $dieta = Database::queryOne(
-            'SELECT dieta_id FROM dieta WHERE TRIM(nome_dieta) = TRIM($1) LIMIT 1',
+            'SELECT dieta_id FROM dieta WHERE TRIM(nome_dieta) = TRIM(?) LIMIT 1',
             [trim($dieta_nome)]
         );
         if (!$dieta) {
@@ -110,7 +110,7 @@ try {
         
         // Get estado_id
         $estado = Database::queryOne(
-            'SELECT estado_id FROM estado_conservacao WHERE TRIM(nome_estado) = TRIM($1) LIMIT 1',
+            'SELECT estado_id FROM estado_conservacao WHERE TRIM(nome_estado) = TRIM(?) LIMIT 1',
             [trim($estado_nome)]
         );
         if (!$estado) {
@@ -121,7 +121,7 @@ try {
         // Insert animal
         $animal = Database::insert(
             'INSERT INTO animal (nome_comum, nome_cientifico, descricao, facto_interessante, populacao_estimada, url_imagem, contagem_vistas, dieta_id, familia_id, estado_id)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 trim($nome_comum),
                 trim($nome_cientifico),
@@ -148,7 +148,7 @@ try {
         foreach ($uniqueThreats as $threat) {
             // Check if threat exists
             $existing = Database::queryOne(
-                'SELECT ameaca_id FROM ameaca WHERE descricao = $1 LIMIT 1',
+                'SELECT ameaca_id FROM ameaca WHERE descricao = ? LIMIT 1',
                 [$threat]
             );
             
@@ -157,7 +157,7 @@ try {
             } else {
                 // Create new threat
                 $newThreat = Database::insert(
-                    'INSERT INTO ameaca (descricao) VALUES ($1)',
+                    'INSERT INTO ameaca (descricao) VALUES (?)',
                     [$threat]
                 );
                 $threatId = $newThreat['ameaca_id'];
@@ -166,7 +166,7 @@ try {
             // Link threat to animal (ON CONFLICT DO NOTHING)
             try {
                 Database::execute(
-                    'INSERT INTO animal_ameaca (animal_id, ameaca_id) VALUES ($1, $2)',
+                    'INSERT INTO animal_ameaca (animal_id, ameaca_id) VALUES (?, ?)',
                     [$animalId, $threatId]
                 );
             } catch (Exception $e) {
