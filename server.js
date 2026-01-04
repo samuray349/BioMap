@@ -502,9 +502,42 @@ app.delete('/users/:id', async (req, res) => {
       return res.status(403).json({ error: 'Não tem permissão para eliminar este utilizador.' });
     }
 
-    await pool.query('DELETE FROM utilizador WHERE utilizador_id = $1', [id]);
+    // Use transaction to ensure atomicity
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
 
-    return res.status(200).json({ message: 'Utilizador eliminado com sucesso.' });
+      // Delete all avistamentos (sightings) associated with this user
+      // This prevents foreign key constraint violations
+      const avistamentosResult = await client.query(
+        'DELETE FROM avistamento WHERE utilizador_id = $1',
+        [id]
+      );
+
+      // Delete user
+      const deleteResult = await client.query(
+        'DELETE FROM utilizador WHERE utilizador_id = $1',
+        [id]
+      );
+
+      if (deleteResult.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(500).json({ error: 'Erro ao eliminar utilizador da base de dados.' });
+      }
+
+      // Commit transaction
+      await client.query('COMMIT');
+
+      return res.status(200).json({
+        message: 'Utilizador eliminado com sucesso.',
+        avistamentos_eliminados: avistamentosResult.rowCount
+      });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error; // Re-throw to be caught by outer catch block
+    } finally {
+      client.release();
+    }
   } catch (error) {
     console.error('Erro ao eliminar utilizador', error);
     return res.status(500).json({ error: 'Erro ao eliminar utilizador.' });

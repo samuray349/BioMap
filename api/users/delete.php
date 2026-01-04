@@ -52,17 +52,38 @@ try {
         sendError('Não tem permissão para eliminar este utilizador.', 403);
     }
     
-    // Delete user
-    $deleteResult = Database::execute(
-        'DELETE FROM utilizador WHERE utilizador_id = ?',
-        [$id]
-    );
-    
-    if ($deleteResult === false) {
-        sendError('Erro ao eliminar utilizador da base de dados.', 500);
+    // Use transaction to ensure atomicity
+    Database::beginTransaction();
+    try {
+        // Delete all avistamentos (sightings) associated with this user
+        // This prevents foreign key constraint violations
+        $avistamentosDeleted = Database::execute(
+            'DELETE FROM avistamento WHERE utilizador_id = ?',
+            [$id]
+        );
+        
+        // Delete user
+        $deleteResult = Database::execute(
+            'DELETE FROM utilizador WHERE utilizador_id = ?',
+            [$id]
+        );
+        
+        if ($deleteResult === 0) {
+            Database::rollback();
+            sendError('Erro ao eliminar utilizador da base de dados.', 500);
+        }
+        
+        // Commit transaction
+        Database::commit();
+        
+        sendJson([
+            'message' => 'Utilizador eliminado com sucesso.',
+            'avistamentos_eliminados' => $avistamentosDeleted
+        ]);
+    } catch (Exception $e) {
+        Database::rollback();
+        throw $e; // Re-throw to be caught by outer catch block
     }
-    
-    sendJson(['message' => 'Utilizador eliminado com sucesso.']);
 } catch (Exception $e) {
     error_log('Erro ao eliminar utilizador: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
