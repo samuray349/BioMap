@@ -943,17 +943,9 @@ async function loadAvistamentos() {
     const markerDataMap = new Map(); // Store marker data for click handlers
 
     avistamentos.forEach(avistamento => {
-      // Extract coordinates from API
-      // For Node.js API, coordinates may need to be swapped due to storage/reading differences
-      const apiLat = parseFloat(avistamento.latitude);
-      const apiLng = parseFloat(avistamento.longitude);
-      
-      const position = API_PROVIDER === 'nodejs' ? {
-        lat: apiLng,  // Swap for Node.js API - coordinates appear reversed
-        lng: apiLat
-      } : {
-        lat: apiLat,  // PHP API is correct
-        lng: apiLng
+      const position = {
+        lat: parseFloat(avistamento.latitude),
+        lng: parseFloat(avistamento.longitude)
       };
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
