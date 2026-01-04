@@ -24,7 +24,7 @@ O BioMap suporta uma mundaça entre duas APIs backend: **Node.js** (Vercel) e **
 
 A aplicação inclui um sistema de configuração que permite alternar entre as duas APIs:
 - **Node.js API**: Hospedada no Vercel, utiliza Express.js e serve como API principal
-- **PHP API**: Hospedada no Railway, utiliza PHP Slim Framework como alternativa
+- **PHP API**: Hospedada no Railway, utiliza PHP como alternativa
 
 A preferência do utilizador é guardada no `localStorage` do navegador e persiste entre páginas. O toggle está disponível no header de todas as páginas da aplicação.
 
@@ -33,9 +33,8 @@ A preferência do utilizador é guardada no `localStorage` do navegador e persis
 | Propriedade | Node.js API | PHP API |
 |------------|-------------|---------|
 | **Hosting** | Vercel | Railway |
-| **URL Local** | `http://localhost:3000` | `https://biomap-production.up.railway.app` |
-| **URL Produção** | `https://bio-map-xi.vercel.app` | `https://biomap-production.up.railway.app` |
-| **Framework** | Express.js (Node.js) | Slim Framework (PHP) |
+| **URL** | `https://bio-map-xi.vercel.app` | `https://biomap-production.up.railway.app` |
+| **Framework** | Express.js (Node.js) | PHP |
 | **Endpoints Password Reset** | Sempre utilizado | Não suportado (usa Node.js) |
 
 ### Endpoints especiais
