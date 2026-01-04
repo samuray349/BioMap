@@ -88,8 +88,10 @@ const ENDPOINT_MAP = {
     'animaisDesc/:id': 'animais/get.php',
     'animais/:id': 'animais/update.php', // For PUT/DELETE, router will handle method
     'api/alerts': 'alerts/list.php',
+    'api/alerts/:id': 'alerts/delete.php', // For DELETE, router will handle method
     'instituicoes': 'instituicoes/list.php',
-    'instituicoesDesc/:id': 'instituicoes/get.php'
+    'instituicoesDesc/:id': 'instituicoes/get.php',
+    'instituicoes/:id': 'instituicoes/update.php' // For PUT/DELETE, router will handle method
 };
 
 /**
@@ -148,11 +150,13 @@ function mapToPhpEndpoint(nodeEndpoint) {
                     // Extract ID parameter
                     const id = match[1];
                     
-                    // For animais/:id and users/:id with PUT/DELETE, keep path structure
-                    // Router expects /animais/4 or /users/4 for PUT/DELETE
-                    if ((nodePattern === 'animais/:id' || nodePattern === 'users/:id') && 
-                        (cleanEndpoint.startsWith('animais/') || cleanEndpoint.startsWith('users/'))) {
-                        // Keep as-is: animais/4 or users/4 (router will handle method)
+                    // For animais/:id, users/:id, instituicoes/:id, and api/alerts/:id, keep path structure for PUT/DELETE
+                    // Router expects /animais/4, /users/4, /instituicoes/4, or /api/alerts/4 for PUT/DELETE
+                    if ((nodePattern === 'animais/:id' || nodePattern === 'users/:id' || 
+                         nodePattern === 'instituicoes/:id' || nodePattern === 'api/alerts/:id') && 
+                        (cleanEndpoint.startsWith('animais/') || cleanEndpoint.startsWith('users/') ||
+                         cleanEndpoint.startsWith('instituicoes/') || cleanEndpoint.startsWith('api/alerts/'))) {
+                        // Keep as-is: animais/4, users/4, instituicoes/4, or api/alerts/4 (router will handle method)
                         phpEndpoint = cleanEndpoint;
                     } else {
                         // For GET requests, use query parameters: animais/get.php?id=123

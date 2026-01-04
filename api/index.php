@@ -56,7 +56,7 @@ if (preg_match('#^/api/(login|signup|check-user|forgot-password|reset-password)$
 }
 
 // User routes - support both /users and direct file paths
-if ($requestMethod === 'GET' && ($path === '/users' || $path === '/users/list.php')) {
+if ($requestMethod === 'GET' && (preg_match('#^/users(/list\.php)?/?$#', $path) || $path === '/users' || $path === '/users/list.php' || $path === '/users/')) {
     require __DIR__ . '/users/list.php';
     exit;
 }
@@ -128,7 +128,7 @@ if (preg_match('#^/users/(\d+)/estado$#', $path, $matches) || preg_match('#^/use
 }
 
 // Animal routes - support both /animais and direct file paths
-if ($requestMethod === 'GET' && (preg_match('#^/animais(/list\.php)?$#', $path) || $path === '/animais' || $path === '/animais/list.php')) {
+if ($requestMethod === 'GET' && (preg_match('#^/animais(/list\.php)?/?$#', $path) || $path === '/animais' || $path === '/animais/list.php' || $path === '/animais/')) {
     require __DIR__ . '/animais/list.php';
     exit;
 }
@@ -177,7 +177,7 @@ if (preg_match('#^/animais/(\d+)$#', $path, $matches) || preg_match('#^/animais/
 }
 
 // Institution routes - support both /instituicoes and /instituicoes/list.php
-if ($requestMethod === 'GET' && ($path === '/instituicoes' || $path === '/instituicoes/list.php')) {
+if ($requestMethod === 'GET' && (preg_match('#^/instituicoes(/list\.php)?/?$#', $path) || $path === '/instituicoes' || $path === '/instituicoes/list.php' || $path === '/instituicoes/')) {
     require __DIR__ . '/instituicoes/list.php';
     exit;
 }
@@ -218,7 +218,7 @@ if (preg_match('#^/instituicoes/(\d+)$#', $path, $matches) || preg_match('#^/ins
 // Alert routes - support both /api/alerts and /alerts/list.php
 // Handle direct file path access
 if ($requestMethod === 'GET') {
-    if ($path === '/api/alerts' || $path === '/alerts/list.php') {
+    if ($path === '/api/alerts' || $path === '/api/alerts/' || $path === '/alerts/list.php' || preg_match('#^/alerts(/list\.php)?/?$#', $path)) {
         require __DIR__ . '/alerts/list.php';
         exit;
     }
