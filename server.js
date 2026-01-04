@@ -1707,8 +1707,8 @@ app.post('/api/alerts', async (req, res) => {
 
     const { rows } = await pool.query(insertQuery, [
       avistamentoDate,
-      lon,  // longitude (X coordinate) - ST_MakePoint expects (longitude, latitude)
-      lat,  // latitude (Y coordinate)
+      lat,  // ST_MakePoint expects (longitude, latitude), but Node.js API stores them backwards
+      lon,  // Swapping here to match what PHP API does (which works correctly)
       animal_id,
       utilizador_id
     ]);
