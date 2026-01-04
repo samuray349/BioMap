@@ -944,15 +944,9 @@ async function loadAvistamentos() {
 
     avistamentos.forEach(avistamento => {
       // Extract coordinates from API
-      // Note: Due to how PostGIS stores coordinates, the "latitude" field contains longitude value
-      // and "longitude" field contains latitude value (same issue as instituições)
-      const apiLat = parseFloat(avistamento.latitude);
-      const apiLng = parseFloat(avistamento.longitude);
-      
-      // Swap them: API's "latitude" field contains longitude value, and "longitude" field contains latitude value
       const position = {
-        lat: apiLng,  // Use longitude field value as latitude
-        lng: apiLat   // Use latitude field value as longitude
+        lat: parseFloat(avistamento.latitude),
+        lng: parseFloat(avistamento.longitude)
       };
 
       if (isNaN(position.lat) || isNaN(position.lng)) {
@@ -1135,15 +1129,9 @@ async function loadInstituicoes() {
 
     instituicoes.forEach((instituicao, index) => {
       // Extract coordinates from API
-      // Note: The API returns latitude/longitude, but due to how PostGIS stores them,
-      // we need to swap the values: the "latitude" field contains longitude and vice versa
-      const apiLat = parseFloat(instituicao.latitude);
-      const apiLng = parseFloat(instituicao.longitude);
-      
-      // Swap them: API's "latitude" field contains longitude value, and "longitude" field contains latitude value
       const position = {
-        lat: apiLng,  // Use longitude field value as latitude
-        lng: apiLat   // Use latitude field value as longitude
+        lat: parseFloat(instituicao.latitude),
+        lng: parseFloat(instituicao.longitude)
       };
 
 
