@@ -714,10 +714,8 @@ function initMap() {
     }
   });
 
-  // Load and display avistamentos dynamically
   loadAvistamentos();
-  
-  // Load and display instituições dynamically (ensure icon is ready)
+
   loadInstituicoes();
 
   // Fetch filter options from API and initialize dropdowns
