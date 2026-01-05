@@ -28,24 +28,10 @@ const API_PROVIDER = getApiProvider();
 const NODEJS_API_BASE_URL = 'https://bio-map-xi.vercel.app';
 
 // ============================================================================
-// PHP API CONFIGURATION (Railway or Hostinger)
+// PHP API CONFIGURATION (Railway)
 // ============================================================================
-function getPhpApiBaseUrl() {
-    // Option 1: Railway (external hosting)
-    const RAILWAY_API_URL = 'https://biomap-production.up.railway.app';
-    
-    // Option 2: Hostinger (same domain) - fallback
-    // const HOSTINGER_API_URL = window.location.origin + '/public/api/php';
-    
-    if (typeof window !== 'undefined') {
-        // Use Railway URL (external PHP API)
-        return RAILWAY_API_URL;
-    }
-    
-    return RAILWAY_API_URL;
-}
 
-const PHP_API_BASE_URL = getPhpApiBaseUrl();
+const PHP_API_BASE_URL = 'https://biomap-production.up.railway.app'
 
 // ============================================================================
 // ENDPOINT MAPPING (Node.js to PHP)
