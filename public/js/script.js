@@ -896,6 +896,7 @@ async function loadAvistamentos() {
 
     // Fetch avistamentos from API
     const queryString = params.toString();
+    // Ternary: if queryString exists, append it with "?", otherwise use base endpoint
     const apiUrl = getApiUrl(queryString ? `api/alerts?${queryString}` : 'api/alerts');
     const response = await fetch(apiUrl);
     if (!response.ok) {
@@ -1057,6 +1058,7 @@ async function loadInstituicoes() {
 
     // Fetch instituições from API
     const queryString = params.toString();
+    // Ternary: if queryString exists, append it with "?", otherwise use base endpoint
     const apiUrl = getApiUrl(queryString ? `instituicoes?${queryString}` : 'instituicoes');
     const response = await fetch(apiUrl);
     if (!response.ok) {

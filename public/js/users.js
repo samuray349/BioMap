@@ -235,6 +235,7 @@ async function fetchUsers(filters = {}) {
         }
         
         const queryString = params.toString();
+        // Ternary: if queryString exists, append it with "?", otherwise use base endpoint
         const apiUrl = getApiUrl(queryString ? `users?${queryString}` : 'users');
         const response = await fetch(apiUrl);
         if (!response.ok) {

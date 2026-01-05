@@ -63,9 +63,11 @@ try {
         
         Database::commit();
         
-        // Note: Image deletion from Hostinger would need to be handled separately
-        // as it requires calling the delete_image.php endpoint
-        // For now, we just delete from database
+        // After successful DB deletion, try to delete the image file from Hostinger
+        if ($imageUrl && trim($imageUrl) !== '') {
+            // Attempt to delete image (non-blocking - errors are logged but don't fail the request)
+            deleteImageFile($imageUrl, 'animal');
+        }
         
         sendJson(['message' => 'Animal deletado com sucesso.']);
     } catch (Exception $e) {

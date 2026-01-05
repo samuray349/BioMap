@@ -22,6 +22,7 @@ async function fetchAnimals(filters = {}) {
         }
         
         const queryString = params.toString();
+        // Ternary: if queryString exists, append it with "?", otherwise use base endpoint
         const apiUrl = getApiUrl(queryString ? `animais?${queryString}` : 'animais');
         const response = await fetch(apiUrl);
         if (!response.ok) {

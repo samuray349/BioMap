@@ -40,6 +40,8 @@ try {
             sendError('Instituição not found.', 404);
         }
         
+        $imageUrl = $instituicao['url_imagem'];
+        
         // Delete the institution
         Database::execute(
             'DELETE FROM instituicao WHERE instituicao_id = ?',
@@ -48,7 +50,12 @@ try {
         
         Database::commit();
         
-        // Note: Image deletion from Hostinger would need to be handled separately
+        // After successful DB deletion, try to delete the image file from Hostinger
+        if ($imageUrl && trim($imageUrl) !== '' && $imageUrl !== 'img/placeholder.jpg') {
+            // Attempt to delete image (non-blocking - errors are logged but don't fail the request)
+            deleteImageFile($imageUrl, 'instituicao');
+        }
+        
         sendJson(['message' => 'Instituição deletada com sucesso.']);
     } catch (Exception $e) {
         Database::rollback();
