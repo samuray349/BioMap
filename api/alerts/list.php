@@ -86,12 +86,6 @@ try {
     
     $sqlQuery .= ' ORDER BY av.data_avistamento DESC';
     
-    // Debug logging (can be removed later)
-    if (!empty($search) || !empty($families) || !empty($states)) {
-        error_log('[Alerts List] Query: ' . $sqlQuery);
-        error_log('[Alerts List] Params: ' . print_r($params, true));
-    }
-    
     $results = Database::query($sqlQuery, $params);
     
     // Ensure coordinates are numeric (convert from string to float if needed)

@@ -54,7 +54,7 @@ if (preg_match('#^/api/(login|signup|check-user)$#', $path, $matches)) {
 }
 
 // User routes - support both /users and direct file paths
-if ($requestMethod === 'GET' && (preg_match('#^/users(/list\.php)?/?$#', $path) || $path === '/users' || $path === '/users/list.php' || $path === '/users/')) {
+if ($requestMethod === 'GET' && (preg_match('#^/users(/list\.php)?/?$#', $path) || $path === '/users/list.php')) {
     require __DIR__ . '/users/list.php';
     exit;
 }
@@ -69,31 +69,29 @@ if ($requestMethod === 'GET' && ($path === '/users/estatutos' || $path === '/use
     exit;
 }
 
-if (preg_match('#^/users/(\d+)$#', $path, $matches) || preg_match('#^/users/get\.php$#', $path)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/users/(\d+)$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+if (preg_match('#^/users/(\d+)$#', $path, $matches) || $path === '/users/get.php') {
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'GET') {
         require __DIR__ . '/users/get.php';
         exit;
     }
-    if ($requestMethod === 'PUT' || preg_match('#^/users/update\.php$#', $path)) {
+    if ($requestMethod === 'PUT' || $path === '/users/update.php') {
         require __DIR__ . '/users/update.php';
         exit;
     }
-    if ($requestMethod === 'DELETE' || preg_match('#^/users/delete\.php$#', $path)) {
+    if ($requestMethod === 'DELETE' || $path === '/users/delete.php') {
         require __DIR__ . '/users/delete.php';
         exit;
     }
 }
 
-if (preg_match('#^/users/(\d+)/password$#', $path, $matches) || preg_match('#^/users/update_password\.php$#', $path)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/users/(\d+)/password$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+if (preg_match('#^/users/(\d+)/password$#', $path, $matches) || $path === '/users/update_password.php') {
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'PUT') {
         require __DIR__ . '/users/update_password.php';
@@ -101,11 +99,10 @@ if (preg_match('#^/users/(\d+)/password$#', $path, $matches) || preg_match('#^/u
     }
 }
 
-if (preg_match('#^/users/(\d+)/funcao$#', $path, $matches) || preg_match('#^/users/update_funcao\.php$#', $path)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/users/(\d+)/funcao$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+if (preg_match('#^/users/(\d+)/funcao$#', $path, $matches) || $path === '/users/update_funcao.php') {
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'PUT') {
         require __DIR__ . '/users/update_funcao.php';
@@ -113,11 +110,10 @@ if (preg_match('#^/users/(\d+)/funcao$#', $path, $matches) || preg_match('#^/use
     }
 }
 
-if (preg_match('#^/users/(\d+)/estado$#', $path, $matches) || preg_match('#^/users/update_estado\.php$#', $path)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/users/(\d+)/estado$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+if (preg_match('#^/users/(\d+)/estado$#', $path, $matches) || $path === '/users/update_estado.php') {
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'PUT') {
         require __DIR__ . '/users/update_estado.php';
@@ -126,12 +122,12 @@ if (preg_match('#^/users/(\d+)/estado$#', $path, $matches) || preg_match('#^/use
 }
 
 // Animal routes - support both /animais and direct file paths
-if ($requestMethod === 'GET' && (preg_match('#^/animais(/list\.php)?/?$#', $path) || $path === '/animais' || $path === '/animais/list.php' || $path === '/animais/')) {
+if ($requestMethod === 'GET' && (preg_match('#^/animais(/list\.php)?/?$#', $path) || $path === '/animais/list.php')) {
     require __DIR__ . '/animais/list.php';
     exit;
 }
 
-if ($requestMethod === 'POST' && (preg_match('#^/animais(/create\.php)?/?$#', $path) || $path === '/animais' || $path === '/animais/create.php' || $path === '/animais/')) {
+if ($requestMethod === 'POST' && (preg_match('#^/animais(/create\.php)?/?$#', $path) || $path === '/animais/create.php')) {
     require __DIR__ . '/animais/create.php';
     exit;
 }
@@ -146,11 +142,10 @@ if ($requestMethod === 'GET' && ($path === '/animais/estados' || $path === '/ani
     exit;
 }
 
-if (preg_match('#^/animaisDesc/(\d+)$#', $path, $matches) || preg_match('#^/animais/get\.php$#', $path)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/animaisDesc/(\d+)$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+if (preg_match('#^/animaisDesc/(\d+)$#', $path, $matches) || $path === '/animais/get.php') {
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'GET') {
         require __DIR__ . '/animais/get.php';
@@ -159,10 +154,9 @@ if (preg_match('#^/animaisDesc/(\d+)$#', $path, $matches) || preg_match('#^/anim
 }
 
 if (preg_match('#^/animais/(\d+)$#', $path, $matches) || preg_match('#^/animais/(update|delete)\.php$#', $path, $fileMatches)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/animais/(\d+)$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'PUT' || (isset($fileMatches) && $fileMatches[1] === 'update')) {
         require __DIR__ . '/animais/update.php';
@@ -175,21 +169,20 @@ if (preg_match('#^/animais/(\d+)$#', $path, $matches) || preg_match('#^/animais/
 }
 
 // Institution routes - support both /instituicoes and /instituicoes/list.php
-if ($requestMethod === 'GET' && (preg_match('#^/instituicoes(/list\.php)?/?$#', $path) || $path === '/instituicoes' || $path === '/instituicoes/list.php' || $path === '/instituicoes/')) {
+if ($requestMethod === 'GET' && (preg_match('#^/instituicoes(/list\.php)?/?$#', $path) || $path === '/instituicoes/list.php')) {
     require __DIR__ . '/instituicoes/list.php';
     exit;
 }
 
-if ($requestMethod === 'POST' && (preg_match('#^/instituicoes(/create\.php)?/?$#', $path) || $path === '/instituicoes' || $path === '/instituicoes/create.php' || $path === '/instituicoes/')) {
+if ($requestMethod === 'POST' && (preg_match('#^/instituicoes(/create\.php)?/?$#', $path) || $path === '/instituicoes/create.php')) {
     require __DIR__ . '/instituicoes/create.php';
     exit;
 }
 
-if (preg_match('#^/instituicoesDesc/(\d+)$#', $path, $matches) || preg_match('#^/instituicoes/get\.php$#', $path)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/instituicoesDesc/(\d+)$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+if (preg_match('#^/instituicoesDesc/(\d+)$#', $path, $matches) || $path === '/instituicoes/get.php') {
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'GET') {
         require __DIR__ . '/instituicoes/get.php';
@@ -198,10 +191,9 @@ if (preg_match('#^/instituicoesDesc/(\d+)$#', $path, $matches) || preg_match('#^
 }
 
 if (preg_match('#^/instituicoes/(\d+)$#', $path, $matches) || preg_match('#^/instituicoes/(update|delete)\.php$#', $path, $fileMatches)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/instituicoes/(\d+)$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'PUT' || (isset($fileMatches) && $fileMatches[1] === 'update')) {
         require __DIR__ . '/instituicoes/update.php';
@@ -214,27 +206,20 @@ if (preg_match('#^/instituicoes/(\d+)$#', $path, $matches) || preg_match('#^/ins
 }
 
 // Alert routes - support both /api/alerts and /alerts/list.php
-// Handle direct file path access
-if ($requestMethod === 'GET') {
-    if ($path === '/api/alerts' || $path === '/api/alerts/' || $path === '/alerts/list.php' || preg_match('#^/alerts(/list\.php)?/?$#', $path)) {
-        require __DIR__ . '/alerts/list.php';
-        exit;
-    }
+if ($requestMethod === 'GET' && ($path === '/api/alerts' || $path === '/api/alerts/' || $path === '/alerts/list.php' || preg_match('#^/alerts(/list\.php)?/?$#', $path))) {
+    require __DIR__ . '/alerts/list.php';
+    exit;
 }
 
-if ($requestMethod === 'POST') {
-    if ($path === '/api/alerts' || $path === '/api/alerts/' || preg_match('#^/api/alerts/?$#', $path) || 
-        $path === '/alerts/create.php' || preg_match('#^/alerts/create\.php/?$#', $path)) {
-        require __DIR__ . '/alerts/create.php';
-        exit;
-    }
+if ($requestMethod === 'POST' && ($path === '/api/alerts' || $path === '/api/alerts/' || preg_match('#^/api/alerts/?$#', $path) || $path === '/alerts/create.php')) {
+    require __DIR__ . '/alerts/create.php';
+    exit;
 }
 
-if (preg_match('#^/api/alerts/(\d+)$#', $path, $matches) || preg_match('#^/alerts/delete\.php$#', $path)) {
-    // For direct file access, ID should be in query string
-    if (preg_match('#^/api/alerts/(\d+)$#', $path, $matches)) {
-        $id = $matches[1];
-        $_GET['id'] = $id;
+if (preg_match('#^/api/alerts/(\d+)$#', $path, $matches) || $path === '/alerts/delete.php') {
+    // Extract ID from path if present
+    if (isset($matches[1])) {
+        $_GET['id'] = $matches[1];
     }
     if ($requestMethod === 'DELETE') {
         require __DIR__ . '/alerts/delete.php';

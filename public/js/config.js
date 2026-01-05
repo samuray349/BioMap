@@ -30,8 +30,7 @@ const NODEJS_API_BASE_URL = 'https://bio-map-xi.vercel.app';
 // ============================================================================
 // PHP API CONFIGURATION (Railway)
 // ============================================================================
-
-const PHP_API_BASE_URL = 'https://biomap-production.up.railway.app'
+const PHP_API_BASE_URL = 'https://biomap-production.up.railway.app';
 
 // ============================================================================
 // ENDPOINT MAPPING (Node.js to PHP)
@@ -71,7 +70,7 @@ const ENDPOINT_MAP = {
  * Handles parameterized routes (e.g., users/123 -> users/get.php?id=123)
  */
 function mapToPhpEndpoint(nodeEndpoint) {
-    // Split endpoint and query string FIRST - handle empty query strings properly
+    // Split endpoint and query string
     let endpoint = nodeEndpoint;
     let queryString = null;
     
@@ -79,8 +78,7 @@ function mapToPhpEndpoint(nodeEndpoint) {
     if (questionMarkIndex !== -1) {
         endpoint = nodeEndpoint.substring(0, questionMarkIndex);
         const afterQuestion = nodeEndpoint.substring(questionMarkIndex + 1);
-        // Only set queryString if there's actual content after the ?
-        if (afterQuestion && afterQuestion.trim().length > 0) {
+        if (afterQuestion?.trim()) {
             queryString = afterQuestion;
         }
     }
@@ -91,20 +89,10 @@ function mapToPhpEndpoint(nodeEndpoint) {
     let phpEndpoint;
     let directMappingFound = false;
     
-    // Check direct mapping first (without query string)
-    // Use hasOwnProperty to ensure exact match
-    if (typeof ENDPOINT_MAP === 'undefined') {
-        phpEndpoint = cleanEndpoint.replace(/\//g, '_') + '.php';
-        directMappingFound = false;
-    } else {
-        const hasMapping = ENDPOINT_MAP.hasOwnProperty(cleanEndpoint);
-        if (hasMapping) {
-            phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
-            directMappingFound = true;
-            // For base paths like 'api/alerts', keep them as-is so router can handle GET/POST
-        } else {
-            directMappingFound = false;
-        }
+    // Check direct mapping first
+    if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint)) {
+        phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
+        directMappingFound = true;
     }
     
     // Only do fallback mapping if direct mapping wasn't found
@@ -123,14 +111,10 @@ function mapToPhpEndpoint(nodeEndpoint) {
                     
                     // For animais/:id, users/:id, instituicoes/:id, and api/alerts/:id, keep path structure for PUT/DELETE
                     // Router expects /animais/4, /users/4, /instituicoes/4, or /api/alerts/4 for PUT/DELETE
-                    if ((nodePattern === 'animais/:id' || nodePattern === 'users/:id' || 
-                         nodePattern === 'instituicoes/:id' || nodePattern === 'api/alerts/:id') && 
-                        (cleanEndpoint.startsWith('animais/') || cleanEndpoint.startsWith('users/') ||
-                         cleanEndpoint.startsWith('instituicoes/') || cleanEndpoint.startsWith('api/alerts/'))) {
-                        // Keep as-is: animais/4, users/4, instituicoes/4, or api/alerts/4 (router will handle method)
+                    if (nodePattern === 'animais/:id' || nodePattern === 'users/:id' || 
+                        nodePattern === 'instituicoes/:id' || nodePattern === 'api/alerts/:id') {
                         phpEndpoint = cleanEndpoint;
                     } else {
-                        // For GET requests, use query parameters: animais/get.php?id=123
                         phpEndpoint = phpFile + '?id=' + id;
                     }
                     matched = true;
@@ -153,15 +137,8 @@ function mapToPhpEndpoint(nodeEndpoint) {
                 const withoutApi = cleanEndpoint.replace(/^api_/, '');
                 phpEndpoint = withoutApi + '/list.php';
             } else if (cleanEndpoint.startsWith('api/')) {
-                // For api/alerts, keep as api/alerts (router handles GET/POST)
-                // This fallback should only happen if direct mapping wasn't found
-                if (cleanEndpoint === 'api/alerts') {
-                    // This should have been caught by direct mapping, but if we're here, use router path
-                    phpEndpoint = 'api/alerts'; // Keep base path for router
-                } else {
-                    // Convert other api/* endpoints to */list.php
-                    phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';
-                }
+                // Convert api/* endpoints to */list.php
+                phpEndpoint = cleanEndpoint.replace(/^api\//, '') + '/list.php';
             } else if (cleanEndpoint.includes('/')) {
                 // Already has path structure, check if it matches a known endpoint
                 // For endpoints like "animais" that map to list.php, ensure we use the correct path
@@ -180,51 +157,42 @@ function mapToPhpEndpoint(nodeEndpoint) {
                     phpEndpoint = cleanEndpoint + '.php';
                 }
             } else {
-                // Single word, check if it's in the map first
-                if (ENDPOINT_MAP.hasOwnProperty(cleanEndpoint)) {
-                    phpEndpoint = ENDPOINT_MAP[cleanEndpoint];
-                } else {
-                    // Single word, add /list.php
-                    phpEndpoint = cleanEndpoint + '/list.php';
-                }
+                // Single word, add /list.php (shouldn't happen if all endpoints are mapped)
+                phpEndpoint = cleanEndpoint + '/list.php';
             }
             }
         }
     }
     
-    // IMPORTANT: Clean query string BEFORE appending to prevent .php contamination
-    // Re-append query string if it exists and is not empty (but handle existing query params in phpEndpoint)
-    if (queryString && queryString.length > 0) {
-        let trimmedQuery = queryString.trim();
-        if (trimmedQuery.length > 0) {
-            // CRITICAL: Remove .php from query parameter VALUES
-            // Split by & to handle multiple parameters
-            const params = trimmedQuery.split('&');
-            const cleanedParams = params.map(param => {
-                if (param.includes('=')) {
-                    const [key, ...valueParts] = param.split('=');
-                    let value = valueParts.join('='); // Rejoin in case value has = in it
-                    // URL decode, clean .php, then re-encode
-                    try {
-                        value = decodeURIComponent(value);
-                        // Remove .php from anywhere in the value (not just at the end)
-                        value = value.replace(/\.php/g, '');
-                        value = encodeURIComponent(value);
-                    } catch (e) {
-                        // If decoding fails, just remove .php directly
-                        value = value.replace(/\.php/g, '');
-                    }
-                    return key + '=' + value;
+    // Re-append query string if it exists and is not empty
+    if (queryString?.trim()) {
+        const trimmedQuery = queryString.trim();
+        // CRITICAL: Remove .php from query parameter VALUES
+        // Split by & to handle multiple parameters
+        const params = trimmedQuery.split('&');
+        const cleanedParams = params.map(param => {
+            if (param.includes('=')) {
+                const [key, ...valueParts] = param.split('=');
+                let value = valueParts.join('='); // Rejoin in case value has = in it
+                // URL decode, clean .php, then re-encode
+                try {
+                    value = decodeURIComponent(value);
+                    // Remove .php from anywhere in the value (not just at the end)
+                    value = value.replace(/\.php/g, '');
+                    value = encodeURIComponent(value);
+                } catch (e) {
+                    // If decoding fails, just remove .php directly
+                    value = value.replace(/\.php/g, '');
                 }
-                // If no = sign, it might be just a value - still clean it
-                return param.replace(/\.php/g, '');
-            });
-            
-            const cleanQueryString = cleanedParams.join('&');
-            
-            const separator = phpEndpoint.includes('?') ? '&' : '?';
-            phpEndpoint = phpEndpoint + separator + cleanQueryString;
-        }
+                return key + '=' + value;
+            }
+            // If no = sign, it might be just a value - still clean it
+            return param.replace(/\.php/g, '');
+        });
+        
+        const cleanQueryString = cleanedParams.join('&');
+        const separator = phpEndpoint.includes('?') ? '&' : '?';
+        phpEndpoint = phpEndpoint + separator + cleanQueryString;
     }
     
     return phpEndpoint;
@@ -286,11 +254,5 @@ if (typeof window !== 'undefined') {
         getUrl: getApiUrl,
         isNodeJs: () => API_PROVIDER === 'nodejs',
         isPhp: () => API_PROVIDER === 'php',
-        switchToNodeJs: () => {
-            // API_PROVIDER is read-only. Change it in config.js file.
-        },
-        switchToPhp: () => {
-            // API_PROVIDER is read-only. Change it in config.js file.
-        }
     };
 }

@@ -36,11 +36,7 @@ function initApiToggle() {
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        // Wait a bit for header to load
-        setTimeout(initApiToggle, 200);
-    });
+    document.addEventListener('DOMContentLoaded', () => setTimeout(initApiToggle, 200));
 } else {
-    // DOM is already ready, wait a bit for header
     setTimeout(initApiToggle, 200);
 }

@@ -28,12 +28,6 @@ try {
     $families = getQueryParam('families');
     $states = getQueryParam('states');
     
-    // Debug logging
-    error_log('[Animais List] REQUEST_URI: ' . ($_SERVER['REQUEST_URI'] ?? 'not set'));
-    error_log('[Animais List] QUERY_STRING: ' . ($_SERVER['QUERY_STRING'] ?? 'not set'));
-    error_log('[Animais List] $_GET: ' . print_r($_GET, true));
-    error_log('[Animais List] Search: ' . ($search ?? 'null') . ' | Families: ' . ($families ?? 'null') . ' | States: ' . ($states ?? 'null'));
-    
     // Optimized query - use INNER JOIN for better performance
     $sqlQuery = '
         SELECT 
