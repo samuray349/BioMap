@@ -2369,6 +2369,11 @@ p {
     font-weight: 700;
     color: var(--accent-color);
     margin: 0;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .card-header h3 a {
@@ -2386,6 +2391,7 @@ p {
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
+    flex-shrink: 0;
     font-weight: 600;
     white-space: nowrap;
 }

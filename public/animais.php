@@ -111,6 +111,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 12px;
     margin-bottom: 8px;
 }
 
@@ -120,6 +121,11 @@
     color: var(--accent-color);
     margin: 0;
     line-height: 1.2;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Badges de estado de conservação */
@@ -130,6 +136,7 @@
     font-weight: 600;
     text-transform: uppercase;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 
