@@ -7,15 +7,15 @@
  * pages. It sets $STATUS_CHECK with the API result and provides helper
  * function require_funcao_or_redirect() to enforce role-based redirects.
  *
- * Note: The API base URL defaults to http://localhost:3000. If your Node API
- * runs on a different host/port, set the $_SERVER['API_BASE_URL'] value before
+ * Note: The API base URL defaults to https://bio-map-xi.vercel.app. If your Node API
+ * runs on a different host, set the $_SERVER['API_BASE_URL'] value before
  * including this file or edit the $apiBase fallback below.
  */
 
 require_once __DIR__ . '/session_helper.php';
 
 // Default API base (adjust if your Node server is elsewhere)
-$apiBase = $_SERVER['API_BASE_URL'] ?? 'http://localhost:3000';
+$apiBase = $_SERVER['API_BASE_URL'] ?? 'https://bio-map-xi.vercel.app';
 
 $STATUS_CHECK = [
     'loggedIn' => false,

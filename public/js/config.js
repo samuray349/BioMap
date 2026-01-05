@@ -25,24 +25,7 @@ const API_PROVIDER = getApiProvider();
 // ============================================================================
 // NODE.JS API CONFIGURATION (Vercel)
 // ============================================================================
-function detectNodeJsApiBaseUrl() {
-    if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
-        const isLocalhost = hostname === 'localhost' || 
-                           hostname === '127.0.0.1' || 
-                           hostname === '' ||
-                           hostname.startsWith('192.168.') ||
-                           hostname.startsWith('10.') ||
-                           hostname.endsWith('.local');
-        
-        if (isLocalhost) {
-            return 'http://localhost:3000';
-        }
-    }
-    return 'https://bio-map-xi.vercel.app';
-}
-
-const NODEJS_API_BASE_URL = detectNodeJsApiBaseUrl();
+const NODEJS_API_BASE_URL = 'https://bio-map-xi.vercel.app';
 
 // ============================================================================
 // PHP API CONFIGURATION (Railway or Hostinger)

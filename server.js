@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path2.dirname(__filename);
 const app = express();
 
-// CORS middleware to allow requests from localhost (XAMPP)
+// CORS middleware to allow requests from various origins
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // Allow all origins (you can restrict this to specific domains)
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -2342,7 +2342,7 @@ app.delete('/instituicoes/:id', async (req, res) => {
 // Start the server only if this file is the main module run by Node (i.e. `node server.js`)
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`A correr na porta http://localhost:${PORT}`));
+  app.listen(PORT, () => console.log(`A correr na porta ${PORT}`));
 }
 
 // Export the Express app so other modules (like api/index.js on Vercel) can import it
