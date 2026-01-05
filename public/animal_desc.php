@@ -310,19 +310,51 @@
             }
             if (!/^\d+$/.test(animalId)) {
                 // Case B: ID is not a number (e.g., ?id=abc)
-                document.body.innerHTML = '<h1>Erro: ID inválido.</h1>';
+                showAnimalNotFound();
                 return;
             }
             // Buscar dos animais da API
             const apiUrl = window.API_CONFIG?.getUrl(`animaisDesc/${animalId}`) || `/animaisDesc/${animalId}`;
             const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                if (response.status === 404) {
+                    showAnimalNotFound();
+                    return;
+                }
+                // Other errors
+                const errorData = await response.json().catch(() => ({}));
+                showAnimalNotFound();
+                return;
+            }
+            
             const animal = await response.json();
+            
+            // Check if animal data is valid
+            if (!animal || !animal.animal_id) {
+                showAnimalNotFound();
+                return;
+            }
 
             renderAnimalDesc(animal);   
 
           } catch (error) {
               // Error fetching animal
+              showAnimalNotFound();
           }
+        }
+        
+        function showAnimalNotFound() {
+            const main = document.querySelector('main');
+            if (main) {
+                main.innerHTML = `
+                    <div style="max-width: 800px; margin: 0 auto; text-align: center; padding: 4rem 2rem;">
+                        <h1 style="font-size: 2.5rem; color: var(--accent-color, #198754); margin-bottom: 1rem;">Animal não encontrado</h1>
+                        <p style="font-size: 1.2rem; color: #6b7280; margin-bottom: 2rem;">O animal que procura não existe ou foi removido.</p>
+                        <a href="animais.php" style="display: inline-block; background-color: var(--accent-color, #198754); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">Voltar para Animais</a>
+                    </div>
+                `;
+            }
         }
         function renderAnimalDesc(animal) {
             document.title="BioMap - " + animal.nome_comum;
