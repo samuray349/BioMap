@@ -1,3 +1,12 @@
+<?php
+require_once __DIR__ . '/session_helper.php';
+
+// Redirect logged-in users away from sign up page
+if (isUserLoggedIn()) {
+    header('Location: index.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
