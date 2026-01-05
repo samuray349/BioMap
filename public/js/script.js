@@ -718,16 +718,7 @@ function initMap() {
   loadAvistamentos();
   
   // Load and display instituições dynamically (ensure icon is ready)
-  // houseMarkerIcon is initialized just before this, so it should be ready
-  if (houseMarkerIcon) {
-    loadInstituicoes();
-  } else {
-    setTimeout(() => {
-      if (houseMarkerIcon) {
-        loadInstituicoes();
-      }
-    }, 200);
-  }
+  loadInstituicoes();
 
   // Fetch filter options from API and initialize dropdowns
   (async () => {
