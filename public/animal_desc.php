@@ -361,8 +361,16 @@
             document.getElementById('nome-comum').textContent = animal.nome_comum;
             document.getElementById('nome-cientifico').textContent = animal.nome_cientifico;
             document.getElementById('estado-conservacao').textContent = animal.nome_estado;
-            document.getElementById('estado-conservacao').style.backgroundColor = animal.estado_cor;
-            document.getElementById('estado-conservacao-icon').style.backgroundColor = animal.estado_cor;
+            // Use grey for "Não Avaliada" or if color is white
+            const estadoLower = (animal.nome_estado || '').toLowerCase();
+            let badgeColor = animal.estado_cor || '#ccc';
+            if (estadoLower === 'não avaliada' || estadoLower === 'nao avaliada' || 
+                estadoLower === 'não avaliado' || estadoLower === 'nao avaliado' ||
+                badgeColor === '#FFFFFF' || badgeColor === '#ffffff' || badgeColor === 'white') {
+              badgeColor = '#9ca3af'; // Grey color
+            }
+            document.getElementById('estado-conservacao').style.backgroundColor = badgeColor;
+            document.getElementById('estado-conservacao-icon').style.backgroundColor = badgeColor;
             document.getElementById('familia').textContent = animal. nome_familia;
             document.getElementById('dieta').textContent = animal.nome_dieta;
             document.getElementById('descricao').textContent = animal.descricao;

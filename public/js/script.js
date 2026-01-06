@@ -540,7 +540,15 @@ const SpeciesPanel = {
         this.elements.badge.style.display = '';
         this.elements.badge.textContent = details.estado;
         if (details.estadoCor) {
-          this.elements.badge.style.backgroundColor = details.estadoCor;
+          // Use grey for "Não Avaliada" or if color is white
+          const estadoLower = (details.estado || '').toLowerCase();
+          let badgeColor = details.estadoCor;
+          if (estadoLower === 'não avaliada' || estadoLower === 'nao avaliada' || 
+              estadoLower === 'não avaliado' || estadoLower === 'nao avaliado' ||
+              badgeColor === '#FFFFFF' || badgeColor === '#ffffff' || badgeColor === 'white') {
+            badgeColor = '#9ca3af'; // Grey color
+          }
+          this.elements.badge.style.backgroundColor = badgeColor;
         }
       }
     }
@@ -568,7 +576,15 @@ const SpeciesPanel = {
       this.elements.badge.textContent = details.estado;
       // Update badge color if estadoCor is provided
       if (details.estadoCor) {
-        this.elements.badge.style.backgroundColor = details.estadoCor;
+        // Use grey for "Não Avaliada" or if color is white
+        const estadoLower = (details.estado || '').toLowerCase();
+        let badgeColor = details.estadoCor;
+        if (estadoLower === 'não avaliada' || estadoLower === 'nao avaliada' || 
+            estadoLower === 'não avaliado' || estadoLower === 'nao avaliado' ||
+            badgeColor === '#FFFFFF' || badgeColor === '#ffffff' || badgeColor === 'white') {
+          badgeColor = '#9ca3af'; // Grey color
+        }
+        this.elements.badge.style.backgroundColor = badgeColor;
       }
     }
 

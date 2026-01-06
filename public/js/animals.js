@@ -91,6 +91,15 @@ function renderAnimalCards(animals, container, options = {}) {
             `;
         }
         
+        // Determine badge color - use grey for "Não Avaliada" or if estado_cor is white
+        let badgeColor = animal.estado_cor || '#ccc';
+        const estadoLower = (animal.nome_estado || '').toLowerCase();
+        if (estadoLower === 'não avaliada' || estadoLower === 'nao avaliada' || 
+            estadoLower === 'não avaliado' || estadoLower === 'nao avaliado' ||
+            badgeColor === '#FFFFFF' || badgeColor === '#ffffff' || badgeColor === 'white') {
+            badgeColor = '#9ca3af'; // Grey color
+        }
+        
         card.innerHTML = `
             <img src="${animal.url_imagem || 'img/placeholder.jpg'}" 
                  alt="${animal.nome_comum}" 
@@ -99,7 +108,7 @@ function renderAnimalCards(animals, container, options = {}) {
             <div class="card-content">
                 <div class="card-header">
                     <h3>${animal.nome_comum}</h3>
-                    <span class="badge" style="background-color: ${animal.estado_cor || '#ccc'}; color: white;">
+                    <span class="badge" style="background-color: ${badgeColor}; color: white;">
                         ${animal.nome_estado}
                     </span>
                 </div>
@@ -166,12 +175,23 @@ function renderAnimalTable(animals, tbody) {
             badgeClass += ' vulnerable';
         } else if (stateLower.includes('quase') || stateLower.includes('ameaçada') || stateLower.includes('ameacada')) {
             badgeClass += ' threatened';
+        } else if (stateLower === 'não avaliada' || stateLower === 'nao avaliada' || 
+                   stateLower === 'não avaliado' || stateLower === 'nao avaliado') {
+            badgeClass += ' unknown';
+        }
+        
+        // Determine badge color - use grey for "Não Avaliada" or if estado_cor is white
+        let badgeColor = animal.estado_cor || '#ccc';
+        if (stateLower === 'não avaliada' || stateLower === 'nao avaliada' || 
+            stateLower === 'não avaliado' || stateLower === 'nao avaliado' ||
+            badgeColor === '#FFFFFF' || badgeColor === '#ffffff' || badgeColor === 'white') {
+            badgeColor = '#9ca3af'; // Grey color
         }
         
         row.innerHTML = `
             <td><a href="animal_desc.php?id=${animal.animal_id}" style="color: var(--accent-color);">${animal.nome_comum}</a></td>
             <td>${animal.nome_familia}</td>
-            <td><span class="${badgeClass}" style="background-color: ${animal.estado_cor || '#ccc'}; color: white;">${animal.nome_estado}</span></td>
+            <td><span class="${badgeClass}" style="background-color: ${badgeColor}; color: white;">${animal.nome_estado}</span></td>
             <td><i class="fas fa-sync-alt update-icon" data-animal-id="${animal.animal_id}" style="cursor: pointer;"></i></td>
             <td><i class="fas fa-ban ban-icon" data-animal-id="${animal.animal_id}" style="cursor: pointer;"></i></td>
         `;
