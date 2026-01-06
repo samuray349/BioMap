@@ -473,6 +473,7 @@ checkAccess(ACCESS_ADMIN);
             }
         }
 
+        .preview-section .status-badge.unknown { background-color: #9ca3af; color: #fff; }   /* Grey */
         .preview-section .status-badge.threatened { background-color: #99CC33; color: #fff; }   /* Green */
     .preview-section .status-badge.vulnerable { background-color: #FFCC00; color: #fff; }   /* Yellow */
     .preview-section .status-badge.endangered { background-color: #FF6600; color: #fff; }   /* Orange */
@@ -480,6 +481,7 @@ checkAccess(ACCESS_ADMIN);
     .preview-section .status-badge.extinct   { background-color: #828282; color: #fff; }   /* Gray */
 
     /* Colors for the Mini Badge (.badge) - ensuring they match */
+    .preview-section .badge.unknown { background-color: #9ca3af !important; color: #fff; }
     .preview-section .badge.threatened { background-color: #99CC33 !important; color: #fff; }
     .preview-section .badge.vulnerable { background-color: #FFCC00 !important; color: #fff; }
     .preview-section .badge.endangered { background-color: #FF6600 !important; color: #fff; }

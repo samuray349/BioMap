@@ -2064,6 +2064,11 @@ p {
 }
 
 /* Additional status badge colors for animals */
+.status-unknown {
+    background-color: #9ca3af;
+    color: #ffffff;
+}
+
 .status-critical {
     background-color: #d32f2f;
     color: #ffffff;
@@ -2396,6 +2401,7 @@ p {
     white-space: nowrap;
 }
 
+.badge.unknown         { background: #9ca3af; color: #fff; }   /* Cinza */
 .badge.vulnerable      { background: #FFCC00; color: #fff; }   /* Amarelo */
 .badge.threatened      { background: #99CC33; color: #fff; }   /* Verde */
 .badge.endangered      { background: #FF6600; color: #fff; }   /* Laranja – ajustado para "Em perigo" */
